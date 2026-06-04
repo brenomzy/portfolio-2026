@@ -1,0 +1,166 @@
+---
+import Base from "../../layouts/Base.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import SanityImage from "../../components/SanityImage.astro";
+import PortableText from "../../components/PortableText.astro";
+import { sanityClient } from "../../lib/sanity/client";
+import {
+	PROJECT_SLUGS_QUERY,
+	PROJECT_BY_SLUG_QUERY,
+} from "../../lib/sanity/queries";
+
+export async function getStaticPaths() {
+	const slugs = await sanityClient.fetch(PROJECT_SLUGS_QUERY);
+	return slugs
+		.filter((slug): slug is string => Boolean(slug))
+		.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const project = await sanityClient.fetch(PROJECT_BY_SLUG_QUERY, { slug: slug! });
+
+if (!project) {
+	return Astro.rewrite("/404");
+}
+
+const meta = [project.client, project.year, project.role?.join(", ")]
+	.filter(Boolean)
+	.join(" · ");
+---
+
+<Base title={`${project.title} — Work`}>
+	<SiteHeader slot="header" />
+
+	<article class="case">
+		<header class="case__header">
+			<a class="case__back" href="/#work">← Back to work</a>
+			<h1 class="case__title">{project.title}</h1>
+			{meta && <p class="case__meta">{meta}</p>}
+			{
+				project.tags && project.tags.length > 0 && (
+					<ul class="case__tags">
+						{project.tags.map((tag) => (
+							<li class="case__tag">{tag}</li>
+						))}
+					</ul>
+				)
+			}
+		</header>
+
+		<div class="case__cover">
+			<SanityImage
+				image={project.cover}
+				alt={project.title}
+				sizes="(min-width: 75rem) 75rem, 100vw"
+				loading="eager"
+			/>
+		</div>
+
+		<div class="case__body">
+			<PortableText value={project.body} />
+		</div>
+
+		{
+			project.gallery && project.gallery.length > 0 && (
+				<ul class="case__gallery">
+					{project.gallery.map((image) => (
+						<li>
+							<SanityImage image={image} sizes="(min-width: 48rem) 50vw, 100vw" />
+						</li>
+					))}
+				</ul>
+			)
+		}
+
+		{
+			project.links && project.links.length > 0 && (
+				<ul class="case__links">
+					{project.links.map((link) => (
+						<li>
+							<a href={link.url} target="_blank" rel="noopener noreferrer">
+								{link.label} ↗
+							</a>
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</article>
+
+	<SiteFooter slot="footer" />
+</Base>
+
+<style>
+	.case {
+		max-width: var(--container-content);
+		margin-inline: auto;
+		padding: var(--spacing-xl) var(--spacing-m);
+		display: grid;
+		gap: var(--spacing-l);
+	}
+	.case__back {
+		display: inline-block;
+		color: var(--text-muted);
+		text-decoration: none;
+		margin-bottom: var(--spacing-s);
+	}
+	.case__back:hover {
+		color: var(--text);
+	}
+	.case__title {
+		font-size: var(--text-step-5);
+	}
+	.case__meta {
+		color: var(--text-muted);
+		margin-top: var(--spacing-2xs);
+	}
+	.case__tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-3xs);
+		list-style: none;
+		padding: 0;
+		margin-top: var(--spacing-s);
+	}
+	.case__tag {
+		font-size: var(--text-step--1);
+		color: var(--text-muted);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		padding: 0.15em 0.6em;
+	}
+	.case__cover {
+		overflow: hidden;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--border);
+		aspect-ratio: 16 / 9;
+	}
+	.case__cover :global(img),
+	.case__cover :global(.c-img-placeholder) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.case__gallery {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(22rem, 100%), 1fr));
+		gap: var(--spacing-m);
+		list-style: none;
+		padding: 0;
+	}
+	.case__gallery :global(img) {
+		border-radius: var(--radius-md);
+	}
+	.case__links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-m);
+		list-style: none;
+		padding: 0;
+	}
+	.case__links a {
+		color: var(--accent-ink);
+		text-decoration: none;
+	}
+</style>

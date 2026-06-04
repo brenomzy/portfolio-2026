@@ -1,0 +1,62 @@
+---
+import { urlForImage } from "../lib/sanity/image";
+import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+
+interface Props {
+	image?: { asset?: unknown; alt?: string } | null;
+	alt?: string;
+	sizes?: string;
+	widths?: number[];
+	loading?: "lazy" | "eager";
+	class?: string;
+}
+
+const {
+	image,
+	alt,
+	sizes = "100vw",
+	widths = [400, 800, 1200, 1600],
+	loading = "lazy",
+	class: className,
+} = Astro.props;
+
+const hasImage = Boolean(image && image.asset);
+const altText = image?.alt ?? alt ?? "";
+
+let src = "";
+let srcset = "";
+
+if (hasImage) {
+	const source = image as SanityImageSource;
+	const maxWidth = widths[widths.length - 1];
+	src = urlForImage(source).width(maxWidth).auto("format").url();
+	srcset = widths
+		.map((w) => `${urlForImage(source).width(w).auto("format").url()} ${w}w`)
+		.join(", ");
+}
+---
+
+{
+	hasImage ? (
+		<img
+			class={className}
+			src={src}
+			srcset={srcset}
+			sizes={sizes}
+			alt={altText}
+			loading={loading}
+			decoding="async"
+		/>
+	) : (
+		<div class:list={["c-img-placeholder", className]} aria-hidden="true" />
+	)
+}
+
+<style>
+	.c-img-placeholder {
+		width: 100%;
+		height: 100%;
+		min-height: 12rem;
+		background: linear-gradient(135deg, var(--surface), var(--surface-raised));
+	}
+</style>

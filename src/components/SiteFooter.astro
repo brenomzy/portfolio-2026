@@ -1,0 +1,85 @@
+---
+import { sanityClient } from "../lib/sanity/client";
+import { SITE_SETTINGS_QUERY } from "../lib/sanity/queries";
+
+const settings = await sanityClient.fetch(SITE_SETTINGS_QUERY);
+const socials = settings?.socials ?? [];
+const email = settings?.email;
+const brand = settings?.title ?? "Portfolio";
+const year = new Date().getFullYear();
+---
+
+<footer class="c-footer">
+	<div class="c-footer__inner">
+		<div class="c-footer__contact">
+			{
+				email && (
+					<a class="c-footer__email" href={`mailto:${email}`}>
+						{email}
+					</a>
+				)
+			}
+			{
+				socials.length > 0 && (
+					<ul class="c-footer__socials">
+						{socials.map((s) => (
+							<li>
+								<a href={s.url} target="_blank" rel="me noopener noreferrer">
+									{s.platform}
+								</a>
+							</li>
+						))}
+					</ul>
+				)
+			}
+		</div>
+		<p class="c-footer__copy">&copy; {year} {brand}</p>
+	</div>
+</footer>
+
+<style>
+	.c-footer {
+		border-top: 1px solid var(--border);
+		margin-top: var(--spacing-3xl);
+	}
+	.c-footer__inner {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--spacing-m);
+		max-width: var(--container-content);
+		margin-inline: auto;
+		padding: var(--spacing-l) var(--spacing-m);
+	}
+	.c-footer__contact {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--spacing-m);
+	}
+	.c-footer__email {
+		font-size: var(--text-step-1);
+		text-decoration: none;
+	}
+	.c-footer__email:hover {
+		color: var(--accent);
+	}
+	.c-footer__socials {
+		display: flex;
+		gap: var(--spacing-s);
+		list-style: none;
+		padding: 0;
+	}
+	.c-footer__socials a {
+		color: var(--text-muted);
+		text-decoration: none;
+	}
+	.c-footer__socials a:hover {
+		color: var(--text);
+	}
+	.c-footer__copy {
+		color: var(--text-muted);
+		font-size: var(--text-step--1);
+	}
+</style>

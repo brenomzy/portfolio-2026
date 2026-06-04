@@ -1,0 +1,70 @@
+---
+import { sanityClient } from "../lib/sanity/client";
+import { SITE_SETTINGS_QUERY } from "../lib/sanity/queries";
+import ThemeToggle from "./ThemeToggle.astro";
+
+const settings = await sanityClient.fetch(SITE_SETTINGS_QUERY);
+const nav = settings?.nav ?? [];
+const brand = settings?.title ?? "Portfolio";
+---
+
+<header class="c-header">
+	<nav class="c-header__inner" aria-label="Primary">
+		<a class="c-header__brand" href="/">{brand}</a>
+		<div class="c-header__right">
+			{
+				nav.length > 0 && (
+					<ul class="c-header__nav">
+						{nav.map((item) => (
+							<li>
+								<a class="c-header__link" href={item.href}>
+									{item.label}
+								</a>
+							</li>
+						))}
+					</ul>
+				)
+			}
+			<ThemeToggle />
+		</div>
+	</nav>
+</header>
+
+<style>
+	.c-header {
+		border-bottom: 1px solid var(--border);
+	}
+	.c-header__inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--spacing-m);
+		max-width: var(--container-content);
+		margin-inline: auto;
+		padding: var(--spacing-s) var(--spacing-m);
+	}
+	.c-header__brand {
+		font-size: var(--text-step-1);
+		font-weight: 600;
+		text-decoration: none;
+	}
+	.c-header__right {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-m);
+	}
+	.c-header__nav {
+		display: flex;
+		gap: var(--spacing-s);
+		list-style: none;
+		padding: 0;
+	}
+	.c-header__link {
+		text-decoration: none;
+		color: var(--text-muted);
+		transition: color 0.2s var(--ease-out-expo);
+	}
+	.c-header__link:hover {
+		color: var(--text);
+	}
+</style>

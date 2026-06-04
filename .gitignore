@@ -22,3 +22,9 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# sanity studio runtime cache
+.sanity/
+
+# local-only claude settings (keep launch.json / settings.json shareable)
+.claude/settings.local.json

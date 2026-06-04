@@ -1,17 +1,87 @@
 ---
+import Base from "../layouts/Base.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { sanityClient } from "../lib/sanity/client";
+import {
+	PROJECTS_QUERY,
+	SITE_SETTINGS_QUERY,
+} from "../lib/sanity/queries";
 
+const [projects, settings] = await Promise.all([
+	sanityClient.fetch(PROJECTS_QUERY),
+	sanityClient.fetch(SITE_SETTINGS_QUERY),
+]);
+
+const featured = projects.filter((p) => p.featured);
+const workList = featured.length > 0 ? featured : projects;
+const title = settings?.title ?? "Portfolio";
+const description = settings?.description ?? undefined;
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base title={title} description={description}>
+	<SiteHeader slot="header" />
+
+	<section class="hero">
+		<p class="hero__eyebrow">Designer &amp; developer</p>
+		<h1 class="hero__title">{description ?? "Building fast, accessible websites."}</h1>
+	</section>
+
+	<section id="work" class="work">
+		<h2 class="work__heading">Selected work</h2>
+		{
+			workList.length > 0 ? (
+				<ul class="work__grid">
+					{workList.map((project) => (
+						<li>
+							<ProjectCard project={project} />
+						</li>
+					))}
+				</ul>
+			) : (
+				<p class="work__empty">No projects yet — add one in the Studio.</p>
+			)
+		}
+	</section>
+
+	<SiteFooter slot="footer" />
+</Base>
+
+<style>
+	.hero {
+		max-width: var(--container-content);
+		margin-inline: auto;
+		padding: var(--spacing-3xl) var(--spacing-m) var(--spacing-2xl);
+		display: grid;
+		gap: var(--spacing-s);
+	}
+	.hero__eyebrow {
+		color: var(--accent-ink);
+		font-weight: 600;
+	}
+	.hero__title {
+		font-size: var(--text-step-6);
+		max-width: 18ch;
+	}
+
+	.work {
+		max-width: var(--container-content);
+		margin-inline: auto;
+		padding: var(--spacing-l) var(--spacing-m);
+	}
+	.work__heading {
+		font-size: var(--text-step-2);
+		margin-bottom: var(--spacing-m);
+	}
+	.work__grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+		gap: var(--spacing-l);
+		list-style: none;
+		padding: 0;
+	}
+	.work__empty {
+		color: var(--text-muted);
+	}
+</style>

@@ -1,0 +1,84 @@
+---
+import { ClientRouter } from "astro:transitions";
+import "../styles/global.css";
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const {
+	title,
+	description = "Portfolio of Breno — designer & developer building fast, accessible websites.",
+} = Astro.props;
+
+const siteName = "Breno";
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<link rel="canonical" href={canonical} />
+		<meta name="generator" content={Astro.generator} />
+
+		<title>{title}</title>
+		<meta name="description" content={description} />
+
+		<!-- Open Graph -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={siteName} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta name="twitter:card" content="summary_large_image" />
+
+		<!-- No-flash theme init: runs before paint, before <body> renders. -->
+		<script is:inline>
+			(() => {
+				const KEY = "theme";
+				const stored = localStorage.getItem(KEY);
+				const theme =
+					stored ??
+					(matchMedia("(prefers-color-scheme: dark)").matches
+						? "dark"
+						: "light");
+				document.documentElement.dataset.theme = theme;
+			})();
+		</script>
+
+		<ClientRouter />
+	</head>
+
+	<body>
+		<a class="c-skip-link" href="#main">Skip to content</a>
+		<slot name="header" />
+		<main id="main">
+			<slot />
+		</main>
+		<slot name="footer" />
+
+		<style>
+			.c-skip-link {
+				position: absolute;
+				left: var(--spacing-s);
+				top: var(--spacing-s);
+				z-index: 100;
+				padding: var(--spacing-2xs) var(--spacing-s);
+				background-color: var(--accent);
+				color: var(--accent-contrast);
+				border-radius: var(--radius-md);
+				transform: translateY(-150%);
+				transition: transform 0.2s var(--ease-out-expo);
+			}
+
+			.c-skip-link:focus-visible {
+				transform: translateY(0);
+			}
+		</style>
+	</body>
+</html>

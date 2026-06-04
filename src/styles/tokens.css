@@ -1,0 +1,118 @@
+/*
+ * Design tokens — single source of truth.
+ *
+ * Two kinds of tokens live here:
+ *   1. Theme-aware colors. Declared as runtime CSS vars (--bg, --text, ...) under
+ *      :root (light) and [data-theme="dark"]. Exposed to Tailwind via `@theme inline`
+ *      so utilities emit `var(--bg)` and react to the active theme.
+ *   2. Static scales (type, space, radii, motion). Fluid clamp() values in rem.
+ *      Declared in a normal `@theme` block — same value in every theme.
+ *
+ * Every token is usable BOTH as a Tailwind utility (bg-surface, text-step-3, p-m)
+ * AND as a raw custom property (var(--surface)) inside scoped component CSS.
+ *
+ * Values below are sensible placeholders — refine them from the Figma moodboard.
+ */
+
+/* ----------------------------------------------------------------------------
+ * 1. Theme-aware color tokens
+ * ------------------------------------------------------------------------- */
+:root {
+	color-scheme: light;
+
+	/* Surfaces — warm-tinted neutrals to harmonize with the orange accent. */
+	--bg: hsl(30 33% 98%);
+	--surface: hsl(30 24% 95%);
+	--surface-raised: hsl(0 0% 100%);
+
+	/* Text */
+	--text: hsl(20 14% 11%);
+	--text-muted: hsl(22 9% 40%);
+
+	/* Lines */
+	--border: hsl(28 18% 87%);
+
+	/* Accent — #FF4E2A brand, used for a few accent spots (not body text).
+	 * `accent-ink` mirrors `accent` here; it only diverges in dark mode. */
+	--accent: hsl(10 100% 58%);
+	--accent-ink: hsl(10 100% 58%);
+	--accent-contrast: hsl(15 45% 10%);
+}
+
+[data-theme="dark"] {
+	color-scheme: dark;
+
+	/* Deep blue surfaces — orange accent pops against navy (near-complementary). */
+	--bg: hsl(222 40% 9%);
+	--surface: hsl(221 33% 13%);
+	--surface-raised: hsl(220 29% 17%);
+
+	--text: hsl(210 30% 94%);
+	--text-muted: hsl(214 16% 64%);
+
+	--border: hsl(220 22% 24%);
+
+	/* Lifted slightly so the orange stays vibrant + legible on dark blue. */
+	--accent: hsl(10 100% 64%);
+	--accent-ink: hsl(10 100% 68%);
+	--accent-contrast: hsl(222 45% 9%);
+}
+
+/* `inline` so utilities reference the raw var and follow [data-theme] overrides. */
+@theme inline {
+	--color-bg: var(--bg);
+	--color-surface: var(--surface);
+	--color-surface-raised: var(--surface-raised);
+	--color-text: var(--text);
+	--color-text-muted: var(--text-muted);
+	--color-border: var(--border);
+	--color-accent: var(--accent);
+	--color-accent-ink: var(--accent-ink);
+	--color-accent-contrast: var(--accent-contrast);
+}
+
+/* ----------------------------------------------------------------------------
+ * 2. Static scales
+ * ------------------------------------------------------------------------- */
+@theme {
+	/* Fonts — system stacks for now; swap to Fontsource families later. */
+	--font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+		Helvetica, Arial, sans-serif;
+	--font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, monospace;
+
+	/* Fluid type scale (~minor-third → major-third, 320px → 1240px viewport).
+	 * Utilities: text-step--1 … text-step-6 */
+	--text-step--1: clamp(0.83rem, 0.78rem + 0.24vw, 0.94rem);
+	--text-step-0: clamp(1rem, 0.93rem + 0.33vw, 1.18rem);
+	--text-step-1: clamp(1.2rem, 1.1rem + 0.49vw, 1.48rem);
+	--text-step-2: clamp(1.44rem, 1.29rem + 0.72vw, 1.85rem);
+	--text-step-3: clamp(1.73rem, 1.51rem + 1.05vw, 2.31rem);
+	--text-step-4: clamp(2.07rem, 1.77rem + 1.5vw, 2.89rem);
+	--text-step-5: clamp(2.49rem, 2.07rem + 2.1vw, 3.62rem);
+	--text-step-6: clamp(2.99rem, 2.41rem + 2.9vw, 4.52rem);
+
+	/* Fluid space scale. Utilities: p-2xs, gap-m, mt-xl, … */
+	--spacing-3xs: clamp(0.25rem, 0.23rem + 0.1vw, 0.31rem);
+	--spacing-2xs: clamp(0.5rem, 0.46rem + 0.2vw, 0.63rem);
+	--spacing-xs: clamp(0.75rem, 0.69rem + 0.3vw, 0.94rem);
+	--spacing-s: clamp(1rem, 0.93rem + 0.33vw, 1.18rem);
+	--spacing-m: clamp(1.5rem, 1.39rem + 0.54vw, 1.88rem);
+	--spacing-l: clamp(2rem, 1.85rem + 0.65vw, 2.38rem);
+	--spacing-xl: clamp(3rem, 2.78rem + 1.09vw, 3.75rem);
+	--spacing-2xl: clamp(4rem, 3.7rem + 1.41vw, 5rem);
+	--spacing-3xl: clamp(6rem, 5.57rem + 2.17vw, 7.5rem);
+
+	/* Layout */
+	--container-content: 75rem; /* max-w-content */
+
+	/* Radii */
+	--radius-sm: 0.25rem;
+	--radius-md: 0.5rem;
+	--radius-lg: 1rem;
+	--radius-xl: 1.5rem;
+
+	/* Motion — easings (ease-out-expo, ease-in-out-quart, …) */
+	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+	--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}

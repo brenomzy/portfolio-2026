@@ -42,20 +42,21 @@
 [data-theme="dark"] {
 	color-scheme: dark;
 
-	/* Deep blue surfaces — orange accent pops against navy (near-complementary). */
-	--bg: hsl(222 40% 9%);
-	--surface: hsl(221 33% 13%);
-	--surface-raised: hsl(220 29% 17%);
+	/* Dark grey surfaces — a faint warmth (low saturation) to sit with the
+	 * orange without reading blue or brown. */
+	--bg: hsl(30 5% 9%);
+	--surface: hsl(30 4% 12%);
+	--surface-raised: hsl(30 4% 16%);
 
-	--text: hsl(210 30% 94%);
-	--text-muted: hsl(214 16% 64%);
+	--text: hsl(30 8% 94%);
+	--text-muted: hsl(30 4% 62%);
 
-	--border: hsl(220 22% 24%);
+	--border: hsl(30 4% 22%);
 
-	/* Lifted slightly so the orange stays vibrant + legible on dark blue. */
-	--accent: hsl(10 100% 64%);
-	--accent-ink: hsl(10 100% 68%);
-	--accent-contrast: hsl(222 45% 9%);
+	/* Lifted slightly so the orange stays vibrant + legible on dark grey. */
+	--accent: hsl(10 100% 62%);
+	--accent-ink: hsl(10 100% 66%);
+	--accent-contrast: hsl(30 8% 9%);
 }
 
 /* `inline` so utilities reference the raw var and follow [data-theme] overrides. */
@@ -75,13 +76,12 @@
  * 2. Static scales
  * ------------------------------------------------------------------------- */
 @theme {
-	/* Fonts — loaded via @fontsource imports in Base.astro.
-	 * sans = display/body, mono = eyebrow labels, serif = italic accent. */
+	/* Fonts — Geist everywhere (loaded via @fontsource imports in Base.astro).
+	 * mono is kept for small meta/labels (clock, etc.). */
 	--font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system,
 		"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	--font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Menlo,
 		monospace;
-	--font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
 
 	/* Fluid type scale (~minor-third → major-third, 320px → 1240px viewport).
 	 * Utilities: text-step--1 … text-step-6 */

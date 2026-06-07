@@ -4,10 +4,7 @@ import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import { sanityClient } from "../lib/sanity/client";
-import {
-	PROJECTS_QUERY,
-	SITE_SETTINGS_QUERY,
-} from "../lib/sanity/queries";
+import { PROJECTS_QUERY, SITE_SETTINGS_QUERY } from "../lib/sanity/queries";
 
 const [projects, settings] = await Promise.all([
 	sanityClient.fetch(PROJECTS_QUERY),
@@ -24,12 +21,26 @@ const description = settings?.description ?? undefined;
 	<SiteHeader slot="header" />
 
 	<section class="hero">
-		<p class="hero__eyebrow">Designer &amp; developer</p>
-		<h1 class="hero__title">{description ?? "Building fast, accessible websites."}</h1>
+		<h1 class="hero__title">
+			Bridging design and code to build high-quality websites.
+		</h1>
+		<p class="hero__lead">
+			I'm Breno — a developer from Brazil turning design into fast, accessible,
+			hand-built sites. Currently at BX Studio, open to select freelance work.
+		</p>
+		<div class="hero__actions">
+			<a class="btn btn--accent" href="#">Get in touch</a>
+			<a class="btn btn--ghost" href="#work">View work ↓</a>
+		</div>
 	</section>
 
 	<section id="work" class="work">
-		<h2 class="work__heading">Selected work</h2>
+		<div class="work__head">
+			<h2 class="work__heading">Selected work</h2>
+			<span class="work__count">
+				{workList.length} project{workList.length === 1 ? "" : "s"}
+			</span>
+		</div>
 		{
 			workList.length > 0 ? (
 				<ul class="work__grid">
@@ -52,27 +63,70 @@ const description = settings?.description ?? undefined;
 	.hero {
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding: var(--spacing-3xl) var(--spacing-m) var(--spacing-2xl);
+		padding: var(--spacing-xl) var(--spacing-m) var(--spacing-l);
 		display: grid;
-		gap: var(--spacing-s);
-	}
-	.hero__eyebrow {
-		color: var(--accent-ink);
-		font-weight: 600;
+		gap: var(--spacing-m);
 	}
 	.hero__title {
-		font-size: var(--text-step-6);
-		max-width: 18ch;
+		font-size: var(--text-step-5);
+		font-weight: 560;
+		letter-spacing: -0.035em;
+		line-height: 1.02;
+		max-width: 20ch;
+	}
+	.hero__lead {
+		font-size: var(--text-step-1);
+		color: var(--text-muted);
+		max-width: 48ch;
+	}
+	.hero__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-s);
+		margin-top: var(--spacing-2xs);
+	}
+
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.7em 1.4em;
+		border-radius: 100px;
+		text-decoration: none;
+		font-weight: 500;
+		transition: transform 0.2s var(--ease-out-expo);
+	}
+	.btn:hover {
+		transform: translateY(-2px);
+	}
+	.btn--accent {
+		background: var(--accent);
+		color: var(--accent-contrast);
+	}
+	.btn--ghost {
+		border: 1px solid var(--border);
+		color: var(--text);
 	}
 
 	.work {
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding: var(--spacing-l) var(--spacing-m);
+		padding: var(--spacing-m) var(--spacing-m) var(--spacing-l);
+	}
+	.work__head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--spacing-m);
+		margin-bottom: var(--spacing-m);
 	}
 	.work__heading {
 		font-size: var(--text-step-2);
-		margin-bottom: var(--spacing-m);
+		letter-spacing: -0.02em;
+	}
+	.work__count {
+		font-family: var(--font-mono);
+		font-size: var(--text-step--1);
+		color: var(--text-muted);
 	}
 	.work__grid {
 		display: grid;

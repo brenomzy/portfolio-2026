@@ -1,0 +1,189 @@
+---
+import Base from "../../layouts/Base.astro";
+
+// Build-time ASCII field — abstract placeholder for a real ASCII portrait
+// (which we'd generate from your photo via a canvas pass later).
+const COLS = 46;
+const ROWS = 24;
+const charset = "01<>[]{}/\\=+*#%@&$".split("");
+const cx = COLS * 0.52;
+let ascii = "";
+for (let y = 0; y < ROWS; y++) {
+	let line = "";
+	for (let x = 0; x < COLS; x++) {
+		const dx = (x - cx) / COLS;
+		const vy = y / ROWS;
+		const density = Math.exp(-(dx * dx) * 9) * (0.45 + 0.55 * Math.sin(vy * Math.PI));
+		const on = Math.random() < density * 0.92;
+		line += on ? charset[Math.floor(Math.random() * charset.length)] : " ";
+	}
+	ascii += line + "\n";
+}
+
+const tools = ["GSAP", "Astro", "Sanity", "Webflow", "TypeScript"];
+---
+
+<Base title="Hero B — Bold">
+	<section class="heroB" data-theme="dark">
+		<header class="heroB__bar">
+			<a class="heroB__brand" href="/sandbox">BD</a>
+			<span class="heroB__menu">MENU&nbsp;&nbsp;≡</span>
+			<a class="btn btn--accent" href="#">Let's work together +</a>
+		</header>
+
+		<div class="heroB__main">
+			<div class="heroB__content">
+				<h1 class="heroB__title">Bridging design<br />and code<span class="heroB__dot">.</span></h1>
+				<p class="heroB__lead">
+					Webflow developer from Brazil building fast, accessible,
+					high-craft websites — design and code, handled by one person.
+				</p>
+				<div class="heroB__actions">
+					<a class="btn btn--accent" href="#">Get in touch +</a>
+					<a class="heroB__link" href="#">View work</a>
+				</div>
+			</div>
+			<pre class="heroB__ascii" aria-hidden="true">{ascii}</pre>
+		</div>
+
+		<footer class="heroB__foot">
+			<span class="heroB__footlabel">Tools I build with</span>
+			<ul class="heroB__tools">
+				{tools.map((t) => <li>{t}</li>)}
+			</ul>
+		</footer>
+	</section>
+</Base>
+
+<style>
+	.heroB {
+		min-height: 100svh;
+		background: var(--bg);
+		color: var(--text);
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		padding: var(--spacing-m);
+	}
+
+	.heroB__bar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--spacing-m);
+	}
+	.heroB__brand {
+		font-family: var(--font-mono);
+		font-weight: 700;
+		font-size: var(--text-step-1);
+		text-decoration: none;
+		color: var(--text);
+		letter-spacing: 0.05em;
+	}
+	.heroB__menu {
+		font-family: var(--font-mono);
+		font-size: var(--text-step--1);
+		letter-spacing: 0.1em;
+		color: var(--text-muted);
+	}
+
+	.heroB__main {
+		display: grid;
+		grid-template-columns: 1.1fr 0.9fr;
+		align-items: center;
+		gap: var(--spacing-l);
+	}
+	@media (max-width: 52rem) {
+		.heroB__main {
+			grid-template-columns: 1fr;
+		}
+		.heroB__ascii {
+			display: none;
+		}
+	}
+
+	.heroB__title {
+		font-size: clamp(2.75rem, 8vw, 6rem);
+		font-weight: 600;
+		line-height: 0.98;
+		letter-spacing: -0.03em;
+	}
+	.heroB__dot {
+		color: var(--accent);
+	}
+	.heroB__lead {
+		margin-top: var(--spacing-m);
+		max-width: 42ch;
+		color: var(--text-muted);
+		font-size: var(--text-step-1);
+	}
+	.heroB__actions {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-m);
+		margin-top: var(--spacing-l);
+	}
+	.heroB__link {
+		color: var(--text);
+		text-decoration: underline;
+		text-underline-offset: 0.3em;
+	}
+
+	.heroB__ascii {
+		font-family: var(--font-mono);
+		font-size: clamp(0.4rem, 1.1vw, 0.7rem);
+		line-height: 1.05;
+		color: var(--accent);
+		opacity: 0.85;
+		white-space: pre;
+		overflow: hidden;
+		text-shadow: 0 0 12px hsl(10 100% 60% / 0.35);
+		justify-self: center;
+	}
+
+	.heroB__foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--spacing-m);
+		border-top: 1px solid var(--border);
+		padding-top: var(--spacing-s);
+	}
+	.heroB__footlabel {
+		font-family: var(--font-mono);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: var(--text-step--1);
+		color: var(--text-muted);
+	}
+	.heroB__tools {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-m);
+		list-style: none;
+		padding: 0;
+		font-family: var(--font-mono);
+		color: var(--text-muted);
+		font-size: var(--text-step--1);
+	}
+
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.7em 1.3em;
+		border-radius: 6px;
+		text-decoration: none;
+		font-weight: 500;
+		transition: transform 0.2s var(--ease-out-expo);
+	}
+	.btn--accent {
+		background: var(--accent);
+		color: var(--accent-contrast);
+		font-family: var(--font-mono);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-size: var(--text-step--1);
+	}
+	.btn--accent:hover {
+		transform: translateY(-2px);
+	}
+</style>

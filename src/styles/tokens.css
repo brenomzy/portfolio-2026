@@ -75,10 +75,13 @@
  * 2. Static scales
  * ------------------------------------------------------------------------- */
 @theme {
-	/* Fonts — system stacks for now; swap to Fontsource families later. */
-	--font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-		Helvetica, Arial, sans-serif;
-	--font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, monospace;
+	/* Fonts — loaded via @fontsource imports in Base.astro.
+	 * sans = display/body, mono = eyebrow labels, serif = italic accent. */
+	--font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system,
+		"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	--font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Menlo,
+		monospace;
+	--font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
 
 	/* Fluid type scale (~minor-third → major-third, 320px → 1240px viewport).
 	 * Utilities: text-step--1 … text-step-6 */

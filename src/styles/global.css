@@ -88,6 +88,71 @@
 	}
 }
 
+/* ----------------------------------------------------------------------------
+ * Theme-change wipe (View Transitions API).
+ *
+ * On toggle, ThemeToggle.astro wraps the [data-theme] swap in a view transition
+ * and tags <html> with `.is-theme-vt`. The new (themed) snapshot is clip-pathed
+ * in over the old one as a diagonal upward wipe — echoing the Button hover wipe,
+ * but slower/softer so a full-page color change doesn't read as jarring.
+ *
+ * Scoped to `.is-theme-vt` so ordinary page navigations keep Astro's default
+ * crossfade. Reduced-motion / unsupported browsers skip the transition entirely
+ * (handled in JS), giving an instant swap.
+ * ------------------------------------------------------------------------- */
+:root.is-theme-vt::view-transition-old(root) {
+	/* Old theme stays put underneath; the new one wipes over it. */
+	animation: none;
+}
+:root.is-theme-vt::view-transition-new(root) {
+	animation: theme-wipe 0.55s var(--ease-default);
+}
+@keyframes theme-wipe {
+	/* Leading (top) edge starts gently tilted — the left corner trails ~16% lower
+	 * than the right — then straightens to flat by the end, the way the Button's
+	 * panels resolve from rotate(-10deg) to 0. Bottom corners stay pinned. */
+	from {
+		clip-path: polygon(0% 116%, 100% 100%, 100% 100%, 0% 100%);
+	}
+	to {
+		clip-path: polygon(0% -4%, 100% -4%, 100% 100%, 0% 100%);
+	}
+}
+
+/* Theme toggle is lifted out of the page-wipe snapshot (view-transition-name set
+ * in ThemeToggle.astro) so it gets its OWN transition instead of being frozen
+ * inside the root snapshot (where its icon swap was invisible / popped at the end).
+ * The live DOM isn't painted during a view transition — only snapshots are — so
+ * we can't show the real rotate-slide here; instead the toggle's old (sun) and new
+ * (moon) snapshots cross-fade in place, retimed to ride alongside the wipe. The
+ * bespoke rotate-slide still plays on the no-VT / reduced-motion path. */
+:root.is-theme-vt::view-transition-group(theme-toggle) {
+	animation: none; /* stays put — no size/position morph */
+}
+:root.is-theme-vt::view-transition-old(theme-toggle),
+:root.is-theme-vt::view-transition-new(theme-toggle) {
+	animation-duration: 0.5s;
+	animation-timing-function: var(--ease-default);
+}
+/* Freeze the toggle's OWN colour transitions during the wipe. Otherwise the theme
+ * swap re-fires its `transition: background/border-color` on the live element,
+ * which animates out of sync with the snapshot crossfade and makes the hover
+ * border flash/pop as the snapshot lifts. The crossfade is the only animation now;
+ * hover transitions resume normally once `.is-theme-vt` is gone. */
+:root.is-theme-vt .c-theme-toggle {
+	transition: none;
+}
+
+/* Pre-reveal FOUC guard. Elements that get a JS-driven entrance (SplitText line
+ * reveals, etc.) are hidden ONLY when JS is present (`.js` is set by the head
+ * script). The reveal script flips them visible at the right frame; no-JS visitors
+ * and crawlers see the text normally. visibility (not display) keeps layout, so
+ * there's no shift when it animates in. */
+html.js [data-split],
+html.js [data-reveal] {
+	visibility: hidden;
+}
+
 /* Film-grain noise overlay — subtle, fixed, non-interactive. */
 body::before {
 	content: "";

@@ -1,6 +1,13 @@
 ---
-// c-theme-toggle — flips [data-theme] on <html> and persists to localStorage.
-// The no-flash init lives in Base.astro; this only handles user toggling.
+/*
+ * c-theme-toggle — icon-only square that flips [data-theme] on <html> and
+ * persists to a `theme` cookie (the no-flash init in Base.astro reads it back).
+ *
+ * Square sized to match the CTA Button's height (3em) so it reads as a sibling.
+ * Shows the TARGET mode: moon in light (click → go dark), sun in dark (→ go light).
+ * On toggle the icons run a vertical rotate-and-slide swap inside a clipped window,
+ * on --ease-default.
+ */
 ---
 
 <button
@@ -9,82 +16,148 @@
 	data-theme-toggle
 	aria-label="Toggle colour theme"
 >
-	<svg
-		class="c-theme-toggle__icon c-theme-toggle__icon--moon"
-		viewBox="0 0 24 24"
-		width="20"
-		height="20"
-		fill="none"
-		stroke="currentColor"
-		stroke-width="2"
-		stroke-linecap="round"
-		stroke-linejoin="round"
-		aria-hidden="true"
-	>
-		<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-	</svg>
-	<svg
-		class="c-theme-toggle__icon c-theme-toggle__icon--sun"
-		viewBox="0 0 24 24"
-		width="20"
-		height="20"
-		fill="none"
-		stroke="currentColor"
-		stroke-width="2"
-		stroke-linecap="round"
-		stroke-linejoin="round"
-		aria-hidden="true"
-	>
-		<circle cx="12" cy="12" r="4"></circle>
-		<path
-			d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-		></path>
-	</svg>
+	<span class="c-theme-toggle__icon" aria-hidden="true">
+		<span class="c-theme-toggle__icon-box">
+			<!-- Moon — shown in light mode (click → go dark) -->
+			<svg viewBox="0 0 24 24" width="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M18.395 13.027C18.725 12.872 19.077 13.197 18.985 13.55C18.671 14.752 18.054 15.896 17.104 16.846C14.283 19.667 9.77001 19.726 7.02201 16.978C4.27401 14.23 4.33401 9.71601 7.15501 6.89501C8.10501 5.94501 9.24801 5.32801 10.451 5.01401C10.804 4.92201 11.128 5.27401 10.974 5.60401C9.97201 7.74301 10.301 10.305 11.998 12.002C13.694 13.7 16.256 14.029 18.395 13.027Z"></path>
+			</svg>
+		</span>
+		<span class="c-theme-toggle__icon-box is--absolute">
+			<!-- Sun — shown in dark mode (click → go light) -->
+			<svg viewBox="0 0 24 24" width="100%" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M15.5355 8.46447C17.4882 10.4171 17.4882 13.5829 15.5355 15.5355C13.5829 17.4882 10.4171 17.4882 8.46447 15.5355C6.51184 13.5829 6.51184 10.4171 8.46447 8.46447C10.4171 6.51184 13.5829 6.51184 15.5355 8.46447Z"></path>
+				<path d="M12 4V2"></path>
+				<path d="M12 22V20"></path>
+				<path d="M18.3599 5.63999L19.0699 4.92999"></path>
+				<path d="M4.93018 19.07L5.64018 18.36"></path>
+				<path d="M20 12H22"></path>
+				<path d="M2 12H4"></path>
+				<path d="M18.3599 18.36L19.0699 19.07"></path>
+				<path d="M4.93018 4.92999L5.64018 5.63999"></path>
+			</svg>
+		</span>
+	</span>
 </button>
 
 <style>
 	.c-theme-toggle {
+		/* Square, sized to the CTA Button's 3em height so they align as siblings. */
 		display: inline-grid;
 		place-items: center;
-		width: 2.5rem;
-		height: 2.5rem;
+		width: 3em;
+		height: 3em;
+		font-size: 0.75rem;
 		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
+		/* Circle — a deliberate counterpoint to the squared Buttons. */
+		border-radius: 50%;
 		background-color: var(--surface);
 		color: var(--text);
 		cursor: pointer;
+		position: relative;
+		overflow: hidden;
+		-webkit-tap-highlight-color: transparent;
+		/* Lifts the toggle out of the theme-wipe's page snapshot so its icon
+		 * animation plays live during the wipe (see global.css → is-theme-vt). */
+		view-transition-name: theme-toggle;
 		transition:
-			background-color 0.2s var(--ease-out-expo),
-			border-color 0.2s var(--ease-out-expo);
+			background-color 0.2s var(--ease-default),
+			border-color 0.2s var(--ease-default);
 	}
 
 	.c-theme-toggle:hover {
 		border-color: var(--accent);
 	}
 
+	.c-theme-toggle:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+	}
+
+	/* ── Icon — vertical rotate-and-slide conveyor inside a clipped window ───── */
 	.c-theme-toggle__icon {
-		grid-area: 1 / 1;
+		position: relative;
+		width: 1.25em;
+		height: 1.25em;
+		overflow: hidden;
+	}
+	.c-theme-toggle__icon-box {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		transition:
+			transform 0.45s var(--ease-default),
+			opacity 0.45s var(--ease-default);
 	}
 
-	.c-theme-toggle__icon--sun {
-		display: none;
+	/* Light (base): sun in view, moon parked below and pre-rotated. */
+	.c-theme-toggle__icon-box {
+		transform: translateY(0) rotate(0deg);
+		opacity: 1;
+	}
+	.c-theme-toggle__icon-box.is--absolute {
+		transform: translateY(120%) rotate(90deg);
+		opacity: 0;
 	}
 
-	:global([data-theme="dark"]) .c-theme-toggle__icon--moon {
-		display: none;
+	/* Dark: sun exits upward, moon rises into place. */
+	:global([data-theme="dark"]) .c-theme-toggle__icon-box {
+		transform: translateY(-120%) rotate(-90deg);
+		opacity: 0;
+	}
+	:global([data-theme="dark"]) .c-theme-toggle__icon-box.is--absolute {
+		transform: translateY(0) rotate(0deg);
+		opacity: 1;
 	}
 
-	:global([data-theme="dark"]) .c-theme-toggle__icon--sun {
-		display: block;
+	/* Respect reduced-motion: keep the swap, drop the travel. */
+	@media (prefers-reduced-motion: reduce) {
+		.c-theme-toggle__icon-box {
+			transition: opacity 0.2s linear;
+			transform: none !important;
+		}
+		.c-theme-toggle__icon-box.is--absolute {
+			opacity: 0;
+		}
+		:global([data-theme="dark"]) .c-theme-toggle__icon-box {
+			opacity: 0;
+		}
+		:global([data-theme="dark"]) .c-theme-toggle__icon-box.is--absolute {
+			opacity: 1;
+		}
 	}
 </style>
 
 <script>
+	type ViewTransitionDoc = Document & {
+		startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+	};
+
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+
+	function setTheme(next: "light" | "dark") {
+		document.documentElement.dataset.theme = next;
+		// 1-year cookie; Lax so it rides top-level navigations but not cross-site.
+		document.cookie = `theme=${next}; path=/; max-age=31536000; samesite=lax`;
+	}
+
 	function toggleTheme() {
 		const root = document.documentElement;
 		const next = root.dataset.theme === "dark" ? "light" : "dark";
-		root.dataset.theme = next;
-		localStorage.setItem("theme", next);
+		const doc = document as ViewTransitionDoc;
+
+		// No View Transitions support / reduced-motion → swap instantly.
+		if (!doc.startViewTransition || reduced.matches) {
+			setTheme(next);
+			return;
+		}
+
+		// `is-theme-vt` scopes the clip-path wipe (see global.css) so it only runs
+		// for theme changes, never for page navigations (which also transition root).
+		root.classList.add("is-theme-vt");
+		const transition = doc.startViewTransition(() => setTheme(next));
+		transition.finished.finally(() => root.classList.remove("is-theme-vt"));
 	}
 
 	// Bind on every navigation so the button works after View Transitions.

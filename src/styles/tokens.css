@@ -21,7 +21,7 @@
 	color-scheme: light;
 
 	/* Surfaces — warm light cream to pair with the orange accent. */
-	--bg: hsl(38 46% 95%);
+	--bg: #f7f6f0;
 	--surface: hsl(36 34% 91%);
 	--surface-raised: hsl(42 52% 97%);
 
@@ -114,7 +114,10 @@
 	--radius-lg: 1rem;
 	--radius-xl: 1.5rem;
 
-	/* Motion — easings (ease-out-expo, ease-in-out-quart, …) */
+	/* Motion — easings (ease-out-expo, ease-in-out-quart, …)
+	 * `--ease-default` is the project default: a smooth symmetric ease-in-out
+	 * with no overshoot. Reach for it first; use the others for specific intent. */
+	--ease-default: cubic-bezier(0.7, 0, 0.3, 1);
 	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 	--ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 	--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);

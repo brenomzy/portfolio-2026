@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from "astro:transitions";
+import ProgressiveBlur from "../components/ProgressiveBlur.astro";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "../styles/global.css";
@@ -39,17 +40,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 		<meta property="og:url" content={canonical} />
 		<meta name="twitter:card" content="summary_large_image" />
 
-		<!-- No-flash theme init: runs before paint, before <body> renders. -->
+		<!-- No-flash theme init: runs before paint, before <body> renders.
+			 Preference is persisted in a `theme` cookie (see ThemeToggle.astro). -->
 		<script is:inline>
 			(() => {
-				const KEY = "theme";
-				const stored = localStorage.getItem(KEY);
+				const root = document.documentElement;
+				// Marks JS as available, so CSS can hide reveal targets pre-animation
+				// without ever hiding them for no-JS / crawlers.
+				root.classList.add("js");
+				const m = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
 				const theme =
-					stored ??
+					(m && m[1]) ??
 					(matchMedia("(prefers-color-scheme: dark)").matches
 						? "dark"
 						: "light");
-				document.documentElement.dataset.theme = theme;
+				root.dataset.theme = theme;
 			})();
 		</script>
 
@@ -63,6 +68,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 			<slot />
 		</main>
 		<slot name="footer" />
+		<ProgressiveBlur />
 
 		<style>
 			.c-skip-link {

@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import Button from "../components/Button.astro";
+import { CONTACT_EMAIL } from "../lib/site";
 import { sanityClient } from "../lib/sanity/client";
 import { SITE_SETTINGS_QUERY } from "../lib/sanity/queries";
 
@@ -23,8 +24,13 @@ const description = settings?.description ?? undefined;
 			hand-built sites. Currently at BX Studio, open to select freelance work.
 		</p>
 		<div class="hero__actions" data-reveal>
-			<Button label="Get in touch" href="#" />
-			<Button label="View work ↓" href="#work" variant="secondary" />
+			<Button label="View work ↓" href="#work" variant="solid" />
+			<Button
+				label="Get in touch"
+				href={`mailto:${CONTACT_EMAIL}`}
+				variant="ghost"
+				data-copy-email={CONTACT_EMAIL}
+			/>
 		</div>
 	</section>
 

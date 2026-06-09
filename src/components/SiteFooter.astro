@@ -2,43 +2,54 @@
 import { sanityClient } from "../lib/sanity/client";
 import { SITE_SETTINGS_QUERY } from "../lib/sanity/queries";
 import FooterGradient from "./FooterGradient.astro";
+import Button from "./Button.astro";
+import { CONTACT_EMAIL } from "../lib/site";
 
 const settings = await sanityClient.fetch(SITE_SETTINGS_QUERY);
 
-// Dummy fallbacks so the reveal footer has content to show while real CMS data
-// is still being wired up. Replace once Site Settings is populated in Sanity.
-const email = settings?.email ?? "hello@breno.dev";
+// Contact address is the shared site constant for now (see lib/site.ts), not the
+// CMS — keeps every CTA pointing at the same place. brand still comes from CMS.
+const email = CONTACT_EMAIL;
 const brand = settings?.title ?? "Breno";
 
-// Footer socials — hardcoded for now (CMS has no X yet). Wire to Site Settings
-// once those URLs exist in Sanity.
+// Footer socials — hardcoded for now. Wire to Site Settings once those URLs
+// exist in Sanity.
 const socials = [
-	{ platform: "LinkedIn", url: "#" },
-	{ platform: "X", url: "#" },
+	{ platform: "LinkedIn", url: "https://www.linkedin.com/in/breno-daroz/" },
+	{ platform: "X", url: "https://twitter.com/brenomzy" },
 ];
 ---
 
 <footer class="c-footer">
 	<FooterGradient />
 	<div class="c-footer__inner">
-		<div class="c-footer__lead">
-			<p class="c-footer__eyebrow">Have something in mind?</p>
-			<a class="c-footer__cta" href={`mailto:${email}`}>
-				Let’s work together <span aria-hidden="true">→</span>
-			</a>
-		</div>
+		<div class="c-footer__top">
+			<div class="c-footer__lead">
+				<p class="c-footer__eyebrow">Have something in mind?</p>
+				<p class="c-footer__headline">Let’s work together</p>
+				<Button
+					label="Get in touch"
+					href={`mailto:${email}`}
+					data-copy-email={email}
+					class="c-footer__btn"
+				/>
+			</div>
 
-		<ul class="c-footer__socials">
-			{
-				socials.map((s) => (
-					<li>
-						<a href={s.url} target="_blank" rel="me noopener noreferrer">
-							{s.platform}
-						</a>
-					</li>
-				))
-			}
-		</ul>
+			<div class="c-footer__meta">
+				<ul class="c-footer__socials">
+					{
+						socials.map((s) => (
+							<li>
+								<a href={s.url} target="_blank" rel="me noopener noreferrer">
+									{s.platform}
+								</a>
+							</li>
+						))
+					}
+				</ul>
+				<p class="c-footer__loc">Based in Brazil · BRT</p>
+			</div>
+		</div>
 
 		<!-- Wordmark scaled to span the container at natural bold proportions
 		     (no tracking). The viewBox is set from the text's measured bounding
@@ -99,42 +110,63 @@ const socials = [
 		will-change: transform;
 	}
 
-	/* CTA ------------------------------------------------------------------- */
+	/* Top row: contact card (lead) + meta column, baseline-aligned ----------- */
+	.c-footer__top {
+		display: flex;
+		justify-content: space-between;
+		/* Right column sits on the same baseline as the left column's button. */
+		align-items: flex-end;
+		gap: var(--spacing-l);
+		flex-wrap: wrap;
+	}
+
+	/* Lead / CTA ------------------------------------------------------------ */
+	/* Spacing rhythm: tight gaps (≤ --spacing-s / ~1rem) bind related items;
+	 * separate groups get --spacing-m+ (see .c-footer__top gap). */
 	.c-footer__eyebrow {
 		color: var(--footer-muted);
 		font-size: var(--text-step-0);
-		margin-bottom: var(--spacing-3xs);
+		margin-bottom: var(--spacing-2xs); /* label hugs the headline */
 	}
-	.c-footer__cta {
-		display: inline-block;
+	.c-footer__headline {
 		font-size: var(--text-step-4);
 		font-weight: 560;
 		letter-spacing: -0.03em;
 		line-height: 1.02;
-		text-decoration: none;
 		color: #fff9f4;
 		max-width: 14ch;
+		/* Single gap to the button — they read as one CTA unit (~1rem). */
+		margin-bottom: var(--spacing-s);
 	}
-	.c-footer__cta span {
-		display: inline-block;
-		transition: transform 0.4s var(--ease-out-expo);
-	}
-	.c-footer__cta:hover {
-		color: #fff;
-	}
-	.c-footer__cta:hover span {
-		transform: translateX(0.25em);
-	}
+	/* The white CTA is the primary Button variant (warm-white bg, ink label);
+	 * the component owns its look, the headline's margin owns the spacing. */
 
-	/* Socials --------------------------------------------------------------- */
+	/* Meta column (socials + location) -------------------------------------- */
+	.c-footer__meta {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end; /* hug the right edge, stacked above location */
+		gap: var(--spacing-2xs); /* socials ↔ location: related meta */
+		font-size: var(--text-step--1);
+		text-align: right;
+	}
+	/* Socials on one line: "LinkedIn / X" — a hairline slash separates them. */
 	.c-footer__socials {
 		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-s);
+		align-items: center;
+		gap: var(--spacing-2xs);
 		list-style: none;
 		padding: 0;
-		font-family: var(--font-mono);
-		font-size: var(--text-step--1);
+		margin: 0;
+	}
+	.c-footer__socials li {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2xs);
+	}
+	.c-footer__socials li + li::before {
+		content: "/";
+		color: var(--footer-line);
 	}
 	.c-footer__socials a {
 		color: var(--footer-muted);
@@ -144,15 +176,51 @@ const socials = [
 	.c-footer__socials a:hover {
 		color: #fff;
 	}
+	.c-footer__loc {
+		color: var(--footer-muted);
+		opacity: 0.8;
+	}
+
+	/* Narrow viewports: stack the card over the meta, everything left-aligned
+	 * (no right-alignment on mobile), and a shorter footer panel. */
+	@media (max-width: 40rem) {
+		.c-footer {
+			min-height: 46svh;
+		}
+		.c-footer__top {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--spacing-m);
+		}
+		.c-footer__meta {
+			align-items: flex-start;
+			text-align: left;
+		}
+	}
 
 	/* Oversized wordmark — spans the full container width (SVG textLength),
 	 * pinned to the footer's bottom edge, softly dissolved by the
 	 * progressive-blur overlay. */
 	.c-footer__wordmark {
 		display: block;
-		width: 100%;
+		/* Full-bleed: break out of the centered container to span the whole
+		 * viewport width (ignoring the inner's max-width + side padding). The
+		 * footer's overflow:hidden clips the sub-pixel 100vw-vs-scrollbar overshoot.
+		 * Classic left:50% / -50vw centering, robust against the inner's padding. */
+		position: relative;
+		left: 50%;
+		width: 100vw;
+		/* override the global `svg { max-width: 100% }` reset, which would
+		 * otherwise clamp 100vw back to the container width. */
+		max-width: none;
+		margin-left: -50vw;
 		height: auto;
 		margin-top: auto; /* push to the bottom of the footer */
+		/* Bottom crop in vw, not rem — the wordmark is full-bleed (100vw) so its
+		 * height scales with viewport width; a vw crop keeps the SAME proportion
+		 * cut off at every screen size. A fixed rem would over-crop narrow screens
+		 * and under-crop wide ones. */
+		margin-bottom: -8vw;
 		overflow: visible;
 		user-select: none;
 	}
@@ -162,7 +230,7 @@ const socials = [
 		font-size: 100px; /* arbitrary; the measured viewBox scales it to width */
 		font-weight: 400;
 		text-transform: uppercase;
-		letter-spacing: -0.02em; /* tight — no tracking */
+		letter-spacing: -0.1em; /* very tight — letters nearly touch at this weight */
 		/* Neutral darken — subtle "watermark" wordmark; works on orange + blue. */
 		fill: rgba(0, 0, 0, 0.17);
 	}
@@ -211,10 +279,8 @@ const socials = [
 		const h = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
 		if (w <= 0 || h <= 0) return;
 		svg.setAttribute("viewBox", `${x} ${y} ${w} ${h}`);
-
-		// Crop the base of the caps a touch — the footer's overflow:hidden clips
-		// whatever the negative margin pushes below its box.
-		svg.style.marginBottom = `${-Math.round(svg.getBoundingClientRect().height * 0.09)}px`;
+		// Bottom crop is now a fixed -8rem in CSS (see .c-footer__wordmark) — no
+		// script-driven margin needed.
 	}
 
 	// Footer reveal parallax: the inner content drifts UP slower than the page

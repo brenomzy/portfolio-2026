@@ -48,12 +48,13 @@
 		width: 3em;
 		height: 3em;
 		font-size: 0.75rem;
-		/* Theme-INDEPENDENT border. The toggle has its own view-transition-name,
-		 * so on a theme change its old/new snapshots cross-fade. A var(--border)
-		 * that differs per theme blends light→dark mid-fade — the "flick" on the
-		 * ring. A constant colour makes both snapshots' borders identical, so
-		 * there's nothing to blend. Reads subtly on both surfaces. */
-		border: 1px solid color-mix(in srgb, #8c857b 50%, transparent);
+		/* Theme-INDEPENDENT, fully OPAQUE border. The toggle has its own
+		 * view-transition-name, so its old/new snapshots cross-fade on a theme
+		 * change. A per-theme colour blends light→dark mid-fade; a *translucent*
+		 * constant colour still shifts because it composites over the background,
+		 * which itself crossfades (the residual flash on switch-to-dark). A solid
+		 * colour is identical in both snapshots — nothing to blend, no flash. */
+		border: 1px solid #857e74;
 		/* Circle — a deliberate counterpoint to the squared Buttons. */
 		border-radius: 50%;
 		background-color: var(--surface);

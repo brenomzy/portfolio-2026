@@ -28,6 +28,9 @@
 		height: 100%;
 		background-color: #c7400c; /* fallback (matches the shader's mid-deep) */
 	}
+	:global(html[data-theme="dark"]) .c-footer__bg {
+		background-color: #152b5a; /* night-blue fallback */
+	}
 </style>
 
 <script>
@@ -49,11 +52,10 @@
 		uniform float u_rays;   // light-striation strength
 		uniform float u_spread; // glow size
 		uniform vec2  u_hot;    // hotspot position (uv space)
-
-		const vec3 cHot    = vec3(1.000, 0.561, 0.255);
-		const vec3 cMid    = vec3(0.949, 0.380, 0.114);
-		const vec3 cDeep   = vec3(0.776, 0.251, 0.043);
-		const vec3 cShadow = vec3(0.627, 0.184, 0.035);
+		uniform vec3  u_cHot;   // palette (theme-aware): hotspot core
+		uniform vec3  u_cMid;   // field
+		uniform vec3  u_cDeep;  // edges
+		uniform vec3  u_cShadow;// corners / bottom
 
 		float hash(vec2 p) {
 			return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -113,9 +115,9 @@
 			float bottom = smoothstep(0.4, -0.05, uv.y);
 			float deepen = clamp(max(vig * 0.9, bottom), 0.0, 1.0);
 
-			vec3 col = mix(cDeep, cMid, smoothstep(0.20, 0.72, field));
-			col = mix(col, cHot, smoothstep(0.62, 1.0, field));
-			col = mix(col, cShadow, deepen * 0.8);
+			vec3 col = mix(u_cDeep, u_cMid, smoothstep(0.20, 0.72, field));
+			col = mix(col, u_cHot, smoothstep(0.62, 1.0, field));
+			col = mix(col, u_cShadow, deepen * 0.8);
 
 			// Sub-LSB dither — kills banding on the smooth field (not film grain).
 			col += (hash(gl_FragCoord.xy) - 0.5) / 255.0;
@@ -135,6 +137,27 @@
 	type Gradient = { resize: () => void; render: (t: number) => void; dispose: () => void };
 
 	const params: Params = { warp: 0.3, rays: 0.275, spread: 1.5, hotX: 0.53, hotY: 1.11, speed: 1.5 };
+
+	// Theme-aware palette (brightest -> deepest): warm orange in light, night
+	// blue in dark. Fed to the shader as uniforms; swapped on theme change.
+	type Palette = { hot: number[]; mid: number[]; deep: number[]; shadow: number[] };
+	const PALETTES: Record<"light" | "dark", Palette> = {
+		light: {
+			hot: [1.0, 0.561, 0.255], // #FF8F41
+			mid: [0.949, 0.38, 0.114], // #F26120
+			deep: [0.776, 0.251, 0.043], // #C6400B
+			shadow: [0.627, 0.184, 0.035], // #A02F09
+		},
+		dark: {
+			hot: [0.31, 0.49, 0.863], // #4F7DDC
+			mid: [0.161, 0.306, 0.62], // #294E9E
+			deep: [0.082, 0.169, 0.353], // #152B5A
+			shadow: [0.039, 0.078, 0.188], // #0A1430
+		},
+	};
+	const pickPalette = (): Palette =>
+		document.documentElement.dataset.theme === "dark" ? PALETTES.dark : PALETTES.light;
+	let palette: Palette = PALETTES.light;
 
 	function compile(gl: WebGLRenderingContext, type: number, src: string) {
 		const s = gl.createShader(type)!;
@@ -168,6 +191,10 @@
 		const uRays = gl.getUniformLocation(prog, "u_rays");
 		const uSpread = gl.getUniformLocation(prog, "u_spread");
 		const uHot = gl.getUniformLocation(prog, "u_hot");
+		const uCHot = gl.getUniformLocation(prog, "u_cHot");
+		const uCMid = gl.getUniformLocation(prog, "u_cMid");
+		const uCDeep = gl.getUniformLocation(prog, "u_cDeep");
+		const uCShadow = gl.getUniformLocation(prog, "u_cShadow");
 
 		function resize() {
 			const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -187,6 +214,10 @@
 			gl.uniform1f(uRays, params.rays);
 			gl.uniform1f(uSpread, params.spread);
 			gl.uniform2f(uHot, params.hotX, params.hotY);
+			gl.uniform3fv(uCHot, palette.hot);
+			gl.uniform3fv(uCMid, palette.mid);
+			gl.uniform3fv(uCDeep, palette.deep);
+			gl.uniform3fv(uCShadow, palette.shadow);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		}
 
@@ -201,6 +232,7 @@
 	let grad: Gradient | null = null;
 	let ro: ResizeObserver | null = null;
 	let io: IntersectionObserver | null = null;
+	let themeObs: MutationObserver | null = null;
 	let raf = 0;
 	let t0 = 0;
 
@@ -231,6 +263,7 @@
 		if (!grad) return;
 		canvas.dataset.ready = "1";
 
+		palette = pickPalette();
 		grad.resize();
 		grad.render(0);
 
@@ -245,6 +278,17 @@
 			{ rootMargin: "200px" },
 		);
 		io.observe(canvas);
+
+		// Swap palette when the theme flips; repaint at once so the theme
+		// view-transition wipe carries the new colour.
+		themeObs = new MutationObserver(() => {
+			palette = pickPalette();
+			grad?.render(performance.now() / 1000);
+		});
+		themeObs.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["data-theme"],
+		});
 
 		if (import.meta.env.DEV)
 			(window as unknown as { __footerGrad: unknown }).__footerGrad = {
@@ -262,6 +306,8 @@
 		ro = null;
 		io?.disconnect();
 		io = null;
+		themeObs?.disconnect();
+		themeObs = null;
 		grad?.dispose();
 		grad = null;
 	}

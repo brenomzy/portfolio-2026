@@ -1,7 +1,6 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import ProgressiveBlur from "../components/ProgressiveBlur.astro";
-import FooterGradientControls from "../components/FooterGradientControls.astro";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 // Display face for the footer wordmark only (single 400 weight — the "Black").
@@ -72,7 +71,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 		</main>
 		<slot name="footer" />
 		<ProgressiveBlur />
-		{import.meta.env.DEV && <FooterGradientControls />}
 
 		<style>
 			/* Footer reveal: #main sits above the footer (which is sticky to the

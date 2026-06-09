@@ -79,6 +79,9 @@ const socials = [
 		--footer-muted: color-mix(in oklab, var(--footer-fg) 64%, transparent);
 		--footer-line: color-mix(in oklab, var(--footer-fg) 26%, transparent);
 	}
+	:global(html[data-theme="dark"]) .c-footer {
+		background-color: #152b5a; /* night-blue fallback under the canvas */
+	}
 
 	.c-footer__inner {
 		display: flex;
@@ -160,8 +163,8 @@ const socials = [
 		font-weight: 400;
 		text-transform: uppercase;
 		letter-spacing: -0.02em; /* tight — no tracking */
-		/* Dark burnt tint — the subtle "watermark" wordmark from the reference. */
-		fill: rgba(40, 12, 0, 0.18);
+		/* Neutral darken — subtle "watermark" wordmark; works on orange + blue. */
+		fill: rgba(0, 0, 0, 0.17);
 	}
 </style>
 

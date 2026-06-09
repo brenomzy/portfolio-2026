@@ -1,85 +1,288 @@
 ---
 import { sanityClient } from "../lib/sanity/client";
 import { SITE_SETTINGS_QUERY } from "../lib/sanity/queries";
+import FooterGradient from "./FooterGradient.astro";
 
 const settings = await sanityClient.fetch(SITE_SETTINGS_QUERY);
-const socials = settings?.socials ?? [];
-const email = settings?.email;
-const brand = settings?.title ?? "Portfolio";
-const year = new Date().getFullYear();
+
+// Dummy fallbacks so the reveal footer has content to show while real CMS data
+// is still being wired up. Replace once Site Settings is populated in Sanity.
+const email = settings?.email ?? "hello@breno.dev";
+const brand = settings?.title ?? "Breno";
+
+// Footer socials — hardcoded for now (CMS has no X yet). Wire to Site Settings
+// once those URLs exist in Sanity.
+const socials = [
+	{ platform: "LinkedIn", url: "#" },
+	{ platform: "X", url: "#" },
+];
 ---
 
 <footer class="c-footer">
+	<FooterGradient />
 	<div class="c-footer__inner">
-		<div class="c-footer__contact">
-			{
-				email && (
-					<a class="c-footer__email" href={`mailto:${email}`}>
-						{email}
-					</a>
-				)
-			}
-			{
-				socials.length > 0 && (
-					<ul class="c-footer__socials">
-						{socials.map((s) => (
-							<li>
-								<a href={s.url} target="_blank" rel="me noopener noreferrer">
-									{s.platform}
-								</a>
-							</li>
-						))}
-					</ul>
-				)
-			}
+		<div class="c-footer__lead">
+			<p class="c-footer__eyebrow">Have something in mind?</p>
+			<a class="c-footer__cta" href={`mailto:${email}`}>
+				Let’s work together <span aria-hidden="true">→</span>
+			</a>
 		</div>
-		<p class="c-footer__copy">&copy; {year} {brand}</p>
+
+		<ul class="c-footer__socials">
+			{
+				socials.map((s) => (
+					<li>
+						<a href={s.url} target="_blank" rel="me noopener noreferrer">
+							{s.platform}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+
+		<!-- Wordmark scaled to span the container at natural bold proportions
+		     (no tracking). The viewBox is set from the text's measured bounding
+		     box in script (fitWordmark), so width:100% scales the glyphs to full
+		     width; height follows and is clipped by the footer if it overflows.
+		     Initial viewBox is an approximation refined on load. -->
+		<svg
+			class="c-footer__wordmark"
+			viewBox="0 -78 330 84"
+			preserveAspectRatio="xMidYMid meet"
+			aria-hidden="true"
+		>
+			<text>{brand}</text>
+		</svg>
 	</div>
 </footer>
 
 <style>
+	/* Reveal footer ----------------------------------------------------------
+	 * Pinned to the bottom of the viewport, behind #main (z-index:1 + opaque,
+	 * set in Base.astro). #main lifts away on scroll to uncover it. Kept SHORTER
+	 * than the viewport so it never reaches up behind the translucent header
+	 * (see note in Base.astro). overflow:hidden clips the parallax drift + the
+	 * oversized wordmark. */
 	.c-footer {
-		border-top: 1px solid var(--border);
-		margin-top: var(--spacing-3xl);
+		position: sticky;
+		bottom: 0;
+		z-index: 0;
+		min-height: 58svh;
+		display: flex;
+		overflow: hidden;
+		/* Branded orange panel (the WebGL gradient renders on top of this fallback
+		 * colour — see FooterGradient.astro). Theme-independent, so text colours
+		 * are constants tuned to read on the orange. */
+		background-color: #c7400c;
+		--footer-fg: #fff4ec;
+		color: var(--footer-fg);
+		--footer-muted: color-mix(in oklab, var(--footer-fg) 64%, transparent);
+		--footer-line: color-mix(in oklab, var(--footer-fg) 26%, transparent);
 	}
+
 	.c-footer__inner {
 		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--spacing-m);
+		flex-direction: column;
+		gap: var(--spacing-s);
+		width: 100%;
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding: var(--spacing-l) var(--spacing-m);
+		/* Above the gradient canvas (which is position:absolute inside the footer). */
+		position: relative;
+		z-index: 1;
+		/* Generous top padding; no bottom padding so the wordmark reaches the
+		 * footer's bottom edge (and its negative margin crops it — see script). */
+		padding: var(--spacing-2xl) var(--spacing-m) 0;
+		will-change: transform;
 	}
-	.c-footer__contact {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--spacing-m);
+
+	/* CTA ------------------------------------------------------------------- */
+	.c-footer__eyebrow {
+		color: var(--footer-muted);
+		font-size: var(--text-step-0);
+		margin-bottom: var(--spacing-3xs);
 	}
-	.c-footer__email {
-		font-size: var(--text-step-1);
+	.c-footer__cta {
+		display: inline-block;
+		font-size: var(--text-step-4);
+		font-weight: 560;
+		letter-spacing: -0.03em;
+		line-height: 1.02;
 		text-decoration: none;
+		color: #fff9f4;
+		max-width: 14ch;
 	}
-	.c-footer__email:hover {
-		color: var(--accent);
+	.c-footer__cta span {
+		display: inline-block;
+		transition: transform 0.4s var(--ease-out-expo);
 	}
+	.c-footer__cta:hover {
+		color: #fff;
+	}
+	.c-footer__cta:hover span {
+		transform: translateX(0.25em);
+	}
+
+	/* Socials --------------------------------------------------------------- */
 	.c-footer__socials {
 		display: flex;
+		flex-wrap: wrap;
 		gap: var(--spacing-s);
 		list-style: none;
 		padding: 0;
-	}
-	.c-footer__socials a {
-		color: var(--text-muted);
-		text-decoration: none;
-	}
-	.c-footer__socials a:hover {
-		color: var(--text);
-	}
-	.c-footer__copy {
-		color: var(--text-muted);
+		font-family: var(--font-mono);
 		font-size: var(--text-step--1);
 	}
+	.c-footer__socials a {
+		color: var(--footer-muted);
+		text-decoration: none;
+		transition: color 0.2s var(--ease-default);
+	}
+	.c-footer__socials a:hover {
+		color: #fff;
+	}
+
+	/* Oversized wordmark — spans the full container width (SVG textLength),
+	 * pinned to the footer's bottom edge, softly dissolved by the
+	 * progressive-blur overlay. */
+	.c-footer__wordmark {
+		display: block;
+		width: 100%;
+		height: auto;
+		margin-top: auto; /* push to the bottom of the footer */
+		overflow: visible;
+		user-select: none;
+	}
+	.c-footer__wordmark text {
+		/* Archivo Black — single 400 weight (the "Black" is built in). */
+		font-family: "Archivo Black", var(--font-sans);
+		font-size: 100px; /* arbitrary; the measured viewBox scales it to width */
+		font-weight: 400;
+		text-transform: uppercase;
+		letter-spacing: -0.02em; /* tight — no tracking */
+		/* Dark burnt tint — the subtle "watermark" wordmark from the reference. */
+		fill: rgba(40, 12, 0, 0.18);
+	}
 </style>
+
+<script>
+	import gsap from "gsap";
+	import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+	gsap.registerPlugin(ScrollTrigger);
+
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+	let st: ScrollTrigger | null = null;
+	let ro: ResizeObserver | null = null;
+
+	// Size the wordmark to span the container at natural bold proportions.
+	// SVG getBBox() returns the font's LINE box (ascent→descent), which leaves
+	// dead space above/below and includes side bearings — so the glyphs don't
+	// sit flush. Instead we measure the true INK box via canvas measureText
+	// (actualBoundingBox*, font-agnostic) and use THAT as the viewBox: glyphs
+	// flush to all four edges, sides aligned to the container. A negative
+	// bottom margin then crops the base of the letters (footer clips it).
+	let measureCanvas: HTMLCanvasElement | null = null;
+	function fitWordmark() {
+		const svg = document.querySelector<SVGSVGElement>(".c-footer__wordmark");
+		const text = svg?.querySelector("text");
+		if (!svg || !text) return;
+
+		const cs = getComputedStyle(text);
+		const fs = parseFloat(cs.fontSize) || 100;
+		const ls = parseFloat(cs.letterSpacing) || 0;
+		const content = (text.textContent || "").trim().toUpperCase();
+		if (!content) return;
+
+		measureCanvas ??= document.createElement("canvas");
+		const ctx = measureCanvas.getContext("2d");
+		if (!ctx) return;
+		ctx.font = `${cs.fontWeight} ${fs}px ${cs.fontFamily}`;
+		// letterSpacing is supported in Chromium; harmless to skip elsewhere.
+		if ("letterSpacing" in ctx) (ctx as unknown as { letterSpacing: string }).letterSpacing = `${ls}px`;
+
+		const m = ctx.measureText(content);
+		const x = -m.actualBoundingBoxLeft;
+		const y = -m.actualBoundingBoxAscent;
+		const w = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+		const h = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+		if (w <= 0 || h <= 0) return;
+		svg.setAttribute("viewBox", `${x} ${y} ${w} ${h}`);
+
+		// Crop the base of the caps a touch — the footer's overflow:hidden clips
+		// whatever the negative margin pushes below its box.
+		svg.style.marginBottom = `${-Math.round(svg.getBoundingClientRect().height * 0.09)}px`;
+	}
+
+	// Footer reveal parallax: the inner content drifts UP slower than the page
+	// scrolls as #main lifts away, so the footer "rises into place" instead of
+	// scrolling 1:1 (the heykuba feel). Driven off #main's bottom edge crossing
+	// the viewport — no dependency on the sticky footer's own (awkward) rect.
+	function initParallax() {
+		st?.kill(); // idempotent: setup() may run twice on the initial load
+		st = null;
+		const inner = document.querySelector<HTMLElement>(".c-footer__inner");
+		if (!inner || reduced.matches) return;
+
+		const tween = gsap.fromTo(
+			inner,
+			{ y: 64 },
+			{
+				y: -28,
+				ease: "none",
+				scrollTrigger: {
+					// The footer is 58svh, so at full reveal #main's bottom only rises
+					// to ~42% of the viewport — that's as far as the page scrolls. End
+					// the drift there so it completes exactly as the footer lands
+					// (keep this in sync with the footer's min-height).
+					trigger: "#main",
+					start: "bottom bottom", // reveal begins
+					end: "bottom 40%", // footer essentially full
+					scrub: true,
+				},
+			},
+		);
+		st = tween.scrollTrigger ?? null;
+	}
+
+	// Keep the wordmark fitted to the container width. A ResizeObserver is more
+	// reliable than astro:page-load for the FIRST fit — its initial callback runs
+	// after layout regardless of script/event ordering. Width-guarded so the
+	// SVG's own height change (from a fit) can't re-trigger it into a loop.
+	function observeWordmark() {
+		const inner = document.querySelector<HTMLElement>(".c-footer__inner");
+		if (!inner) return;
+		ro?.disconnect();
+		let lastW = 0;
+		ro = new ResizeObserver(() => {
+			const w = inner.clientWidth;
+			if (w && w !== lastW) {
+				lastW = w;
+				fitWordmark();
+			}
+		});
+		ro.observe(inner);
+		// Refit once the display face has actually loaded — fallback metrics differ.
+		document.fonts?.ready.then(fitWordmark);
+		document.fonts?.load('400 1rem "Archivo Black"').then(fitWordmark).catch(() => {});
+	}
+
+	function setup() {
+		observeWordmark();
+		initParallax();
+	}
+
+	function cleanup() {
+		st?.kill();
+		st = null;
+		ro?.disconnect();
+		ro = null;
+		gsap.set(".c-footer__inner", { clearProps: "transform" });
+	}
+
+	// Run now (covers the initial load even if astro:page-load already fired) and
+	// on every client-side navigation.
+	setup();
+	document.addEventListener("astro:page-load", setup);
+	document.addEventListener("astro:before-swap", cleanup);
+</script>

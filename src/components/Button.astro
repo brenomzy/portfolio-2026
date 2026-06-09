@@ -20,7 +20,7 @@
 interface Props {
 	label: string;
 	href?: string;
-	variant?: "primary" | "secondary" | "accent";
+	variant?: "primary" | "secondary" | "accent" | "solid" | "ghost";
 	type?: "button" | "submit" | "reset";
 	class?: string;
 	[key: string]: unknown;
@@ -179,6 +179,32 @@ const Tag = href ? "a" : "button";
 		--btn-edge: var(--accent);
 		--btn-fill: var(--btn-paper);
 		--btn-hover-text: var(--btn-ink);
+	}
+
+	/* ── Solid: THEME-AWARE dominant CTA. Unlike primary/secondary (which are
+	 * fixed paper/ink constants), this follows the theme — text-coloured fill so
+	 * it's black-on-light / white-on-dark, always the highest-contrast button on
+	 * the page. Hover inverts: orange flash → fills to the page colour, label
+	 * crosses to the text colour. ──────────────────────────────────────────── */
+	.c-button[data-variant="solid"] {
+		--btn-bg: var(--text);
+		--btn-text: var(--bg);
+		--btn-border: transparent;
+		--btn-edge: var(--accent);
+		--btn-fill: var(--bg);
+		--btn-hover-text: var(--text);
+	}
+
+	/* ── Ghost: THEME-AWARE quiet CTA — transparent with a hairline border, text
+	 * in the theme colour. Pairs under `solid` as the secondary action. Hover
+	 * flips to a solid text-coloured fill (orange flash first). ─────────────── */
+	.c-button[data-variant="ghost"] {
+		--btn-bg: transparent;
+		--btn-text: var(--text);
+		--btn-border: color-mix(in srgb, var(--text), transparent 78%);
+		--btn-edge: var(--accent);
+		--btn-fill: var(--text);
+		--btn-hover-text: var(--bg);
 	}
 
 	/* ── Accent: orange CTA (nav). Calm hover — just black wipes in, no flash,

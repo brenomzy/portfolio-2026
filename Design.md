@@ -34,8 +34,14 @@ button hover flood), never body text or large fields.
 
 ### Type
 
-Geist (sans + mono). Fluid scale `--text-step--1 … 6` via `clamp()`
-(320 → 1240px). Mono is reserved for small meta/labels (counts, clock).
+**Geist Sans** everywhere. Fluid scale `--text-step--1 … 6` via `clamp()`
+(320 → 1240px). **Archivo Black** is loaded as a display face for the footer
+wordmark only.
+
+> **Geist Mono dropped.** `--font-mono` now resolves to a *system* mono stack;
+> the Geist Mono webfont import was removed since nothing uses it (the footer meta
+> and the copy toast were the last holdouts — both moved to sans). Re-add the
+> `@fontsource-variable/geist-mono` import if a real mono need returns.
 
 ### Space
 
@@ -46,6 +52,24 @@ utilities (`p-m`, `gap-l`) and raw vars in scoped component CSS.
 
 `--radius-sm … xl` exist for cards/media. **Buttons are intentionally squared
 (radius 0)** for now — see below.
+
+### Elevation — layered shadows
+
+`--shadow-1 … --shadow-5` (`tokens.css`). Each level **stacks several shadow
+layers** with growing blur/offset and falling opacity, so the penumbra falls off
+like real soft light — a single `box-shadow` reads flat/cheap by comparison.
+Colour + strength are theme vars so shadows warm-tint on the cream UI and gain
+punch on dark:
+
+- `--shadow-hsl` — `24 24% 10%` (warm near-black) light · `0 0% 0%` dark
+- `--shadow-strength` — added to every layer's alpha · `0` light · `0.06` dark
+
+Reach for the lowest level that reads: **1** hairline · **2** resting card ·
+**3** hover · **4** floating (menus/sticky) · **5** overlay (modals, the page
+panel over the footer). Use as `box-shadow: var(--shadow-3);`.
+
+> Drop shadows barely register on dark surfaces by nature — on dark, depth leans
+> on tonal contrast more than the shadow. Known + accepted.
 
 ### Motion
 
@@ -69,7 +93,7 @@ reference ships a springy ease — e.g. an overshoot `…1.5…` — swap it for
 reveals, sequenced timelines.
 
 **Header reveal** (script in [`SiteHeader.astro`](src/components/SiteHeader.astro)).
-On load the logo, then the Contact button, then the toggle **blur-in**: `gsap.from`
+On load the logo, then the theme toggle **blur-in**: `gsap.from`
 with `autoAlpha: 0`, `filter: blur(8px)`, a small `y`, staggered on `expo.out`. The
 blur (rather than a plain fade) echoes the entrance feel from the aritro.xyz
 reference. Runs immediately (no text to split, so no font wait), so the header
@@ -123,8 +147,12 @@ custom properties so variants override values without forking CSS.
 pared-back bar — `display: flex; justify-content: space-between`:
 
 - **Left** — the logo (`c-logo`), linked home.
-- **Right** — `Contact me` (the `accent` Button variant) + the theme toggle,
-  sized as siblings (see below).
+- **Right** — the theme toggle only.
+
+> **"Contact me" removed.** The nav `accent` CTA was cut as redundant — contact is
+> covered by the hero and footer CTAs (which copy the email + toast; see
+> [Contact pattern](#contact-pattern--copy--toast)). The header is now just
+> logo + toggle. Re-add a Button here if a persistent nav CTA is wanted later.
 
 **No nav links.** The earlier About / Work center links were removed — with a
 short single-page portfolio the CTA + a clear hero do the wayfinding, and the
@@ -166,15 +194,20 @@ more (`0.094em → 1.5em`) and masked to a progressively lower band, so the blur
 [`src/components/Logo.astro`](src/components/Logo.astro). The brand wordmark,
 inlined as SVG.
 
-**One file, theme-aware via `currentColor`.** The mark (left glyph) keeps its
-fixed orange gradient — brand identity, theme-independent. The wordmark letters
-are `fill="currentColor"`, so the logo follows the active theme automatically
-(warm ink on light, warm white on dark) with **no flash and no light/dark file
-swap**. Preferred over shipping two SVGs and toggling `display`.
+**One file, fully theme-aware.** The wordmark letters are `fill="currentColor"`,
+so they follow the active theme (warm ink on light, warm white on dark). The
+**mark gradient is also theme-aware** now, driven by tokens
+`--logo-grad-1/2` on the `<stop>`s (and the small accent patch), so it flips with
+the theme — **no light/dark file swap**.
 
-> The mark's gradient (`#FFB039 → #FF6E2B`, a warm yellow-orange) is intentionally
-> left as the supplied brand asset — it runs slightly warmer than the site
-> `--accent` (`#FF4E2A`). Retune only if the clash becomes a problem.
+> **Gradient matches the footer, flips orange→blue.** The mark echoes the footer's
+> backlit palette: **orange in light** (`#ff8f41 → #c6400b`) and **night-blue in
+> dark** (`#4f7ddc → #294e9e`) — the same hot→deep stops the footer WebGL gradient
+> uses. A `0.4s` `stop-color`/`fill` transition eases the recolour on toggle.
+> (Was a fixed warm-orange brand asset; made theme-aware so the mark and footer
+> read as one system.)
+
+> `aria-label` corrected `Brone → Breno` (here and on the header brand link).
 
 Sized by CSS `height` (`1.75rem`) with `width: auto`; the `123:50` viewBox holds
 the ratio.
@@ -293,11 +326,24 @@ Foundations → Motion for why we dropped Osmo's springy `linear()` ease.
 
 **Variants** (via `data-variant`, overriding `--btn-*`):
 
-| Variant | Rest | Hover |
-| --- | --- | --- |
-| `primary` (default) | white, dark text | orange flash → black, white text |
-| `secondary` | black, white text | orange flash → white, dark text |
-| `accent` | orange, white text | black wipes in (no flash), white text |
+| Variant | Rest | Hover | Theme-aware? |
+| --- | --- | --- | --- |
+| `primary` (default) | white, dark text | orange flash → black, white text | no (constant) |
+| `secondary` | black, white text | orange flash → white, dark text | no (constant) |
+| `accent` | orange, white text | black wipes in (no flash), white text | no (constant) |
+| `solid` | **text-colour** bg, bg-colour label | orange flash → inverts (fills bg, label→text) | **yes** |
+| `ghost` | transparent + hairline border, text label | orange flash → fills text-colour, label→bg | **yes** |
+
+**Theme-aware variants (`solid` / `ghost`).** Unlike the three constant variants
+above, these follow the theme via `--text` / `--bg`, so:
+
+- `solid` is the **dominant** CTA — highest contrast in either mode:
+  **black on light, white on dark**. (This is the "theme-aware dominant" we'd flagged
+  was needed: a fixed paper/ink button can't be the loud one in *both* themes.)
+- `ghost` is the **quiet secondary** — transparent with a hairline border, used
+  *under* `solid` so the hierarchy reads in both themes.
+
+The **hero** uses `View work` = `solid` (dominant) + `Get in touch` = `ghost`.
 
 **Accessibility.**
 - Focus ring is an `::after` box-shadow using `--accent` (ink on the orange
@@ -315,11 +361,77 @@ Foundations → Motion for why we dropped Osmo's springy `linear()` ease.
 ---
 import Button from "../components/Button.astro";
 ---
-<Button label="Get in touch" href="#" />                        {/* primary, white */}
-<Button label="View work ↓" href="#work" variant="secondary" /> {/* black */}
-<Button label="Start a project" href="#" variant="accent" />    {/* orange — nav/CTA */}
+<Button label="View work ↓" href="#work" variant="solid" />     {/* dominant, theme-aware */}
+<Button label="Get in touch" variant="ghost"                    {/* quiet, theme-aware */}
+  href="mailto:contato@brenodaroz.com" data-copy-email="contato@brenodaroz.com" />
 <Button label="Submit" type="submit" />                         {/* renders <button> */}
 ```
 
+`data-copy-email` turns any Button (or element) into a copy-to-clipboard trigger —
+see [Contact pattern](#contact-pattern--copy--toast).
+
 **Open questions / next.** Sizing scale (sm/lg), icon slot, disabled/loading
 states, and whether to keep squared or round once the broader UI lands.
+
+### Contact pattern — copy + toast
+
+There is **no `mailto:`-as-primary** action. Every contact CTA **copies the email
+to the clipboard** and shows a confirmation toast — a deliberate UX choice over
+launching a mail client.
+
+- **One email constant:** `CONTACT_EMAIL` in
+  [`src/lib/site.ts`](src/lib/site.ts) — `contato@brenodaroz.com` for now. Hardcoded
+  on purpose; swap to CMS (Site Settings) later in this one place.
+- **Trigger:** any element with `data-copy-email="…"`. A single **delegated**
+  click handler + one toast instance live in
+  [`Base.astro`](src/layouts/Base.astro), so it survives Astro View-Transition
+  swaps and needs no per-component wiring.
+- **`href="mailto:…"` stays** on each CTA as a **no-JS fallback**; the handler
+  `preventDefault`s it when JS is live. Clipboard needs a secure context + focus
+  (localhost / https); if it throws, the toast still surfaces the address so the
+  click is never a dead end.
+- **CTAs:** hero **Get in touch**, footer **Get in touch**.
+- **Toast:** fixed bottom-centre pill, `role="status"` + `aria-live="polite"`,
+  theme-token colours (`--text` bg / `--bg` text), auto-hides ~2.2s.
+
+### Footer — `c-footer`
+
+[`src/components/SiteFooter.astro`](src/components/SiteFooter.astro). A **reveal
+footer**: `position: sticky; bottom: 0` behind `#main` (which is opaque, `z-index:
+1`); the page lifts away on scroll to uncover it. Parallax drift on the inner via
+GSAP ScrollTrigger. Kept **shorter than the viewport** so it never reaches up behind
+the translucent header; `overflow: hidden` clips the drift + the wordmark.
+
+**Depth — foreground panel.** `#main` carries a large, soft **downward shadow** (4
+layers up to 120px blur, low alpha) so the footer reads as a recessed background
+layer at the reveal seam. (We tried a border-radius on the seam too — removed; the
+shadow alone reads cleaner and more premium.)
+
+**Contact card (top row).**
+- **Desktop:** lead (eyebrow → headline → white `Get in touch` button, the `primary`
+  variant) on the left; meta column (socials, location) **right-aligned and
+  bottom-aligned** to the button baseline.
+- Socials render inline as `LinkedIn / X` (hairline `/` separator), real URLs,
+  `target="_blank" rel="me noopener"`.
+- **Mobile (< 40rem):** the row stacks to a column, **everything left-aligned**
+  (no right-alignment anywhere), and the panel shortens to `min-height: 46svh`
+  (58svh on desktop).
+
+**Wordmark.** Oversized `BRENO` in Archivo Black, pinned to the bottom edge, softly
+dissolved by the bottom progressive-blur.
+- **Full-bleed:** `width: 100vw` + `left: 50%; margin-left: -50vw`. Requires
+  `max-width: none` to beat the global `svg { max-width: 100% }` reset (which
+  otherwise silently clamps it to the container width).
+- **Letter-spacing `-0.1em`** — very tight; the heavy Black weight carries it. A fit
+  script (`fitWordmark`) measures the live ink box via canvas `measureText` and sets
+  the `viewBox` so glyphs sit flush to all edges; it reads the **live**
+  letter-spacing, so tracking tweaks stay accurate automatically.
+- **Bottom crop `margin-bottom: -8vw`** — in **`vw`, not `rem`**: the mark is
+  full-bleed so its height scales with viewport width, and a `vw` crop slices the
+  **same proportion** (~39%) at every screen size. A fixed `rem` over-crops narrow
+  screens and under-crops wide ones.
+
+> **Parallax / height coupling (deferred).** The reveal ScrollTrigger's end point
+> loosely assumes the 58svh footer height. The mobile 46svh ends the scrubbed drift
+> a touch early but lands gracefully (no visible glitch). To make it exact, read the
+> actual footer height in the trigger instead of hard-assuming 58svh.

@@ -2,7 +2,6 @@
 import { ClientRouter } from "astro:transitions";
 import ProgressiveBlur from "../components/ProgressiveBlur.astro";
 import "@fontsource-variable/geist";
-import "@fontsource-variable/geist-mono";
 // Display face for the footer wordmark only (single 400 weight — the "Black").
 import "@fontsource/archivo-black";
 import "../styles/global.css";
@@ -72,6 +71,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 		<slot name="footer" />
 		<ProgressiveBlur />
 
+		<!-- Global copy-confirmation toast. A single instance for the whole app;
+		     the delegated handler below populates + reveals it. aria-live so the
+		     confirmation is announced to assistive tech. -->
+		<div class="c-toast" role="status" aria-live="polite" data-toast>
+			<span class="c-toast__text"></span>
+		</div>
+
 		<style>
 			/* Footer reveal: #main sits above the footer (which is sticky to the
 			 * viewport bottom — see SiteFooter.astro) and must be opaque so it hides
@@ -86,6 +92,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 				position: relative;
 				z-index: 1;
 				background-color: var(--bg);
+				/* Foreground panel over the reveal footer: a large, soft downward
+				 * shadow makes the footer read as a recessed background layer as the
+				 * page lifts away. Bigger than --shadow-5 (this is a full-width seam,
+				 * not a small card) but low-alpha so it stays subtle. Only the bottom
+				 * edge shows at the reveal — sides sit at the viewport edge, the top is
+				 * covered by the sticky header. */
+				box-shadow:
+					0 8px 16px hsl(var(--shadow-hsl) / calc(0.05 + var(--shadow-strength))),
+					0 20px 40px hsl(var(--shadow-hsl) / calc(0.045 + var(--shadow-strength))),
+					0 40px 72px hsl(var(--shadow-hsl) / calc(0.04 + var(--shadow-strength))),
+					0 72px 120px hsl(var(--shadow-hsl) / calc(0.03 + var(--shadow-strength)));
 			}
 
 			.c-skip-link {
@@ -104,6 +121,78 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 			.c-skip-link:focus-visible {
 				transform: translateY(0);
 			}
+
+			/* Copy toast — pill pinned bottom-centre, above everything. Uses theme
+			 * tokens so it inverts correctly in dark mode (text bg on bg-coloured
+			 * text). Hidden + lifted by default; .is-visible drops it into view. */
+			.c-toast {
+				position: fixed;
+				left: 50%;
+				bottom: var(--spacing-l);
+				z-index: 200;
+				display: flex;
+				align-items: center;
+				padding: var(--spacing-2xs) var(--spacing-s);
+				background-color: var(--text);
+				color: var(--bg);
+				border-radius: var(--radius-md);
+				font-size: var(--text-step--1);
+				box-shadow: 0 0.5rem 1.875rem rgba(0, 0, 0, 0.18);
+				opacity: 0;
+				translate: -50% 0.75rem;
+				pointer-events: none;
+				transition:
+					opacity 0.3s var(--ease-out-expo),
+					translate 0.3s var(--ease-out-expo);
+			}
+			.c-toast.is-visible {
+				opacity: 1;
+				translate: -50% 0;
+			}
+			@media (prefers-reduced-motion: reduce) {
+				.c-toast {
+					translate: -50% 0;
+					transition: opacity 0.2s linear;
+				}
+			}
 		</style>
+
+		<script>
+			// Global copy-to-clipboard for any [data-copy-email] trigger (nav, hero,
+			// footer CTAs). Delegated on document so it survives Astro view-transition
+			// swaps and covers elements added later. Runs once — module scripts aren't
+			// re-executed on client-side navigation.
+			let hideTimer: ReturnType<typeof setTimeout> | undefined;
+
+			function showToast(message: string) {
+				const toast = document.querySelector<HTMLElement>("[data-toast]");
+				const text = toast?.querySelector<HTMLElement>(".c-toast__text");
+				if (!toast || !text) return;
+				text.textContent = message;
+				toast.classList.add("is-visible");
+				clearTimeout(hideTimer);
+				hideTimer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
+			}
+
+			async function copyEmail(value: string) {
+				try {
+					await navigator.clipboard.writeText(value);
+					showToast(`Copied ${value}`);
+				} catch {
+					// Clipboard blocked (insecure context / denied) — still surface the
+					// address so the click isn't a dead end.
+					showToast(value);
+				}
+			}
+
+			document.addEventListener("click", (e) => {
+				const trigger = (e.target as Element | null)?.closest<HTMLElement>(
+					"[data-copy-email]",
+				);
+				if (!trigger) return;
+				e.preventDefault(); // suppress the mailto: fallback when JS is live
+				copyEmail(trigger.dataset.copyEmail ?? "");
+			});
+		</script>
 	</body>
 </html>

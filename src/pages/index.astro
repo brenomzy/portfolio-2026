@@ -54,7 +54,7 @@ const description = settings?.description ?? undefined;
 		text-wrap: pretty;
 	}
 	.hero__lead {
-		font-size: var(--text-step-1);
+		font-size: 1.125rem; /* 18px — trialing a smaller lead per request */
 		color: var(--text-muted);
 		max-width: 48ch;
 	}
@@ -159,7 +159,11 @@ const description = settings?.description ?? undefined;
 						filter: "blur(8px)",
 						duration: 0.6,
 						stagger: 0.08,
-						clearProps: "filter",
+						// "all" (not just "filter") so GSAP's inline transform props —
+						// incl. `scale: none` — are removed, freeing the buttons'
+						// :active press scale. Safe here: these children have no
+						// [data-reveal] visibility to preserve.
+						clearProps: "all",
 					},
 					"-=0.35",
 				);

@@ -72,8 +72,11 @@ const Tag = href ? "a" : "button";
 		--btn-radius: 0;
 		--btn-focus-inset: -0.25em;
 
-		/* Motion — one smooth ease, no overshoot. Serious, not springy. */
-		--btn-click-scale: 0.97;
+		/* Motion — one smooth ease, no overshoot. Serious, not springy.
+		 * cubic-bezier(0.32, 0.72, 0, 1) is the premium iOS/Vercel curve. The
+		 * press is asymmetric: snappy scale-down for instant tactile feedback
+		 * (~100ms, per the animation-design skill), smooth settle on release. */
+		--btn-click-scale: 0.96;
 		--btn-ease: cubic-bezier(0.32, 0.72, 0, 1);
 
 		color: var(--btn-text);
@@ -94,7 +97,8 @@ const Tag = href ? "a" : "button";
 		display: inline-grid;
 		position: relative;
 		-webkit-tap-highlight-color: transparent;
-		transition: scale 0.2s var(--btn-ease);
+		/* Release settle. The press-in duration is overridden on :active below. */
+		transition: scale 0.3s var(--btn-ease);
 	}
 
 	/* Focus ring lives on ::after so it sits outside the clipped background.
@@ -113,6 +117,7 @@ const Tag = href ? "a" : "button";
 
 	.c-button:active {
 		scale: var(--btn-click-scale);
+		transition-duration: 0.1s; /* press in fast — instant feedback */
 	}
 
 	.c-button:focus-visible {

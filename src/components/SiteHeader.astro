@@ -80,8 +80,15 @@ import ThemeToggle from "./ThemeToggle.astro";
 			duration: 0.55,
 			stagger: 0.07,
 			ease: "expo.out",
-			// Drop the inline filter afterwards so nothing lingers on the elements.
-			onComplete: () => gsap.set(items, { clearProps: "filter" }),
+			onComplete: () => {
+				// Drop the inline blur on everything…
+				gsap.set(items, { clearProps: "filter" });
+				// …and fully reset the action buttons so GSAP's inline transform
+				// props (incl. `scale: none`) don't override their :active press
+				// scale. Only the buttons — the brand keeps its [data-reveal]
+				// inline visibility.
+				gsap.set(Array.from(actions.children), { clearProps: "all" });
+			},
 		});
 	}
 

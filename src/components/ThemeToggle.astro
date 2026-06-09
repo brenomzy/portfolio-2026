@@ -48,7 +48,13 @@
 		width: 3em;
 		height: 3em;
 		font-size: 0.75rem;
-		border: 1px solid var(--border);
+		/* Theme-INDEPENDENT, fully OPAQUE border. The toggle has its own
+		 * view-transition-name, so its old/new snapshots cross-fade on a theme
+		 * change. A per-theme colour blends light→dark mid-fade; a *translucent*
+		 * constant colour still shifts because it composites over the background,
+		 * which itself crossfades (the residual flash on switch-to-dark). A solid
+		 * colour is identical in both snapshots — nothing to blend, no flash. */
+		border: 1px solid #857e74;
 		/* Circle — a deliberate counterpoint to the squared Buttons. */
 		border-radius: 50%;
 		background-color: var(--surface);
@@ -60,13 +66,16 @@
 		/* Lifts the toggle out of the theme-wipe's page snapshot so its icon
 		 * animation plays live during the wipe (see global.css → is-theme-vt). */
 		view-transition-name: theme-toggle;
+		/* No hover state — just a tactile press, matching the Buttons. The press
+		 * scale-down is snappy (override on :active), settle is smooth. */
 		transition:
 			background-color 0.2s var(--ease-default),
-			border-color 0.2s var(--ease-default);
+			scale 0.3s var(--ease-default);
 	}
 
-	.c-theme-toggle:hover {
-		border-color: var(--accent);
+	.c-theme-toggle:active {
+		scale: 0.92;
+		transition-duration: 0.1s;
 	}
 
 	.c-theme-toggle:focus-visible {

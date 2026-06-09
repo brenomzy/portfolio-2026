@@ -3,6 +3,8 @@ import { ClientRouter } from "astro:transitions";
 import ProgressiveBlur from "../components/ProgressiveBlur.astro";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
+// Display face for the footer wordmark only (single 400 weight — the "Black").
+import "@fontsource/archivo-black";
 import "../styles/global.css";
 
 interface Props {
@@ -71,6 +73,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 		<ProgressiveBlur />
 
 		<style>
+			/* Footer reveal: #main sits above the footer (which is sticky to the
+			 * viewport bottom — see SiteFooter.astro) and must be opaque so it hides
+			 * the footer until the page scrolls past it.
+			 *
+			 * NOTE: the footer is kept SHORTER than the viewport on purpose. A full
+			 * 100svh footer would, while pinned at the bottom, also reach up behind
+			 * the translucent header — whose backdrop-filter would then sample the
+			 * dark footer and tint the nav. Keeping the footer < viewport height
+			 * leaves the header backdrop on #main only. */
+			#main {
+				position: relative;
+				z-index: 1;
+				background-color: var(--bg);
+			}
+
 			.c-skip-link {
 				position: absolute;
 				left: var(--spacing-s);

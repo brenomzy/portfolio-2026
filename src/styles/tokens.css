@@ -106,7 +106,7 @@
 	--spacing-3xl: clamp(6rem, 5.57rem + 2.17vw, 7.5rem);
 
 	/* Layout */
-	--container-content: 75rem; /* max-w-content */
+	--container-content: 90rem; /* max-w-content — ~1440px */
 
 	/* Radii */
 	--radius-sm: 0.25rem;

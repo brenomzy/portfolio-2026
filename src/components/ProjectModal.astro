@@ -1,0 +1,600 @@
+---
+/*
+ * c-pmodal — the case-study modal for the Work section.
+ *
+ * Reads as a CARD rising from the bottom over the dimmed page: a dark scrim
+ * fades in as the panel slides up. The clicked card's 16:9 thumbnail flies
+ * into the modal's hero slot via a fixed-position CLONE animated with GSAP
+ * Flip.fit — the original images never move or reparent, which keeps both ends
+ * of the flight free of CSS-transition/layout interference (the old
+ * reparenting approach read clanky on close).
+ *
+ * Panel layout: screenshot list (hero + gallery) on one side, sticky info
+ * column on the other. Sides swap by flipping data-media-side on
+ * .c-pmodal__layout ("left" | "right") — grid-template-areas handle the rest.
+ *
+ * Trigger contract: any element with data-work-project="<id>" containing an
+ * <img>. Project fields come from the JSON island (keyed by id). Triggers
+ * keep a real href (no-JS fallback) + data-astro-reload so the ClientRouter
+ * doesn't intercept the click before our preventDefault.
+ *
+ * Motion — the modal is an element ENTERING the viewport, so everything rides
+ * a strong EASE-OUT (CustomEase "0.16,1,0.3,1" = our --ease-out-expo), not the
+ * symmetric --ease-default: it jumps toward its destination then settles, the
+ * premium decel feel. The clone flight and the panel rise share the exact same
+ * ease + duration so the image looks like it rides up inside the panel. Info
+ * column staggers up (y + opacity) on the same ease. Exit is ~20% faster than
+ * entrance. Same 16:9 at both ends of the flight → pure translate/scale, no
+ * aspect distortion. Reduced motion: instant states.
+ */
+import type { WorkProject } from "../lib/work-projects";
+import Button from "./Button.astro";
+
+interface Props {
+	projects: WorkProject[];
+}
+const { projects } = Astro.props;
+const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
+---
+
+<div class="c-pmodal" data-pmodal aria-hidden="true">
+	<div class="c-pmodal__overlay" data-pmodal-overlay data-pmodal-close></div>
+
+	<div
+		class="c-pmodal__panel"
+		data-pmodal-panel
+		role="dialog"
+		aria-modal="true"
+		aria-label="Project details"
+	>
+		<!-- Inner scroller: the panel itself is overflow:hidden so its rounded top
+		     corners clip cleanly (a scrollbar on the panel would square the
+		     top-right). This element does the scrolling instead. -->
+		<div class="c-pmodal__scroll" data-pmodal-scroll>
+			<div class="c-pmodal__layout" data-media-side="left">
+				<div class="c-pmodal__media">
+					<figure class="c-pmodal__hero" data-pmodal-hero>
+						<img src="" alt="" />
+					</figure>
+					<div class="c-pmodal__shots" data-pmodal-shots></div>
+				</div>
+
+				<aside class="c-pmodal__info">
+					<h2 class="c-pmodal__title" data-pmodal-info data-pmodal-title></h2>
+					<div class="c-pmodal__cta" data-pmodal-info>
+						<Button label="Live preview" href="#" variant="link" icon data-pmodal-link target="_blank" rel="noopener" />
+					</div>
+					<div data-pmodal-info>
+						<p class="c-pmodal__label">Info</p>
+						<p class="c-pmodal__desc" data-pmodal-desc></p>
+					</div>
+					<dl class="c-pmodal__rows" data-pmodal-info>
+						<div class="c-pmodal__row">
+							<dt>Client</dt>
+							<dd data-pmodal-client></dd>
+						</div>
+						<div class="c-pmodal__row">
+							<dt>Category</dt>
+							<dd data-pmodal-category></dd>
+						</div>
+						<div class="c-pmodal__row">
+							<dt>Role</dt>
+							<dd data-pmodal-role></dd>
+						</div>
+						<div class="c-pmodal__row">
+							<dt>Year</dt>
+							<dd data-pmodal-year></dd>
+						</div>
+					</dl>
+				</aside>
+			</div>
+		</div>
+	</div>
+
+	<button
+		type="button"
+		class="c-pmodal__close"
+		data-pmodal-close
+		aria-label="Close project"
+	>
+		<svg viewBox="0 0 24 24" width="19" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+			<path d="M5 5l14 14M19 5L5 19"></path>
+		</svg>
+	</button>
+
+	<!-- Flight layer: the travelling clone lives here, above panel + overlay. -->
+	<div class="c-pmodal__flight" data-pmodal-flight aria-hidden="true"></div>
+</div>
+
+<script type="application/json" data-pmodal-data set:html={JSON.stringify(byId)} />
+
+<style>
+	.c-pmodal {
+		position: fixed;
+		inset: 0;
+		/* Above the progressive blur (40) and page chrome; below the toast (200). */
+		z-index: 140;
+		display: none;
+	}
+	.c-pmodal.is-open {
+		display: block;
+	}
+
+	.c-pmodal__overlay {
+		position: absolute;
+		inset: 0;
+		/* Warm near-black scrim — matches the shadow hue family. */
+		background-color: rgb(14 10 7 / 0.55);
+		opacity: 0;
+		cursor: pointer;
+	}
+
+	.c-pmodal__panel {
+		position: absolute;
+		/* Top gap shows the dimmed page behind — the "card on top" read. */
+		inset: 4.5svh 0 0;
+		background-color: var(--bg);
+		border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+		box-shadow: var(--shadow-5);
+		/* overflow:hidden (not auto) so BOTH rounded top corners clip cleanly —
+		 * a scrollbar on the panel itself would square off the top-right. The
+		 * inner .c-pmodal__scroll does the scrolling. */
+		overflow: hidden;
+		/* No CSS rest transform — GSAP owns the panel's yPercent exclusively.
+		 * (A stylesheet translateY(103%) computes to a PIXEL matrix that GSAP
+		 * treats as a base `y`, and tweened yPercent COMPOUNDS on it — the
+		 * panel lands a full panel-height too low.) Hidden state is the root's
+		 * display:none, so no transform is needed at rest. */
+	}
+	.c-pmodal__scroll {
+		height: 100%;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		/* Hide the native scrollbar so it never sits on the panel's rounded
+		 * top-right corner (which read as a squared corner). Still scrolls via
+		 * wheel / trackpad / keyboard; the gallery peeking below the fold is the
+		 * scroll affordance. */
+		scrollbar-width: none;
+	}
+	.c-pmodal__scroll::-webkit-scrollbar {
+		display: none;
+	}
+
+	.c-pmodal__layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1.5fr) minmax(20rem, 1fr);
+		grid-template-areas: "media info";
+		gap: var(--spacing-l);
+		padding: var(--spacing-m);
+	}
+	/* Swap sides later by flipping this attribute — nothing else changes. */
+	.c-pmodal__layout[data-media-side="right"] {
+		grid-template-columns: minmax(20rem, 1fr) minmax(0, 1.5fr);
+		grid-template-areas: "info media";
+	}
+
+	.c-pmodal__media {
+		grid-area: media;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-s);
+		min-width: 0;
+	}
+	/* Gallery shots were a plain stack with no gap — only the hero↔shots gap
+	 * (the .c-pmodal__media flex gap) showed, so the first image looked like
+	 * the only one with bottom space. Match the gap between every shot. */
+	.c-pmodal__shots {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-s);
+	}
+	.c-pmodal__hero,
+	.c-pmodal__media :global(.c-pmodal__shot) {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		background-color: var(--surface);
+		margin: 0;
+	}
+	.c-pmodal__media :global(img) {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.c-pmodal__info {
+		grid-area: info;
+		min-width: 0;
+		/* Sticky against the scrollport while the shots scroll past. top matches
+		 * the layout's top padding so it holds the same inset as the hero
+		 * instead of riding up to touch the panel edge. */
+		position: sticky;
+		top: var(--spacing-m);
+		align-self: start;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-m);
+		padding-block: var(--spacing-s) var(--spacing-m);
+		padding-right: var(--spacing-2xl); /* clearance from the close button */
+	}
+
+	.c-pmodal__title {
+		font-size: var(--text-step-3);
+		font-weight: 560;
+		letter-spacing: -0.025em;
+		line-height: 1.05;
+		text-wrap: balance;
+	}
+	.c-pmodal__label {
+		font-size: var(--text-step--1);
+		color: var(--text-muted);
+		margin-bottom: var(--spacing-2xs);
+	}
+	.c-pmodal__desc {
+		max-width: 52ch;
+	}
+	.c-pmodal__rows {
+		margin: 0;
+	}
+	.c-pmodal__row {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--spacing-m);
+		padding-block: var(--spacing-xs);
+		border-top: 1px solid var(--border);
+		font-size: var(--text-step--1);
+	}
+	.c-pmodal__row:last-child {
+		border-bottom: 1px solid var(--border);
+	}
+	.c-pmodal__row dt {
+		color: var(--text-muted);
+	}
+	.c-pmodal__row dd {
+		margin: 0;
+		text-align: right;
+	}
+
+	/* Plain icon — no circle/border/background. The 3rem box is just the tap
+	 * target (≥44px). Muted at rest, full on hover; a faint drop-shadow keeps the
+	 * X legible over imagery on mobile (where it sits over the hero, not cream).
+	 * Fades + slides in with the info column (see the open timeline). */
+	.c-pmodal__close {
+		position: absolute;
+		top: calc(4.5svh + var(--spacing-s));
+		right: var(--spacing-m);
+		z-index: 5;
+		display: grid;
+		place-items: center;
+		width: 3rem;
+		height: 3rem;
+		border: none;
+		background: none;
+		padding: 0;
+		color: var(--text-muted);
+		filter: drop-shadow(0 1px 2px rgb(14 10 7 / 0.25));
+		cursor: pointer;
+		transition:
+			color 0.2s var(--ease-default),
+			scale 0.3s var(--ease-default);
+		-webkit-tap-highlight-color: transparent;
+	}
+	.c-pmodal__close:hover {
+		color: var(--text);
+	}
+	.c-pmodal__close:active {
+		scale: 0.9;
+		transition-duration: 0.1s;
+	}
+	.c-pmodal__close:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+		border-radius: var(--radius-sm);
+	}
+
+	.c-pmodal__flight {
+		position: absolute;
+		inset: 0;
+		z-index: 10;
+		pointer-events: none;
+	}
+	.c-pmodal__flight :global(img) {
+		object-fit: cover;
+		will-change: transform;
+	}
+
+	@media (max-width: 48rem) {
+		.c-pmodal__panel {
+			inset: 3svh 0 0;
+		}
+		.c-pmodal__layout,
+		.c-pmodal__layout[data-media-side="right"] {
+			grid-template-columns: 1fr;
+			grid-template-areas: "media" "info";
+		}
+		.c-pmodal__info {
+			position: static;
+			padding-right: 0;
+		}
+	}
+</style>
+
+<script>
+	import { gsap } from "gsap";
+	import { Flip } from "gsap/Flip";
+	import { CustomEase } from "gsap/CustomEase";
+
+	gsap.registerPlugin(Flip, CustomEase);
+
+	// Strong ease-OUT (matches the --ease-out-expo token) — the modal is an
+	// element entering the viewport, so it decelerates into place. Used for the
+	// whole open/close choreography so panel + flight + info read as one unit.
+	const EASE_OUT =
+		CustomEase.get("brand-out") ?? CustomEase.create("brand-out", "0.16,1,0.3,1");
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+
+	// Durations — open ~0.55s, exit ~20% faster (per the animation-design skill).
+	const D_OPEN = 0.55;
+	const D_CLOSE = 0.44;
+
+	let isOpen = false;
+	let isBusy = false; // ignore input mid-choreography
+	let cardImg: HTMLImageElement | null = null;
+	let lastFocus: HTMLElement | null = null;
+
+	const q = <T extends HTMLElement>(sel: string) =>
+		document.querySelector<T>(sel);
+
+	function getProject(id: string) {
+		const island = q("[data-pmodal-data]");
+		if (!island?.textContent) return null;
+		try {
+			return JSON.parse(island.textContent)[id] ?? null;
+		} catch {
+			return null;
+		}
+	}
+
+	function lockScroll(on: boolean) {
+		const root = document.documentElement;
+		if (on) {
+			const gutter = window.innerWidth - root.clientWidth;
+			root.style.overflow = "hidden";
+			if (gutter) document.body.style.paddingRight = `${gutter}px`;
+		} else {
+			root.style.overflow = "";
+			document.body.style.paddingRight = "";
+		}
+	}
+
+	function setText(sel: string, value: string) {
+		const el = q(sel);
+		if (el) el.textContent = value;
+	}
+
+	function makeClone(src: HTMLImageElement, rect: DOMRect) {
+		const clone = src.cloneNode() as HTMLImageElement;
+		clone.removeAttribute("class");
+		clone.removeAttribute("loading");
+		gsap.set(clone, {
+			position: "fixed",
+			top: rect.top,
+			left: rect.left,
+			width: rect.width,
+			height: rect.height,
+			margin: 0,
+			maxWidth: "none",
+		});
+		q("[data-pmodal-flight]")?.appendChild(clone);
+		return clone;
+	}
+
+	function openModal(trigger: HTMLElement) {
+		const modal = q("[data-pmodal]");
+		if (!modal || isOpen || isBusy) return;
+		const project = getProject(trigger.dataset.workProject ?? "");
+		if (!project) return;
+
+		// Populate.
+		setText("[data-pmodal-title]", project.title);
+		setText("[data-pmodal-desc]", project.description);
+		setText("[data-pmodal-client]", project.client);
+		setText("[data-pmodal-category]", project.category);
+		setText("[data-pmodal-role]", project.role);
+		setText("[data-pmodal-year]", String(project.year));
+		const link = q<HTMLAnchorElement>("[data-pmodal-link]");
+		if (link) link.href = project.liveUrl;
+
+		const heroImg = q<HTMLImageElement>("[data-pmodal-hero] img")!;
+		heroImg.src = project.cover;
+		heroImg.alt = project.title;
+
+		const shots = q("[data-pmodal-shots]")!;
+		shots.innerHTML = "";
+		for (const src of project.gallery ?? []) {
+			const fig = document.createElement("figure");
+			fig.className = "c-pmodal__shot";
+			const img = document.createElement("img");
+			img.src = src;
+			img.alt = "";
+			fig.appendChild(img);
+			shots.appendChild(fig);
+		}
+
+		const panel = q("[data-pmodal-panel]")!;
+		const scroll = q("[data-pmodal-scroll]")!;
+		const overlay = q("[data-pmodal-overlay]")!;
+		const hero = q("[data-pmodal-hero]")!;
+
+		cardImg = trigger.querySelector("img");
+		lastFocus = document.activeElement as HTMLElement;
+		isOpen = true;
+		isBusy = true;
+		modal.classList.add("is-open");
+		modal.setAttribute("aria-hidden", "false");
+		lockScroll(true);
+		scroll.scrollTop = 0;
+		document.addEventListener("keydown", onKeydown);
+
+		if (reduced.matches || !cardImg) {
+			gsap.set(overlay, { autoAlpha: 1 });
+			gsap.set(panel, { yPercent: 0 });
+			isBusy = false;
+			q<HTMLButtonElement>(".c-pmodal__close")?.focus();
+			return;
+		}
+
+		// Measure the hero's landed position: park the panel at rest, read,
+		// park it offscreen — all synchronous, no paint in between.
+		gsap.set(panel, { y: 0, yPercent: 0 });
+		const heroState = Flip.getState(hero);
+		gsap.set(panel, { yPercent: 103 });
+
+		const rect = cardImg.getBoundingClientRect();
+		const clone = makeClone(cardImg, rect);
+		gsap.set(cardImg, { visibility: "hidden" });
+		gsap.set(heroImg, { visibility: "hidden" });
+
+		const tl = gsap.timeline({
+			defaults: { ease: EASE_OUT },
+			onComplete: () => {
+				gsap.set(heroImg, { visibility: "visible" });
+				clone.remove();
+				isBusy = false;
+			},
+		});
+		// Scrim + panel rise + clone flight all share ease + duration so the
+		// image looks anchored inside the rising panel.
+		tl.to(overlay, { autoAlpha: 1, duration: D_OPEN }, 0)
+			.to(panel, { yPercent: 0, duration: D_OPEN }, 0)
+			.add(
+				Flip.fit(clone, heroState, {
+					duration: D_OPEN,
+					ease: EASE_OUT,
+					scale: true,
+					absolute: true,
+				}) as gsap.core.Tween,
+				0,
+			)
+			// Info column drifts up + fades in on the same ease, riding the panel.
+			.fromTo(
+				"[data-pmodal-info]",
+				{ autoAlpha: 0, y: 24 },
+				{
+					autoAlpha: 1,
+					y: 0,
+					duration: 0.5,
+					stagger: 0.05,
+					ease: EASE_OUT,
+					clearProps: "all",
+				},
+				0.18,
+			)
+			// Close button rises + fades in with the info (no instant pop).
+			.fromTo(
+				"[data-pmodal-close].c-pmodal__close",
+				{ autoAlpha: 0, y: 12 },
+				{ autoAlpha: 1, y: 0, duration: 0.5, ease: EASE_OUT, clearProps: "all" },
+				0.18,
+			);
+
+		q<HTMLButtonElement>(".c-pmodal__close")?.focus();
+	}
+
+	function closeModal() {
+		const modal = q("[data-pmodal]");
+		if (!modal || !isOpen || isBusy) return;
+		isBusy = true;
+		document.removeEventListener("keydown", onKeydown);
+
+		const panel = q("[data-pmodal-panel]")!;
+		const scroll = q("[data-pmodal-scroll]")!;
+		const overlay = q("[data-pmodal-overlay]")!;
+		const hero = q("[data-pmodal-hero]")!;
+		const heroImg = hero.querySelector("img")!;
+
+		const finalize = () => {
+			if (cardImg) gsap.set(cardImg, { visibility: "visible" });
+			gsap.set(heroImg, { visibility: "visible" });
+			modal.classList.remove("is-open");
+			modal.setAttribute("aria-hidden", "true");
+			gsap.set("[data-pmodal-info], .c-pmodal__close", { clearProps: "all" });
+			lockScroll(false);
+			lastFocus?.focus?.();
+			cardImg = null;
+			isOpen = false;
+			isBusy = false;
+		};
+
+		// Fly back only when the hero is still (mostly) in view — flying from
+		// a scrolled-away position reads as teleporting. Otherwise the panel
+		// simply dismisses and the thumbnail is restored under the fade.
+		const heroVisible =
+			!reduced.matches && cardImg && scroll.scrollTop < hero.offsetHeight * 0.6;
+
+		if (reduced.matches) {
+			gsap.set(overlay, { autoAlpha: 0 });
+			gsap.set(panel, { yPercent: 103 });
+			finalize();
+			return;
+		}
+
+		const tl = gsap.timeline({ defaults: { ease: EASE_OUT }, onComplete: finalize });
+
+		if (heroVisible && cardImg) {
+			const clone = makeClone(heroImg, hero.getBoundingClientRect());
+			gsap.set(heroImg, { visibility: "hidden" });
+			const cardState = Flip.getState(cardImg); // hidden, but holds layout
+			tl.add(
+				Flip.fit(clone, cardState, {
+					duration: D_CLOSE,
+					ease: EASE_OUT,
+					scale: true,
+					absolute: true,
+				}) as gsap.core.Tween,
+				0,
+			);
+			tl.call(
+				() => {
+					if (cardImg) gsap.set(cardImg, { visibility: "visible" });
+					clone.remove();
+				},
+				[],
+				D_CLOSE,
+			);
+		}
+
+		tl.to(panel, { yPercent: 103, duration: D_CLOSE }, 0)
+			.to(
+				".c-pmodal__close",
+				{ autoAlpha: 0, duration: 0.25, ease: "power1.in" },
+				0,
+			)
+			.to(
+				overlay,
+				{ autoAlpha: 0, duration: D_CLOSE * 0.9, ease: "power1.in" },
+				0.04,
+			);
+	}
+
+	function onKeydown(e: KeyboardEvent) {
+		if (e.key === "Escape") closeModal();
+	}
+
+	// Delegated: survives view-transition swaps.
+	document.addEventListener("click", (e) => {
+		const target = e.target as Element | null;
+		if (target?.closest("[data-pmodal-close]")) {
+			closeModal();
+			return;
+		}
+		const trigger = target?.closest<HTMLElement>("[data-work-project]");
+		if (trigger) {
+			e.preventDefault();
+			openModal(trigger);
+		}
+	});
+</script>

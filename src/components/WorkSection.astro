@@ -1,0 +1,188 @@
+---
+/*
+ * c-work — the Work section (the "editorial grid" direction, chosen from the
+ * /lab prototypes). Two columns, the right column riding low for an
+ * asymmetric rhythm; 16:9 thumbnails; cards reveal on scroll.
+ *
+ * Clicking a card opens ProjectModal (mounted in index.astro outside #main):
+ * the thumbnail flies into the modal hero via GSAP Flip. Cards keep a real
+ * /work/[slug] href as the no-JS fallback; data-astro-reload keeps Astro's
+ * ClientRouter from intercepting the click before the modal's preventDefault.
+ */
+import type { WorkProject } from "../lib/work-projects";
+
+interface Props {
+	projects: WorkProject[];
+}
+const { projects } = Astro.props;
+---
+
+<section class="c-work" id="work" aria-label="Selected work">
+	<h2 class="c-work__heading js-work-reveal" data-reveal>Selected work</h2>
+
+	<div class="c-work__grid">
+		{
+			projects.map((p) => (
+				<a
+					class="c-work__card js-work-card js-work-reveal"
+					href={`/work/${p.slug}`}
+					data-work-project={p.id}
+					data-astro-reload
+					data-reveal
+				>
+					<span class="c-work__media">
+						<img src={p.cover} alt={p.title} loading="lazy" />
+					</span>
+					<span class="c-work__meta">
+						<span class="c-work__title">{p.title}</span>
+						<span class="c-work__tag">
+							{p.category} · {p.year}
+						</span>
+					</span>
+				</a>
+			))
+		}
+	</div>
+</section>
+
+<style>
+	.c-work {
+		max-width: var(--container-content);
+		margin-inline: auto;
+		/* Tighter top so the section sits up under the hero; generous bottom. */
+		padding: var(--spacing-l) var(--spacing-m) var(--spacing-2xl);
+	}
+	.c-work__heading {
+		font-size: var(--text-step-3);
+		font-weight: 560;
+		letter-spacing: -0.03em;
+		margin-bottom: var(--spacing-m);
+	}
+
+	.c-work__grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		/* Row gap trimmed (was 2xl) so the second row peeks into view on load —
+		 * the big 16:9 thumbnails are tall, so the 2xl rhythm only fit one row. */
+		gap: var(--spacing-l) var(--spacing-m);
+	}
+	/* Asymmetric rhythm: the right column rides lower than the left — softened
+	 * from 2xl so the right column doesn't push card 2 far down the fold. */
+	.c-work__card:nth-child(even) {
+		margin-top: var(--spacing-l);
+	}
+
+	.c-work__card {
+		text-decoration: none;
+		color: var(--text);
+	}
+	.c-work__media {
+		display: block;
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		background-color: var(--surface);
+	}
+	.c-work__media img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: scale 0.7s var(--ease-default);
+	}
+	@media (hover: hover) {
+		.c-work__card:hover .c-work__media img {
+			scale: 1.04;
+		}
+	}
+	.c-work__meta {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--spacing-m);
+		padding-top: var(--spacing-xs);
+		font-size: var(--text-step--1);
+	}
+	.c-work__title {
+		font-weight: 560;
+	}
+	.c-work__tag {
+		color: var(--text-muted);
+	}
+
+	@media (max-width: 40rem) {
+		.c-work__grid {
+			grid-template-columns: 1fr;
+			gap: var(--spacing-l);
+		}
+		.c-work__card:nth-child(even) {
+			margin-top: 0;
+		}
+	}
+</style>
+
+<script>
+	import { gsap } from "gsap";
+	import { ScrollTrigger } from "gsap/ScrollTrigger";
+	import { CustomEase } from "gsap/CustomEase";
+
+	gsap.registerPlugin(ScrollTrigger, CustomEase);
+
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+	// Same premium ease-out as the modal (shared CustomEase registry).
+	const EASE_OUT =
+		CustomEase.get("brand-out") ?? CustomEase.create("brand-out", "0.16,1,0.3,1");
+
+	let started = false;
+	let triggers: ScrollTrigger[] = [];
+
+	function killTriggers() {
+		triggers.forEach((t) => t.kill());
+		triggers = [];
+	}
+
+	// Reveal heading + cards as a slide-up. A ScrollTrigger.batch staggers items
+	// that enter together: those in the first viewport fire as soon as this runs
+	// (i.e. after the hero), the rest as they scroll into view.
+	function reveal() {
+		if (started || reduced.matches) return;
+		started = true;
+		const items = gsap.utils.toArray<HTMLElement>(".js-work-reveal");
+		if (!items.length) return;
+		triggers = ScrollTrigger.batch(items, {
+			// Fire as the element just clears the bottom edge — no need to scroll
+			// past it first before it animates.
+			start: "top 92%",
+			once: true,
+			onEnter: (batch) =>
+				gsap.to(batch, {
+					autoAlpha: 1,
+					y: 0,
+					duration: 0.8,
+					ease: EASE_OUT,
+					stagger: 0.1,
+					overwrite: true,
+				}),
+		});
+		ScrollTrigger.refresh();
+	}
+
+	function setup() {
+		const items = gsap.utils.toArray<HTMLElement>(".js-work-reveal");
+		if (!items.length) return;
+		killTriggers();
+		started = false;
+		if (reduced.matches) {
+			gsap.set(items, { autoAlpha: 1, y: 0 });
+			return;
+		}
+		// Park hidden + down (the data-reveal CSS guard prevents a pre-JS flash).
+		gsap.set(items, { autoAlpha: 0, y: 40 });
+		// Sequence the reveal AFTER the hero intro; a timeout backstops the case
+		// where the hero signal never arrives (e.g. reduced motion / other entry).
+		document.addEventListener("hero:revealed", reveal, { once: true });
+		window.setTimeout(reveal, 2400);
+	}
+
+	document.addEventListener("astro:page-load", setup);
+	document.addEventListener("astro:before-swap", killTriggers);
+</script>

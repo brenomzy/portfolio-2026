@@ -320,6 +320,50 @@ objects**: constant warm `--btn-paper` (`hsl(38 44% 97%)`) and `--btn-ink`
 **No border radius (for now).** `--btn-radius: 0`. Deliberate squared look while
 we settle the overall visual language; flip one token to round everything later.
 
+**Borderless trial (current).** The `__bg` hairline is `border: none` (the
+`--btn-border` vars are dormant) — trialling all buttons without borders.
+Consequence: `ghost` becomes a **text-only** label — reads as a quiet text link
+beside `solid`. Restore `border: 1px solid var(--btn-border)` to bring hairlines
+back. (Note: `1px solid transparent` is *not* equivalent — it leaves a 1px ring
+of page-bg inside the border edge that reads as a hairline on hover when the fill
+behind it is dark, so the borderless state must be true `none`.)
+
+**Current colour system (borderless).** The two CTAs used on the page are now:
+
+- **`primary` = ORANGE → theme fill.** Rest is `--accent` (orange), the loud CTA.
+  No orange "flash" panel (orange is already the rest) — both wipe panels are
+  `--text`, so hover wipes to **dark in light / light in dark**; the label crosses
+  warm-white → page-colour. (This is the base `.c-button`, i.e. the default variant.)
+- **`secondary` = WHITE on light / BLACK on dark.** Follows the page tone, so it's
+  the *quiet* CTA (white reads quiet on cream, black quiet on the dark bg). Theme
+  flip via a `:global([data-theme="dark"])` override (`#fff`+ink ↔ near-black+white).
+  Orange flash → inverts to the opposite tone on hover.
+- The **hero** uses `primary` (View work) + `secondary` (Get in touch); the **footer**
+  CTA is the **`link`** variant (recoloured to `--footer-fg` warm-white via
+  `--btn-link-color` on `.c-footer__btn`).
+- `solid` / `ghost` still exist but are **unused on-page now**; `accent` likewise.
+
+> Earlier iterations of these notes (primary = pure white, ghost = white) are
+> superseded by the above. `--btn-paper`/`--btn-ink` remain the warm constants used
+> for labels and the secondary's light-theme values.
+
+**Wipe panels over-cover + a shallow tilt (the "left sliver" fix).** Two things
+caused the rest-colour to peek during the wipe: (1) at `height:100%` the panel left
+a hairline at the top edge, and (2) the `rotate(-10deg)` (origin top-right) sloped
+the top edge **down to the left**, so the **top-left corner was covered last** — a
+visible left sliver during hover. Fix: panels are `width:140%; height:160%` with a
+hover end-translate of `0 -18% 0` (lifts the lagging corner above the top), and the
+tilt is softened to **`-5deg`** so the corner barely lags. Full-hover end state is
+clean; the transition reveal is near-uniform. (If any sliver still reads, the last
+lever is `rotate: 0` — a fully horizontal wipe, no diagonal.)
+
+**`link` variant — tertiary text-link CTA.** No panel, no padding; the label sits
+inline with an optional external-link arrow (`icon` prop → Phosphor
+"arrow-up-right", bold-faked with `fill` + `stroke-width: 8` exactly like the
+[theme toggle](#theme-toggle--c-theme-toggle)). Hover warms the colour to
+`--accent-ink` and nudges the arrow up-right (the external-link affordance,
+gated behind no-reduced-motion). Used for the modal's **Live preview**.
+
 **Motion.** One smooth ease, `cubic-bezier(0.32, 0.72, 0, 1)` — no overshoot, no
 hover scale-up. Only a subtle press scale (`0.97`) for tactile feedback. See
 Foundations → Motion for why we dropped Osmo's springy `linear()` ease.
@@ -328,11 +372,12 @@ Foundations → Motion for why we dropped Osmo's springy `linear()` ease.
 
 | Variant | Rest | Hover | Theme-aware? |
 | --- | --- | --- | --- |
-| `primary` (default) | white, dark text | orange flash → black, white text | no (constant) |
-| `secondary` | black, white text | orange flash → white, dark text | no (constant) |
-| `accent` | orange, white text | black wipes in (no flash), white text | no (constant) |
-| `solid` | **text-colour** bg, bg-colour label | orange flash → inverts (fills bg, label→text) | **yes** |
-| `ghost` | transparent + hairline border, text label | orange flash → fills text-colour, label→bg | **yes** |
+| `primary` (default) | **orange**, warm-white text | no flash → wipes to `--text` (dark/light), label → page colour | **yes** (hover fill) |
+| `secondary` | **white** (light) / **black** (dark), inverse text | orange flash → inverts to opposite tone | **yes** |
+| `link` | text-only + optional external arrow; colour via `--btn-link-color` | colour → `--btn-link-hover` (`--accent-ink`), arrow nudges ↗ | inherits |
+| `accent` | orange, white text | black wipes in (no flash) | no (constant) · *unused* |
+| `solid` | **text-colour** bg, bg-colour label | orange flash → inverts | **yes** · *unused* |
+| `ghost` | white, ink text | orange flash → ink fill | no (constant) · *unused* |
 
 **Theme-aware variants (`solid` / `ghost`).** Unlike the three constant variants
 above, these follow the theme via `--text` / `--bg`, so:
@@ -372,6 +417,97 @@ see [Contact pattern](#contact-pattern--copy--toast).
 
 **Open questions / next.** Sizing scale (sm/lg), icon slot, disabled/loading
 states, and whether to keep squared or round once the broader UI lands.
+
+### Work section — `c-work`
+
+[`src/components/WorkSection.astro`](src/components/WorkSection.astro), mounted
+below the hero (`id="work"` — the hero's "View work ↓" now resolves). Chosen from
+four `/lab` prototypes (cinematic slider / **editorial grid** / typographic index /
+pinned stack) — the editorial grid won.
+
+- Two columns, the **right column rides `--spacing-l` lower** for an asymmetric
+  editorial rhythm; single column under 40rem.
+- **16:9 thumbnails** (`aspect-ratio`), hover scale `1.04` inside a clipped frame.
+- **Vertical rhythm trimmed** (top padding `2xl→l`, row gap `2xl→l`, right-column
+  offset `2xl→l`). The big 16:9 thumbnails are tall, so the old `2xl` rhythm only
+  fit *one row* above the fold (the "only 2 projects on load" complaint) — the
+  tighter spacing peeks the second row in (~4 projects visible on a ~1300px-tall
+  viewport).
+- **Reveal orchestration.** Heading + cards (`.js-work-reveal`, `data-reveal`
+  FOUC-guarded) slide up + fade on the modal's premium ease-out via a
+  **`ScrollTrigger.batch`** (`start: "top 92%"` so they animate as they *enter*,
+  not after you scroll past). The batch is created only **after the hero intro**:
+  the hero dispatches a `hero:revealed` event (every entry path — animated,
+  reduced, error) and the section waits for it (with a `2.4s` fallback). So the
+  first-viewport cards animate in *after* the hero settles, the rest as they
+  scroll into view. Triggers are killed on `astro:before-swap`.
+- Cards are real `<a href="/work/[slug]">` links (no-JS/SEO fallback) with
+  `data-work-project` to open the modal. **`data-astro-reload` is load-bearing:**
+  without it Astro's ClientRouter intercepts the click *before* the delegated
+  `preventDefault` and navigates instead of opening the modal.
+- Data is **mock for now** ([`src/lib/work-projects.ts`](src/lib/work-projects.ts)),
+  shaped to mirror `PROJECTS_QUERY` so the Sanity swap is mechanical. Covers are
+  gradient placeholders in `public/placeholders/`.
+
+### Project modal — `c-pmodal`
+
+[`src/components/ProjectModal.astro`](src/components/ProjectModal.astro), mounted
+in `index.astro` **outside `#main`** (slot `footer`) so it escapes `#main`'s
+stacking context and isn't affected by the open-state page scale.
+
+**Reads as a card-sheet over the site** (iOS-sheet language): a dark warm scrim
+(`rgb(14 10 7 / .55)`) fades in while the panel (top-radius `--radius-lg`,
+`--shadow-5`, 4.5svh top gap) rises from the bottom. The clicked thumbnail
+**flies into the panel's hero slot** via GSAP **Flip.fit on a fixed CLONE** — the
+original images never move:
+
+> **Why a clone, not reparenting.** The first build reparented the real `<img>`
+> into the modal and Flip-ed the delta — it read clanky, especially on close: the
+> card's hover-scale transition and the modal's `absolute` positioning kept
+> interfering at the endpoints. A clone in a dedicated flight layer has no CSS
+> transitions, no layout dependencies, and both real images just toggle
+> `visibility` at the choreography's edges. Same 16:9 at both ends → pure
+> translate/scale flight (`Flip.fit … scale: true`), zero distortion.
+
+- **Motion is EASE-OUT, not the default ease-in-out.** The modal *enters* the
+  viewport, so per the animation-design skill it should decelerate into place —
+  a `CustomEase` of `0.16,1,0.3,1` (= our `--ease-out-expo`): jumps toward its
+  spot then settles, the premium decel feel. (We tried `--ease-default`'s
+  symmetric in-out first — it felt heavier/clankier for an entrance.)
+- **Choreography (open, all on the ease-out):** scrim + panel rise + clone flight
+  share the **exact same ease + duration (`0.55s`)** so the image looks anchored
+  inside the rising panel · info column drifts **up (`y:24`) + fades in** on the
+  same ease, staggered from `0.18s`. Close reverses ~20% faster (`0.44s`) and only
+  flies the image back **if the hero is still near-view** (scroll <60% of hero
+  height) — otherwise the sheet dismisses and the thumbnail restores under the fade.
+- **No page scale.** An earlier version scaled `#main` to `0.97` for depth — cut:
+  it added little, and its `clearProps` on close snapped the card back to full
+  size *after* the clone had already landed at the scaled position (the "weird
+  snap on return"). Removing it made the return seamless; the scrim carries the depth.
+- **Layout:** screenshot list (hero + `gallery[]`) on one side, **sticky info
+  column** (title → Live preview CTA → description → hairline rows) on the other.
+  Sides swap by flipping `data-media-side` on `.c-pmodal__layout` — the
+  grid-template-areas do the rest. Sticky `top` matches the layout's top padding
+  (`--spacing-m`) so the info holds the same inset as the hero, not the panel edge.
+- **Inner scroller for clean corners.** The panel is `overflow:hidden` (clips both
+  rounded top corners) and an inner `.c-pmodal__scroll` does the scrolling with its
+  **native scrollbar hidden** — a scrollbar on the panel itself squared off the
+  top-right corner. Scrolls via wheel/trackpad/keyboard; the gallery peeking below
+  is the affordance. `.c-pmodal__shots` carries its own gap so all gallery images
+  are evenly spaced (was: only the hero↔shots gap showed, so the first looked like
+  the only spaced one).
+- **GSAP-owns-the-transform gotcha:** the panel must NOT have a CSS rest
+  `translateY(103%)` — computed styles hand GSAP a *pixel* matrix that becomes a
+  base `y`, and tweened `yPercent` **compounds** on it (panel + measured flight
+  target land a full panel-height low). Rest state = root `display:none`; GSAP
+  sets `yPercent` explicitly on open.
+- **Close (`×`) is a plain icon** — no circle/border/background (the `3rem` box
+  is just the ≥44px tap target), muted at rest → full on hover, with a faint
+  drop-shadow so it stays legible over imagery on mobile. It **fades + slides in
+  with the info column** (was an instant pop) and fades out on close.
+- Scroll-locks `<html>` with scrollbar-gutter compensation; Escape / overlay /
+  close button dismiss; focus returns to the card; reduced-motion gets instant
+  states (no flight).
 
 ### Contact pattern — copy + toast
 

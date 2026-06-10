@@ -3,6 +3,9 @@ import Base from "../layouts/Base.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import Button from "../components/Button.astro";
+import WorkSection from "../components/WorkSection.astro";
+import ProjectModal from "../components/ProjectModal.astro";
+import { WORK_PROJECTS } from "../lib/work-projects";
 import { CONTACT_EMAIL } from "../lib/site";
 import { sanityClient } from "../lib/sanity/client";
 import { SITE_SETTINGS_QUERY } from "../lib/sanity/queries";
@@ -24,28 +27,29 @@ const description = settings?.description ?? undefined;
 			hand-built sites. Currently at BX Studio, open to select freelance work.
 		</p>
 		<div class="hero__actions" data-reveal>
-			<Button label="View work ↓" href="#work" variant="solid" />
+			<Button label="View work ↓" href="#work" variant="primary" />
 			<Button
 				label="Get in touch"
 				href={`mailto:${CONTACT_EMAIL}`}
-				variant="ghost"
+				variant="secondary"
 				data-copy-email={CONTACT_EMAIL}
 			/>
 		</div>
 	</section>
 
-	<!-- TEMP: empty scroll space to exercise the sticky header. Remove once real
-	     sections land. -->
-	<section class="scroll-spacer" aria-hidden="true"></section>
+	<WorkSection projects={WORK_PROJECTS} />
 
 	<SiteFooter slot="footer" />
+	<!-- Outside #main (slot=footer) so the modal isn't trapped in #main's
+	     stacking context — and so scaling #main on open doesn't scale it. -->
+	<ProjectModal slot="footer" projects={WORK_PROJECTS} />
 </Base>
 
 <style>
 	.hero {
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding: var(--spacing-l) var(--spacing-m) var(--spacing-m);
+		padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
 		display: grid;
 		gap: var(--spacing-xs);
 	}
@@ -68,13 +72,9 @@ const description = settings?.description ?? undefined;
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--spacing-2xs);
-		margin-top: var(--spacing-s);
+		margin-top: var(--spacing-2xs);
 	}
 
-	/* TEMP scroll space — see note in markup. */
-	.scroll-spacer {
-		min-height: 150vh;
-	}
 </style>
 
 <script>
@@ -85,6 +85,12 @@ const description = settings?.description ?? undefined;
 
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 	const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+	// Tell the Work section the hero is done so it can sequence its reveal after
+	// us (see WorkSection.astro). Fired on every entry path (animated, reduced,
+	// error) so the section never waits on its fallback timeout unnecessarily.
+	const signalWorkReady = () =>
+		document.dispatchEvent(new CustomEvent("hero:revealed"));
 
 	let active: SplitText[] = [];
 
@@ -108,6 +114,7 @@ const description = settings?.description ?? undefined;
 		// Reduced motion: skip the choreography, just reveal.
 		if (reduced.matches) {
 			show(all);
+			signalWorkReady();
 			return;
 		}
 
@@ -127,8 +134,12 @@ const description = settings?.description ?? undefined;
 			const tl = gsap.timeline({
 				// Gentler, slower ease than expo.out (which snaps then crawls).
 				defaults: { ease: "power2.out" },
-				// Restore normal, reflowable text once the reveal has played.
-				onComplete: cleanup,
+				// Restore normal, reflowable text once the reveal has played, then
+				// release the Work section to animate in after us.
+				onComplete: () => {
+					cleanup();
+					signalWorkReady();
+				},
 			});
 
 			// No clip/mask — words fade + drift up + sharpen from blur (the aritro.xyz
@@ -178,6 +189,7 @@ const description = settings?.description ?? undefined;
 			// Never leave the hero hidden if anything goes wrong.
 			cleanup();
 			show(all);
+			signalWorkReady();
 		}
 	}
 

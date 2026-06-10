@@ -26,10 +26,11 @@ const socials = [
 		<div class="c-footer__top">
 			<div class="c-footer__lead">
 				<p class="c-footer__eyebrow">Have something in mind?</p>
-				<p class="c-footer__headline">Let’s work together</p>
+				<p class="c-footer__headline">Let’s work together.</p>
 				<Button
 					label="Get in touch"
 					href={`mailto:${email}`}
+					variant="link"
 					data-copy-email={email}
 					class="c-footer__btn"
 				/>
@@ -138,8 +139,12 @@ const socials = [
 		/* Single gap to the button — they read as one CTA unit (~1rem). */
 		margin-bottom: var(--spacing-s);
 	}
-	/* The white CTA is the primary Button variant (warm-white bg, ink label);
-	 * the component owns its look, the headline's margin owns the spacing. */
+	/* CTA is the Button `link` variant — recolour it to the footer foreground
+	 * (warm white) so it reads on the orange panel; hover brightens to pure white. */
+	.c-footer__btn {
+		--btn-link-color: var(--footer-fg);
+		--btn-link-hover: #fff;
+	}
 
 	/* Meta column (socials + location) -------------------------------------- */
 	.c-footer__meta {
@@ -223,6 +228,11 @@ const socials = [
 		margin-bottom: -8vw;
 		overflow: visible;
 		user-select: none;
+		/* Decorative only — and critically: the text's invisible em-box overhang
+		 * (glyph line box >> ink box at this scale, hit-testable thanks to
+		 * overflow:visible) otherwise reaches up over the socials on wide
+		 * viewports and steals their hover/clicks. */
+		pointer-events: none;
 	}
 	.c-footer__wordmark text {
 		/* Archivo Black — single 400 weight (the "Black" is built in). */

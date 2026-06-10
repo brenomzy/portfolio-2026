@@ -153,6 +153,17 @@ html.js [data-reveal] {
 	visibility: hidden;
 }
 
+/* Offscreen staging element for the legacy copy-to-clipboard fallback (see
+ * Base.astro). Lives for one click; fixed + invisible so it never affects
+ * layout or paints, but stays selectable (display:none would break select()). */
+.u-copy-source {
+	position: fixed;
+	top: 0;
+	left: 0;
+	opacity: 0;
+	pointer-events: none;
+}
+
 /* Film-grain noise overlay — subtle, fixed, non-interactive. */
 body::before {
 	content: "";

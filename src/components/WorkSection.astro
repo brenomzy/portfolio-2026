@@ -56,8 +56,6 @@ const { projects } = Astro.props;
 	}
 	.c-work__heading {
 		font-size: var(--text-step-3);
-		font-weight: 560;
-		letter-spacing: -0.03em;
 		margin-bottom: var(--spacing-m);
 	}
 
@@ -208,9 +206,12 @@ const { projects } = Astro.props;
 		const items = gsap.utils.toArray<HTMLElement>(".js-work-reveal");
 		if (!items.length) return;
 		triggers = ScrollTrigger.batch(items, {
-			// Fire as the element just clears the bottom edge — no need to scroll
-			// past it first before it animates.
-			start: "top 92%",
+			// Fire the moment an element's top enters the viewport (top at the bottom
+			// edge). The asymmetric grid lets the second row PEEK on load (tops at
+			// ~95–99vh on shorter desktops); "top 92%" left those peeking cards
+			// hidden, so only the first row revealed. "top bottom" reveals anything
+			// even partially in view as part of the initial stagger.
+			start: "top bottom",
 			once: true,
 			onEnter: (batch) =>
 				gsap.to(batch, {

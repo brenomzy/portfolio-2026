@@ -1,57 +1,15 @@
 ---
-import { sanityClient } from "../lib/sanity/client";
-import { SITE_SETTINGS_QUERY } from "../lib/sanity/queries";
 import FooterGradient from "./FooterGradient.astro";
-import Button from "./Button.astro";
-import { CONTACT_EMAIL } from "../lib/site";
+import { SITE_NAME } from "../lib/site";
 
-const settings = await sanityClient.fetch(SITE_SETTINGS_QUERY);
-
-// Contact address is the shared site constant for now (see lib/site.ts), not the
-// CMS — keeps every CTA pointing at the same place. brand still comes from CMS.
-const email = CONTACT_EMAIL;
-const brand = settings?.title ?? "Breno";
-
-// Footer socials — hardcoded for now. Wire to Site Settings once those URLs
-// exist in Sanity.
-const socials = [
-	{ platform: "LinkedIn", url: "https://www.linkedin.com/in/breno-daroz/" },
-	{ platform: "X", url: "https://twitter.com/brenomzy" },
-];
+// Wordmark text — the footer is the oversized wordmark only for now (contact
+// CTA lives in the hero; socials/lead removed per design).
+const brand = SITE_NAME;
 ---
 
 <footer class="c-footer">
 	<FooterGradient />
 	<div class="c-footer__inner">
-		<div class="c-footer__top">
-			<div class="c-footer__lead">
-				<p class="c-footer__eyebrow">Have something in mind?</p>
-				<p class="c-footer__headline">Let’s work together.</p>
-				<Button
-					label="Get in touch"
-					href={`mailto:${email}`}
-					variant="link"
-					data-copy-email={email}
-					class="c-footer__btn"
-				/>
-			</div>
-
-			<div class="c-footer__meta">
-				<ul class="c-footer__socials">
-					{
-						socials.map((s) => (
-							<li>
-								<a href={s.url} target="_blank" rel="me noopener noreferrer">
-									{s.platform}
-								</a>
-							</li>
-						))
-					}
-				</ul>
-				<p class="c-footer__loc">Based in Brazil · BRT</p>
-			</div>
-		</div>
-
 		<!-- Wordmark scaled to span the container at natural bold proportions
 		     (no tracking). The viewBox is set from the text's measured bounding
 		     box in script (fitWordmark), so width:100% scales the glyphs to full
@@ -111,95 +69,10 @@ const socials = [
 		will-change: transform;
 	}
 
-	/* Top row: contact card (lead) + meta column, baseline-aligned ----------- */
-	.c-footer__top {
-		display: flex;
-		justify-content: space-between;
-		/* Right column sits on the same baseline as the left column's button. */
-		align-items: flex-end;
-		gap: var(--spacing-l);
-		flex-wrap: wrap;
-	}
-
-	/* Lead / CTA ------------------------------------------------------------ */
-	/* Spacing rhythm: tight gaps (≤ --spacing-s / ~1rem) bind related items;
-	 * separate groups get --spacing-m+ (see .c-footer__top gap). */
-	.c-footer__eyebrow {
-		color: var(--footer-muted);
-		font-size: var(--text-step-0);
-		margin-bottom: var(--spacing-2xs); /* label hugs the headline */
-	}
-	.c-footer__headline {
-		font-size: var(--text-step-4);
-		font-weight: 560;
-		letter-spacing: -0.03em;
-		line-height: 1.02;
-		color: #fff9f4;
-		max-width: 14ch;
-		/* Single gap to the button — they read as one CTA unit (~1rem). */
-		margin-bottom: var(--spacing-s);
-	}
-	/* CTA is the Button `link` variant — recolour it to the footer foreground
-	 * (warm white) so it reads on the orange panel; hover brightens to pure white. */
-	.c-footer__btn {
-		--btn-link-color: var(--footer-fg);
-		--btn-link-hover: #fff;
-	}
-
-	/* Meta column (socials + location) -------------------------------------- */
-	.c-footer__meta {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end; /* hug the right edge, stacked above location */
-		gap: var(--spacing-2xs); /* socials ↔ location: related meta */
-		font-size: var(--text-step--1);
-		text-align: right;
-	}
-	/* Socials on one line: "LinkedIn / X" — a hairline slash separates them. */
-	.c-footer__socials {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2xs);
-		list-style: none;
-		padding: 0;
-		margin: 0;
-	}
-	.c-footer__socials li {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2xs);
-	}
-	.c-footer__socials li + li::before {
-		content: "/";
-		color: var(--footer-line);
-	}
-	.c-footer__socials a {
-		color: var(--footer-muted);
-		text-decoration: none;
-		transition: color 0.2s var(--ease-default);
-	}
-	.c-footer__socials a:hover {
-		color: #fff;
-	}
-	.c-footer__loc {
-		color: var(--footer-muted);
-		opacity: 0.8;
-	}
-
-	/* Narrow viewports: stack the card over the meta, everything left-aligned
-	 * (no right-alignment on mobile), and a shorter footer panel. */
+	/* Narrow viewports: a shorter footer panel. */
 	@media (max-width: 40rem) {
 		.c-footer {
 			min-height: 46svh;
-		}
-		.c-footer__top {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: var(--spacing-m);
-		}
-		.c-footer__meta {
-			align-items: flex-start;
-			text-align: left;
 		}
 	}
 

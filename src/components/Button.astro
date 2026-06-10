@@ -20,8 +20,11 @@
 interface Props {
 	label: string;
 	href?: string;
-	variant?: "primary" | "secondary" | "accent" | "solid" | "ghost";
+	variant?: "primary" | "secondary" | "accent" | "solid" | "ghost" | "link";
 	type?: "button" | "submit" | "reset";
+	/* Append the external-link arrow (Phosphor "arrow-up-right", bold-faked with a
+	 * stroke like the theme toggle). Pairs with variant="link" for a tertiary CTA. */
+	icon?: boolean;
 	class?: string;
 	[key: string]: unknown;
 }
@@ -31,6 +34,7 @@ const {
 	href,
 	variant = "primary",
 	type = "button",
+	icon = false,
 	class: className,
 	...rest
 } = Astro.props;
@@ -49,7 +53,24 @@ const Tag = href ? "a" : "button";
 		<span style="--index: 0;" class="c-button__bg-layer is--first"></span>
 		<span style="--index: 1;" class="c-button__bg-layer is--second"></span>
 	</span>
-	<span class="c-button__label">{label}</span>
+	<span class="c-button__label">
+		{label}
+		{
+			icon && (
+				<svg
+					class="c-button__icon"
+					viewBox="0 0 256 256"
+					fill="currentColor"
+					stroke="currentColor"
+					stroke-width="8"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z" />
+				</svg>
+			)
+		}
+	</span>
 </Tag>
 
 <style>
@@ -58,14 +79,16 @@ const Tag = href ? "a" : "button";
 		--btn-paper: hsl(38 44% 97%);
 		--btn-ink: hsl(24 15% 11%);
 
-		/* Primary (default): white → orange flash → black, label dark → white. */
-		--btn-bg: var(--btn-paper);
-		--btn-text: var(--btn-ink);
-		--btn-border: color-mix(in srgb, var(--btn-ink), transparent 86%);
-		--btn-edge: var(--accent); /* the flash */
-		--btn-fill: var(--btn-ink);
-		--btn-hover-text: var(--btn-paper);
-		--btn-focus: var(--accent);
+		/* Primary (default): ORANGE rest → theme fill on hover (dark in light /
+		 * light in dark). Orange is already the rest colour, so there's no orange
+		 * "flash" panel — both panels are the theme fill (--text); the label
+		 * crosses warm-white → page-colour. The loud CTA. */
+		--btn-bg: var(--accent);
+		--btn-text: var(--btn-paper); /* warm white on orange */
+		--btn-edge: var(--text); /* no flash — both panels are the theme fill */
+		--btn-fill: var(--text);
+		--btn-hover-text: var(--bg);
+		--btn-focus: var(--text);
 
 		/* Shape & spacing — em-based so it scales with font-size (0.75rem). */
 		--btn-padding: 1em 1.65em;
@@ -131,7 +154,12 @@ const Tag = href ? "a" : "button";
 	.c-button__bg {
 		pointer-events: none;
 		background-color: var(--btn-bg);
-		border: 1px solid var(--btn-border);
+		/* Borderless trial — no border at all. (A `1px solid transparent` box
+		 * left a 1px ring of page-bg inside the border edge that read as a
+		 * hairline on hover, when the fill behind it is dark.) The per-variant
+		 * --btn-border vars are dormant; restore `border: 1px solid var(--btn-border)`
+		 * to bring the self-defining hairlines back. */
+		border: none;
 		border-radius: var(--btn-radius);
 		grid-area: 1 / 1;
 		width: 100%;
@@ -142,11 +170,21 @@ const Tag = href ? "a" : "button";
 
 	.c-button__bg-layer {
 		grid-area: 1 / 1;
-		width: 120%;
-		height: 100%;
+		/* Generously oversized so the ROTATED panel fully covers the button at
+		 * full hover with no __bg peeking. With rotate(-10deg) around the
+		 * top-right, the top edge slopes DOWN to the left, so the top-LEFT corner
+		 * is covered last (the "left sliver"). Width 140% over-covers the left;
+		 * height 160% + the -18% hover lift (below) push the lagging top-left
+		 * above the top edge. */
+		width: 140%;
+		height: 160%;
 		transform-origin: 100% 0;
 		translate: 0 100% 0;
-		rotate: -10deg;
+		/* Shallow tilt (was -10deg). The diagonal is what created the visible
+		 * left sliver — a steeper tilt makes the top-left lag far behind the rest
+		 * of the wipe. -5deg keeps a whisper of diagonal while the lag (and the
+		 * sliver) is small; the over-cover above swallows what remains. */
+		rotate: -5deg;
 		transition:
 			translate 0.6s var(--btn-ease),
 			rotate 0.5s var(--btn-ease);
@@ -171,14 +209,24 @@ const Tag = href ? "a" : "button";
 		transition-delay: 0.08s;
 	}
 
-	/* ── Secondary: black → orange flash → white (inverse of primary) ───────── */
+	/* ── Secondary: WHITE on light / BLACK on dark — the quiet CTA that follows
+	 * the page tone (white reads quiet on cream; black reads quiet on the dark
+	 * bg). Orange flash → inverts to the opposite tone on hover. ─────────────── */
 	.c-button[data-variant="secondary"] {
-		--btn-bg: var(--btn-ink);
-		--btn-text: var(--btn-paper);
-		--btn-border: color-mix(in srgb, var(--btn-paper), transparent 86%);
+		--btn-bg: #fff;
+		--btn-text: var(--btn-ink);
 		--btn-edge: var(--accent);
-		--btn-fill: var(--btn-paper);
-		--btn-hover-text: var(--btn-ink);
+		--btn-fill: var(--btn-ink);
+		--btn-hover-text: #fff;
+		--btn-focus: var(--accent);
+	}
+	/* Dark theme: black rest (a touch darker than the page so it still reads),
+	 * white fill on hover. */
+	:global([data-theme="dark"]) .c-button[data-variant="secondary"] {
+		--btn-bg: hsl(28 10% 6%);
+		--btn-text: #fff;
+		--btn-fill: #fff;
+		--btn-hover-text: hsl(28 10% 6%);
 	}
 
 	/* ── Solid: THEME-AWARE dominant CTA. Unlike primary/secondary (which are
@@ -195,16 +243,18 @@ const Tag = href ? "a" : "button";
 		--btn-hover-text: var(--text);
 	}
 
-	/* ── Ghost: THEME-AWARE quiet CTA — transparent with a hairline border, text
-	 * in the theme colour. Pairs under `solid` as the secondary action. Hover
-	 * flips to a solid text-coloured fill (orange flash first). ─────────────── */
+	/* ── Ghost: now a WHITE quiet CTA (was transparent + hairline border — the
+	 * borderless trial left it invisible). Pure-white fill so it differentiates
+	 * from the cream page and reads as the quiet secondary (white-on-cream is low
+	 * contrast); orange flash → ink fill on hover, like primary. Constant (not
+	 * theme-aware): in DARK mode it stays a white button — revisit if it competes
+	 * with the theme-aware `solid` there. ──────────────────────────────────── */
 	.c-button[data-variant="ghost"] {
-		--btn-bg: transparent;
-		--btn-text: var(--text);
-		--btn-border: color-mix(in srgb, var(--text), transparent 78%);
+		--btn-bg: #fff;
+		--btn-text: var(--btn-ink);
 		--btn-edge: var(--accent);
-		--btn-fill: var(--text);
-		--btn-hover-text: var(--bg);
+		--btn-fill: var(--btn-ink);
+		--btn-hover-text: var(--btn-paper);
 	}
 
 	/* ── Accent: orange CTA (nav). Calm hover — just black wipes in, no flash,
@@ -219,11 +269,49 @@ const Tag = href ? "a" : "button";
 		--btn-focus: var(--btn-ink);
 	}
 
+	/* ── Link: tertiary text-link CTA — no panel, no padding. Label + external
+	 * arrow inline; hover warms the colour and nudges the arrow up-right (the
+	 * external-link affordance). Used for the modal's "Live preview". ───────── */
+	.c-button[data-variant="link"] {
+		--btn-padding: 0;
+		--btn-focus: var(--accent);
+	}
+	.c-button[data-variant="link"] .c-button__bg {
+		display: none;
+	}
+	.c-button[data-variant="link"] .c-button__label {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.55em;
+		/* Overridable so the link adapts to its surface — defaults to the theme
+		 * text colour (modal), the footer sets it to the footer foreground. */
+		color: var(--btn-link-color, var(--text));
+		transition: color 0.25s var(--btn-ease);
+	}
+	.c-button[data-variant="link"] .c-button__icon {
+		width: 1.05em;
+		height: 1.05em;
+		flex: none;
+		transition: transform 0.3s var(--btn-ease);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.c-button[data-variant="link"]:is(:hover, :focus-visible) .c-button__label {
+			color: var(--btn-link-hover, var(--accent-ink));
+		}
+	}
+	@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+		.c-button[data-variant="link"]:is(:hover, :focus-visible) .c-button__icon {
+			transform: translate(0.15em, -0.15em);
+		}
+	}
+
 	/* ── Hover: wipe the panels up, cross the label color over ─────────────── */
 	@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
 		.c-button:is(:hover, :focus-visible) .c-button__bg-layer,
 		[data-hover]:is(:hover, :focus-visible) .c-button .c-button__bg-layer {
-			translate: 0 0 0;
+			/* -18% (not 0) lifts the over-tall panel above the top edge so the
+			 * lagging top-left corner is covered — no __bg sliver at full hover. */
+			translate: 0 -18% 0;
 			rotate: 0deg;
 			transition-delay: calc(var(--index) * 0.06s + 0.04s);
 		}

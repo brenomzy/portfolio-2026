@@ -25,8 +25,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		<!-- Favicons. SVG is theme-aware: the no-flash script below (and the theme
+		     toggle) swaps light/dark variants to track the site theme. Safari
+		     ignores SVG favicons and falls back to the ICO (static orange mark,
+		     16/32/48); iOS home screens take the apple-touch PNG. -->
+		<link rel="icon" href="/favicon.ico" sizes="32x32" />
+		<link rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<link rel="canonical" href={canonical} />
 		<meta name="generator" content={Astro.generator} />
 
@@ -56,6 +61,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 						? "dark"
 						: "light");
 				root.dataset.theme = theme;
+				// Favicon tracks the site theme (orange mark on light, blue on dark).
+				const fav = document.querySelector(
+					'link[rel="icon"][type="image/svg+xml"]',
+				);
+				if (fav) fav.href = `/favicon-${theme}.svg`;
 			})();
 		</script>
 
@@ -135,7 +145,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 				padding: var(--spacing-2xs) var(--spacing-s);
 				background-color: var(--text);
 				color: var(--bg);
-				border-radius: var(--radius-md);
+				/* Squared — matches the Buttons' radius-0 language. */
 				font-size: var(--text-step--1);
 				box-shadow: 0 0.5rem 1.875rem rgba(0, 0, 0, 0.18);
 				opacity: 0;
@@ -174,13 +184,39 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 				hideTimer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
 			}
 
+			// Legacy fallback: a transient offscreen textarea + execCommand. Works on
+			// the click gesture without the clipboard-write permission, which embedded
+			// previews / permission-denied browsers reject the async API with.
+			function legacyCopy(value: string): boolean {
+				const ta = document.createElement("textarea");
+				ta.value = value;
+				ta.readOnly = true;
+				ta.className = "u-copy-source";
+				document.body.appendChild(ta);
+				ta.select();
+				let ok = false;
+				try {
+					ok = document.execCommand("copy");
+				} catch {
+					ok = false;
+				}
+				ta.remove();
+				return ok;
+			}
+
 			async function copyEmail(value: string) {
 				try {
 					await navigator.clipboard.writeText(value);
 					showToast(`Copied ${value}`);
+					return;
 				} catch {
-					// Clipboard blocked (insecure context / denied) — still surface the
-					// address so the click isn't a dead end.
+					/* fall through to the legacy path */
+				}
+				if (legacyCopy(value)) {
+					showToast(`Copied ${value}`);
+				} else {
+					// Copy genuinely blocked — still surface the address so the click
+					// isn't a dead end.
 					showToast(value);
 				}
 			}

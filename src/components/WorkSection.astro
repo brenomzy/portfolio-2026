@@ -30,8 +30,10 @@ const { projects } = Astro.props;
 					data-astro-reload
 					data-reveal
 				>
-					<span class="c-work__media">
-						<img src={p.cover} alt={p.title} loading="lazy" />
+					<span class="c-work__frame">
+						<span class="c-work__media">
+							<img src={p.cover} alt={p.title} loading="lazy" />
+						</span>
 					</span>
 					<span class="c-work__meta">
 						<span class="c-work__title">{p.title}</span>
@@ -76,23 +78,75 @@ const { projects } = Astro.props;
 		text-decoration: none;
 		color: var(--text);
 	}
+	/* Frame = the hover-scale target + carrier for the gradient border. No
+	 * overflow clip here so the border can sit just outside the tile. */
+	.c-work__frame {
+		position: relative;
+		/* Whole-card lift on hover — small, premium decel ease. */
+		transition: transform 0.45s var(--ease-out-expo);
+	}
+	/* 1px border ring, behind the opaque tile (square — no radius). TWO layers on
+	 * it: ::before is the faint hairline that's always on; ::after is the brand
+	 * glow whose centre tracks the cursor (--card-mouse-x/y, set by the script
+	 * below) and which FADES IN on hover. */
+	.c-work__frame::before,
+	.c-work__frame::after {
+		content: "";
+		position: absolute;
+		inset: -1px;
+		z-index: 0;
+	}
+	.c-work__frame::before {
+		background: var(--card-border-base);
+	}
+	/* Stripe-style glow: a bright hot core (--card-glow-hot) → brand gradient
+	 * (logo/footer palette: orange in light, blue in dark) → transparent. */
+	.c-work__frame::after {
+		background: radial-gradient(
+			240px circle at var(--card-mouse-x, -300px) var(--card-mouse-y, -300px),
+			var(--card-glow-core) 0%,
+			var(--card-glow-hot) 16%,
+			var(--logo-grad-1) 36%,
+			var(--logo-grad-2) 60%,
+			transparent 80%
+		);
+		opacity: 0;
+		transition: opacity 0.4s var(--ease-out-expo);
+	}
 	.c-work__media {
+		position: relative;
+		z-index: 1;
 		display: block;
 		aspect-ratio: 16 / 9;
 		overflow: hidden;
-		background-color: var(--surface);
+		/* Theme-aware gradient behind the card; the cover SVG is transparent
+		 * around its floating browser frame, so this shows through the margin.
+		 * Opaque, so it masks all but the 1px gradient-border ring behind it. */
+		background: var(--thumb-bg);
 	}
 	.c-work__media img {
 		display: block;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		transition: scale 0.7s var(--ease-default);
 	}
 	@media (hover: hover) {
-		.c-work__card:hover .c-work__media img {
-			scale: 1.04;
+		/* Scoped to the FRAME, not the whole card — hovering the title/meta text
+		 * below shouldn't scale or light the thumbnail. The tile scales (not just
+		 * the image inside); the glow fades in. */
+		.c-work__frame:hover {
+			transform: scale(1.03);
 		}
+		.c-work__frame:hover::after {
+			opacity: 1;
+		}
+	}
+	/* Keyboard parity — same lift + glow on focus (works on touch/no-hover too). */
+	.c-work__card:focus-visible .c-work__frame {
+		transform: scale(1.03);
+	}
+	.c-work__card:focus-visible .c-work__frame::after {
+		opacity: 1;
 	}
 	.c-work__meta {
 		display: flex;
@@ -107,6 +161,11 @@ const { projects } = Astro.props;
 	}
 	.c-work__tag {
 		color: var(--text-muted);
+		/* Small editorial caps. font-size in rem (0.625rem = 10px); letter-spacing
+		 * stays in em so the tracking scales with the type. */
+		font-size: 0.625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 
 	@media (max-width: 40rem) {
@@ -185,4 +244,32 @@ const { projects } = Astro.props;
 
 	document.addEventListener("astro:page-load", setup);
 	document.addEventListener("astro:before-swap", killTriggers);
+</script>
+
+<script>
+	// Cursor-tracked gradient border (Stripe-bento style). Writes the pointer's
+	// position within a card to --card-mouse-x/y on its .c-work__frame; the
+	// frame's ::before centres a brand-gradient blob there, so the 1px border
+	// glows under the cursor. Off-pointer the vars are cleared and the CSS
+	// default parks the blob far off-card, leaving just the hairline base.
+	function bindCardGlow() {
+		const grid = document.querySelector<HTMLElement>(".c-work__grid");
+		if (!grid) return;
+
+		// Set the vars directly in the handler — pointermove is already paced by
+		// the browser, and writing two custom props is cheap (no layout). (rAF
+		// batching would stall while the tab is backgrounded.)
+		grid.addEventListener("pointermove", (e) => {
+			const f = (e.target as Element).closest<HTMLElement>(".c-work__frame");
+			if (!f) return;
+			const r = f.getBoundingClientRect();
+			f.style.setProperty("--card-mouse-x", `${e.clientX - r.left}px`);
+			f.style.setProperty("--card-mouse-y", `${e.clientY - r.top}px`);
+		});
+		// No pointer-out reset: the glow disappears via its opacity fade (gated on
+		// :hover), so the position can stay put and fade cleanly in place rather
+		// than jumping the blob off-card mid-fade.
+	}
+
+	document.addEventListener("astro:page-load", bindCardGlow);
 </script>

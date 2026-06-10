@@ -25,6 +25,19 @@
 	--surface: hsl(36 34% 91%);
 	--surface-raised: hsl(42 52% 97%);
 
+	/* Thumbnail backdrop — the gradient behind a Work card's floating browser
+	 * frame. Theme-aware (light here, dark below) so a future gradient-border on
+	 * the card reads against it. Light = soft warm cream wash. */
+	--thumb-bg: linear-gradient(150deg, hsl(40 36% 96%), hsl(34 26% 88%));
+
+	/* Faint hairline shown by a Work card's 1px gradient border when the cursor
+	 * isn't lighting it up (the brand-gradient blob is layered over this). */
+	--card-border-base: hsl(30 30% 82%);
+	/* Cursor-glow ramp: a bright near-white core → vivid saturated mid → (then the
+	 * --logo-grad brand tones). Two light stops give it the luminous Stripe pop. */
+	--card-glow-core: hsl(44 100% 90%);
+	--card-glow-hot: hsl(36 100% 62%);
+
 	/* Text */
 	--text: hsl(24 16% 12%);
 	--text-muted: hsl(26 10% 38%);
@@ -59,14 +72,28 @@
 	--surface: hsl(30 4% 12%);
 	--surface-raised: hsl(30 4% 16%);
 
+	/* Dark thumbnail backdrop — a faint warm-grey wash, lifted at top-left. */
+	--thumb-bg: linear-gradient(150deg, hsl(30 6% 17%), hsl(30 6% 9%));
+
+	/* Resting card border on dark — a neutral warm-grey a touch DARKER than the
+	 * bg (hsl 30 5% 9%), mirroring the light theme where the hairline sits just
+	 * darker than the page. */
+	--card-border-base: hsl(30 6% 6%);
+	/* Cursor-glow ramp on dark — cool near-white core → vivid sky-blue mid. */
+	--card-glow-core: hsl(205 100% 90%);
+	--card-glow-hot: hsl(204 100% 70%);
+
 	--text: hsl(30 8% 94%);
 	--text-muted: hsl(30 4% 62%);
 
 	--border: hsl(30 4% 22%);
 
-	/* Lifted slightly so the orange stays vibrant + legible on dark grey. */
-	--accent: hsl(10 100% 62%);
-	--accent-ink: hsl(10 100% 66%);
+	/* Dark mode flips the accent orange → a vivid blue (the logo/footer/glow
+	 * family), so every accent surface — primary CTA, focus rings, links, toast —
+	 * matches the blue dark identity instead of leaving the button a lone orange.
+	 * Bright, but deep enough that the CTA's warm-white label keeps ~4:1 contrast. */
+	--accent: hsl(220 90% 60%);
+	--accent-ink: hsl(216 95% 72%);
 	--accent-contrast: hsl(30 8% 9%);
 
 	/* Pure black + extra alpha — shadows need more punch to read on dark surfaces. */

@@ -193,7 +193,9 @@ const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
 		position: relative;
 		aspect-ratio: 16 / 9;
 		overflow: hidden;
-		background-color: var(--surface);
+		/* Same theme-aware backdrop as the grid cards so the flown card lands on
+		 * a matching gradient (the cover/shot SVGs are transparent around them). */
+		background: var(--thumb-bg);
 		margin: 0;
 	}
 	.c-pmodal__media :global(img) {

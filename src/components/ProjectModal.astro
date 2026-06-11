@@ -228,6 +228,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		position: relative;
 		aspect-ratio: 16 / 9;
 		overflow: hidden;
+		border-radius: var(--radius-md);
 		/* Same theme-aware backdrop as the grid cards so the flown card lands on
 		 * a matching gradient (the cover/shot SVGs are transparent around them). */
 		background: var(--thumb-bg);
@@ -337,6 +338,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	}
 	.c-pmodal__flight :global(img) {
 		object-fit: cover;
+		border-radius: var(--radius-md);
 		will-change: transform;
 	}
 

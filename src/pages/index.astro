@@ -4,6 +4,7 @@ import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import Hero from "../components/Hero.astro";
 import WorkSection from "../components/WorkSection.astro";
+import MoreWork from "../components/MoreWork.astro";
 import ProjectModal from "../components/ProjectModal.astro";
 import { WORK_PROJECTS } from "../lib/work-projects";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../lib/site";
@@ -15,6 +16,8 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../lib/site";
 	<Hero />
 
 	<WorkSection projects={WORK_PROJECTS} />
+
+	<MoreWork />
 
 	<SiteFooter slot="footer" />
 	<!-- Outside #main (slot=footer) so the modal isn't trapped in #main's

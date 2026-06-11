@@ -52,7 +52,7 @@ const { projects } = Astro.props;
 		max-width: var(--container-content);
 		margin-inline: auto;
 		/* Tighter top so the section sits up under the hero; generous bottom. */
-		padding: var(--spacing-l) var(--spacing-m) var(--spacing-2xl);
+		padding: var(--spacing-l) var(--spacing-m) var(--spacing-3xl);
 	}
 	.c-work__heading {
 		font-size: var(--text-step-3);
@@ -80,8 +80,6 @@ const { projects } = Astro.props;
 	 * overflow clip here so the border can sit just outside the tile. */
 	.c-work__frame {
 		position: relative;
-		/* Whole-card lift on hover — small, premium decel ease. */
-		transition: transform 0.45s var(--ease-out-expo);
 	}
 	/* 1px border ring, behind the opaque tile (square — no radius). TWO layers on
 	 * it: ::before is the faint hairline that's always on; ::after is the brand
@@ -93,6 +91,8 @@ const { projects } = Astro.props;
 		position: absolute;
 		inset: -1px;
 		z-index: 0;
+		/* Concentric with the media (media radius + the 1px ring offset). */
+		border-radius: calc(var(--radius-md) + 1px);
 	}
 	.c-work__frame::before {
 		background: var(--card-border-base);
@@ -117,6 +117,7 @@ const { projects } = Astro.props;
 		display: block;
 		aspect-ratio: 16 / 9;
 		overflow: hidden;
+		border-radius: var(--radius-md);
 		/* Theme-aware gradient behind the card; the cover SVG is transparent
 		 * around its floating browser frame, so this shows through the margin.
 		 * Opaque, so it masks all but the 1px gradient-border ring behind it. */
@@ -127,24 +128,39 @@ const { projects } = Astro.props;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		/* will-change below promotes this img to its own GPU layer, which Chromium
+		 * then won't clip to .c-work__media's rounded corners — so round the layer
+		 * itself (inherits the media's --radius-md) to keep the corners crisp. */
+		border-radius: inherit;
+		/* Source covers carry a transparent margin that's 20px heavier at the
+		 * bottom (top 52 / bottom 72 of 900) — every asset, identically. Nudge the
+		 * image down ~half that (10/900 = 1.11% of height) so top/bottom even out
+		 * at 62/62. The exposed/clipped strips are transparent → all --thumb-bg,
+		 * so no seam. translateY in % stays correct at any frame size. */
+		transform: translateY(1.11%);
+		/* Inner zoom on hover. will-change keeps the GPU layer warm (no shimmer);
+		 * the hover/focus rules re-state the translate so the scale composes. */
+		transition: transform 0.45s var(--ease-out-expo);
+		will-change: transform;
 	}
 	@media (hover: hover) {
 		/* Scoped to the FRAME, not the whole card — hovering the title/meta text
-		 * below shouldn't scale or light the thumbnail. The tile scales (not just
-		 * the image inside); the glow fades in. */
-		.c-work__frame:hover {
-			transform: scale(1.03);
-		}
+		 * below shouldn't touch the thumbnail. Only the image zooms (inside its
+		 * clipped media box); the cursor glow fades in. The card itself never
+		 * scales. translateY repeats the resting nudge so only scale animates. */
 		.c-work__frame:hover::after {
 			opacity: 1;
 		}
+		.c-work__frame:hover .c-work__media img {
+			transform: translateY(1.11%) scale(1.025);
+		}
 	}
-	/* Keyboard parity — same lift + glow on focus (works on touch/no-hover too). */
-	.c-work__card:focus-visible .c-work__frame {
-		transform: scale(1.03);
-	}
+	/* Keyboard parity — same zoom + glow on focus (works on touch/no-hover too). */
 	.c-work__card:focus-visible .c-work__frame::after {
 		opacity: 1;
+	}
+	.c-work__card:focus-visible .c-work__media img {
+		transform: translateY(1.11%) scale(1.025);
 	}
 	.c-work__meta {
 		display: flex;

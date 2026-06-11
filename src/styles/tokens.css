@@ -61,6 +61,14 @@
 	 * hot→deep). Flips orange→blue with the theme, like the footer. */
 	--logo-grad-1: #ff8f41;
 	--logo-grad-2: #c6400b;
+
+	/* Contrast band — a deliberately inverted surface (the "More work" marquee).
+	 * In light mode it's the DARK palette; in dark mode (below) it flips to the
+	 * light one. Values mirror the opposite theme's bg/text so the band reads as
+	 * the photographic negative of the page around it. */
+	--contrast-bg: hsl(30 5% 9%);
+	--contrast-text: hsl(30 8% 94%);
+	--contrast-muted: hsl(30 4% 62%);
 }
 
 [data-theme="dark"] {
@@ -103,6 +111,11 @@
 	/* Night-blue logo gradient, matching the footer's dark palette. */
 	--logo-grad-1: #4f7ddc;
 	--logo-grad-2: #294e9e;
+
+	/* Contrast band flips to the LIGHT palette on dark mode (mirrors light :root). */
+	--contrast-bg: #f7f6f0;
+	--contrast-text: hsl(24 16% 12%);
+	--contrast-muted: hsl(26 10% 38%);
 }
 
 /* `inline` so utilities reference the raw var and follow [data-theme] overrides. */

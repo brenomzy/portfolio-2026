@@ -1,0 +1,229 @@
+---
+/*
+ * c-marquee — "More work": the non-selected projects as a two-row marquee on a
+ * full-bleed CONTRAST band (dark in light mode, light in dark — see the
+ * --contrast-* tokens). The two rows scroll in opposite directions in a seamless
+ * CSS loop; hovering any tile scales it up and dims the rest (Relume-style).
+ *
+ * Seamless loop = each track holds the tile set TWICE and translates by -50%; at
+ * the wrap point copy 2 sits exactly where copy 1 began. Per-tile margin (not a
+ * flex gap) keeps the seam spacing identical, so the wrap is invisible. Rows
+ * keep moving on hover by design — the dim/scale "spotlight" follows the cursor.
+ *
+ * Images are 900x650 collages baked to WebP by scripts/make-archive.mjs.
+ */
+interface Tile {
+	src: string;
+	alt: string;
+}
+
+// Source order from the old site. Row A runs this order leftward; row B runs the
+// REVERSE order rightward — so both rows show all eight, but never in lockstep.
+const TILES: Tile[] = [
+	{ src: "/archive/minu-portfolio.webp", alt: "Minu — portfolio site" },
+	{ src: "/archive/minu-landing.webp", alt: "Minu — landing page" },
+	{ src: "/archive/ligapj.webp", alt: "Liga PJ" },
+	{ src: "/archive/coucoo.webp", alt: "Coucoo" },
+	{ src: "/archive/domaine-uma.webp", alt: "Domaine Uma" },
+	{ src: "/archive/folie-douce.webp", alt: "Folie Douce" },
+	{ src: "/archive/storia-business.webp", alt: "Storia Business" },
+	{ src: "/archive/dsg.webp", alt: "DSG" },
+];
+
+// Split the eight into two distinct sets of four — no project repeats across
+// rows. Each row loops its OWN four. We repeat the four enough times that a
+// single loop "half" overflows the container (otherwise a bald spot opens at the
+// widest translate); REPS=4 = two identical halves of [set,set] for the -50% seam.
+const rowA = TILES.slice(0, 4);
+const rowB = TILES.slice(4, 8);
+const REPS = 4;
+const trackA = Array.from({ length: REPS }, () => rowA).flat();
+const trackB = Array.from({ length: REPS }, () => rowB).flat();
+---
+
+<section class="c-marquee" aria-label="More work">
+	<div class="c-marquee__band">
+		<div class="c-marquee__head">
+			<h2 class="c-marquee__heading">More work</h2>
+		</div>
+
+		<div class="c-marquee__viewport">
+		<div class="c-marquee__row c-marquee__row--a">
+			<div class="c-marquee__track">
+				{
+					trackA.map((t, i) => (
+						<figure class="c-marquee__tile" aria-hidden={i >= rowA.length ? "true" : undefined}>
+							<img src={t.src} alt={i >= rowA.length ? "" : t.alt} loading="lazy" width="900" height="650" />
+						</figure>
+					))
+				}
+			</div>
+		</div>
+
+		<div class="c-marquee__row c-marquee__row--b">
+			<div class="c-marquee__track">
+				{
+					trackB.map((t, i) => (
+						<figure class="c-marquee__tile" aria-hidden={i >= rowB.length ? "true" : undefined}>
+							<img src={t.src} alt={i >= rowB.length ? "" : t.alt} loading="lazy" width="900" height="650" />
+						</figure>
+					))
+				}
+			</div>
+		</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.c-marquee {
+		/* Alignment frame ONLY — same container pattern (max-width + auto margins +
+		 * inline padding) as the hero/work sections, so the band's edges line up
+		 * with their padded content above instead of running wider. */
+		max-width: var(--container-content);
+		margin-inline: auto;
+		padding-inline: var(--spacing-m);
+		/* Local knobs — tile size, inter-tile + inter-row spacing, loop speeds.
+		 * Custom props inherit, so descendants in the band still read them. */
+		--tile-w: clamp(15rem, 24vw, 21rem);
+		--tile-gap: var(--spacing-s);
+		--row-gap: var(--spacing-s);
+		--dur-a: 48s;
+		--dur-b: 62s;
+	}
+
+	/* The inverted band fills the content column (the frame above insets it). */
+	.c-marquee__band {
+		background: var(--contrast-bg);
+		color: var(--contrast-text);
+		border-radius: var(--radius-md);
+		padding-block: var(--spacing-xl);
+		overflow: hidden; /* clip tiles to the rounded corners */
+	}
+
+	.c-marquee__head {
+		padding-inline: var(--spacing-m);
+		margin-bottom: var(--spacing-l);
+		text-align: center;
+	}
+	.c-marquee__heading {
+		font-size: var(--text-step-3);
+	}
+
+	/* The moving area. overflow:hidden clips the track ends; the mask softens
+	 * both edges to a fade. Vertical padding gives scaled tiles room so the clip
+	 * never bites their top/bottom. */
+	.c-marquee__viewport {
+		overflow: hidden;
+		padding-block: var(--spacing-s);
+		-webkit-mask-image: linear-gradient(
+			90deg,
+			transparent,
+			#000 6%,
+			#000 94%,
+			transparent
+		);
+		mask-image: linear-gradient(
+			90deg,
+			transparent,
+			#000 6%,
+			#000 94%,
+			transparent
+		);
+	}
+
+	.c-marquee__row {
+		display: flex;
+	}
+	.c-marquee__row--b {
+		margin-top: var(--row-gap);
+	}
+
+	.c-marquee__track {
+		display: flex;
+		width: max-content;
+		/* GPU hint — the track translates every frame. */
+		will-change: transform;
+	}
+	.c-marquee__row--a .c-marquee__track {
+		animation: marquee-a var(--dur-a) linear infinite;
+	}
+	.c-marquee__row--b .c-marquee__track {
+		animation: marquee-b var(--dur-b) linear infinite;
+	}
+
+	/* -50% lands copy 2 exactly over copy 1's start → seamless. */
+	@keyframes marquee-a {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(-50%);
+		}
+	}
+	@keyframes marquee-b {
+		from {
+			transform: translateX(-50%);
+		}
+		to {
+			transform: translateX(0);
+		}
+	}
+
+	.c-marquee__tile {
+		position: relative;
+		flex: none;
+		width: var(--tile-w);
+		aspect-ratio: 900 / 650;
+		/* Per-tile margin (not flex gap) so the loop seam spacing matches. */
+		margin-right: var(--tile-gap);
+		overflow: hidden;
+		/* Inside the 0.5rem band → step the radius down to 0.25rem so nested
+		 * corners read harmoniously (inner radius < container radius). */
+		border-radius: var(--radius-sm);
+		background: var(--contrast-text);
+		transition:
+			transform 0.45s var(--ease-out-expo),
+			opacity 0.4s var(--ease-out-expo),
+			filter 0.4s var(--ease-out-expo);
+	}
+	.c-marquee__tile img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	@media (hover: hover) {
+		/* Relume effect: hovering any tile dims THE OTHERS (darkened), while the
+		 * hovered one scales up over its neighbours. :has scopes the dim to "a tile
+		 * is actually hovered" (not the gaps); :not(:hover) is essential — the :has
+		 * rule out-specifies .tile:hover, so without it the hovered tile dims too. */
+		.c-marquee__viewport:has(.c-marquee__tile:hover) .c-marquee__tile:not(:hover) {
+			opacity: 0.55;
+			filter: brightness(0.5);
+		}
+		.c-marquee__tile:hover {
+			opacity: 1;
+			filter: none;
+			transform: scale(1.06);
+			z-index: 2;
+		}
+	}
+
+	/* Reduced motion: stop the loop, let the band be swiped through instead. */
+	@media (prefers-reduced-motion: reduce) {
+		.c-marquee__track {
+			animation: none;
+		}
+		.c-marquee__viewport {
+			overflow-x: auto;
+		}
+	}
+
+	@media (max-width: 40rem) {
+		.c-marquee {
+			--tile-w: clamp(13rem, 62vw, 18rem);
+		}
+	}
+</style>

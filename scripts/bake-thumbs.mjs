@@ -24,6 +24,11 @@ const W = 1600;
 const H = 900;
 const CARD = { x: 64, y: 52, w: 1472, h: 772 };
 
+// Round the screenshot's own corners. Baked in image px (≈11px) so it renders at
+// ~0.25rem at the card's display size — the nested step-down from the card's CSS
+// 0.5rem (.c-work__media). Applied as a rounded-rect alpha mask on the shot.
+const SHOT_RADIUS = 11;
+
 // Per-source vertical crop: keep this top fraction of the source height BEFORE
 // the cover-fit, to drop a trailing section the capture caught (e.g. verifone1
 // included the start of the next "Insights…" block under the Victa hero).
@@ -55,7 +60,7 @@ const shadowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="
 		<feGaussianBlur stdDeviation="18"/>
 	</filter></defs>
 	<rect x="${CARD.x + 24}" y="${CARD.y + 34}" width="${CARD.w - 48}" height="${CARD.h - 48}"
-		rx="4" fill="rgb(16,12,8)" fill-opacity="0.5" filter="url(#b)"/>
+		rx="${SHOT_RADIUS}" fill="rgb(16,12,8)" fill-opacity="0.5" filter="url(#b)"/>
 </svg>`;
 
 async function bake(src, outPath) {
@@ -70,8 +75,15 @@ async function bake(src, outPath) {
 			height: Math.round(m.height * keep),
 		});
 	}
+	// Rounded-rect mask the size of the card; dest-in keeps the shot only inside
+	// it, clearing the four corners to transparent (→ the --thumb-bg shows there).
+	const roundMask = Buffer.from(
+		`<svg xmlns="http://www.w3.org/2000/svg" width="${CARD.w}" height="${CARD.h}"><rect width="${CARD.w}" height="${CARD.h}" rx="${SHOT_RADIUS}" ry="${SHOT_RADIUS}"/></svg>`,
+	);
 	const shot = await pipe
 		.resize(CARD.w, CARD.h, { fit: "cover", position: "northwest" })
+		.ensureAlpha()
+		.composite([{ input: roundMask, blend: "dest-in" }])
 		.toBuffer();
 	const shadow = await sharp(Buffer.from(shadowSvg)).png().toBuffer();
 	await sharp({

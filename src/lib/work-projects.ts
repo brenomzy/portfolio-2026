@@ -98,3 +98,9 @@ export const WORK_PROJECTS: WorkProject[] = [
 		liveUrl: "https://www.sharpperformance.com/",
 	},
 ];
+
+// Lookup by slug — used by the /work/[slug] case-study route (getStaticPaths
+// + the page itself). Returns undefined for unknown slugs.
+export function getProjectBySlug(slug: string): WorkProject | undefined {
+	return WORK_PROJECTS.find((p) => p.slug === slug);
+}

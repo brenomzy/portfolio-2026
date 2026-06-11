@@ -2,40 +2,17 @@
 import Base from "../layouts/Base.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
-import Button from "../components/Button.astro";
+import Hero from "../components/Hero.astro";
 import WorkSection from "../components/WorkSection.astro";
 import ProjectModal from "../components/ProjectModal.astro";
 import { WORK_PROJECTS } from "../lib/work-projects";
-import { CONTACT_EMAIL } from "../lib/site";
-import { sanityClient } from "../lib/sanity/client";
-import { SITE_SETTINGS_QUERY } from "../lib/sanity/queries";
-
-const settings = await sanityClient.fetch(SITE_SETTINGS_QUERY);
-const title = settings?.title ?? "Portfolio";
-const description = settings?.description ?? undefined;
+import { SITE_TITLE, SITE_DESCRIPTION } from "../lib/site";
 ---
 
-<Base title={title} description={description}>
+<Base title={SITE_TITLE} description={SITE_DESCRIPTION}>
 	<SiteHeader slot="header" />
 
-	<section class="hero">
-		<h1 class="hero__title" data-split>
-			Bridging design and code to build high-quality websites.
-		</h1>
-		<p class="hero__lead" data-split>
-			I'm Breno — a developer from Brazil turning design into fast, accessible,
-			hand-built sites. Currently at BX Studio, open to select freelance work.
-		</p>
-		<div class="hero__actions" data-reveal>
-			<Button label="View work ↓" href="#work" variant="primary" />
-			<Button
-				label="Get in touch"
-				href={`mailto:${CONTACT_EMAIL}`}
-				variant="secondary"
-				data-copy-email={CONTACT_EMAIL}
-			/>
-		</div>
-	</section>
+	<Hero />
 
 	<WorkSection projects={WORK_PROJECTS} />
 
@@ -44,155 +21,3 @@ const description = settings?.description ?? undefined;
 	     stacking context — and so scaling #main on open doesn't scale it. -->
 	<ProjectModal slot="footer" projects={WORK_PROJECTS} />
 </Base>
-
-<style>
-	.hero {
-		max-width: var(--container-content);
-		margin-inline: auto;
-		padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
-		display: grid;
-		gap: var(--spacing-xs);
-	}
-	.hero__title {
-		font-size: var(--text-step-5);
-		font-weight: 560;
-		letter-spacing: -0.035em;
-		line-height: 1.02;
-		max-width: 20ch;
-		/* Override the global h1 `text-wrap: balance` — it interferes with
-		 * SplitText line measurement. */
-		text-wrap: pretty;
-	}
-	.hero__lead {
-		font-size: 1.125rem; /* 18px — trialing a smaller lead per request */
-		color: var(--text-muted);
-		max-width: 48ch;
-	}
-	.hero__actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-2xs);
-		margin-top: var(--spacing-2xs);
-	}
-
-</style>
-
-<script>
-	import gsap from "gsap";
-	import { SplitText } from "gsap/SplitText";
-
-	gsap.registerPlugin(SplitText);
-
-	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-	const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-	// Tell the Work section the hero is done so it can sequence its reveal after
-	// us (see WorkSection.astro). Fired on every entry path (animated, reduced,
-	// error) so the section never waits on its fallback timeout unnecessarily.
-	const signalWorkReady = () =>
-		document.dispatchEvent(new CustomEvent("hero:revealed"));
-
-	let active: SplitText[] = [];
-
-	function show(els: (Element | null)[]) {
-		gsap.set(els.filter(Boolean) as Element[], { visibility: "visible" });
-	}
-
-	function cleanup() {
-		active.forEach((s) => s.revert());
-		active = [];
-	}
-
-	async function revealHero() {
-		const title = document.querySelector<HTMLElement>(".hero__title");
-		const lead = document.querySelector<HTMLElement>(".hero__lead");
-		const actions = document.querySelector<HTMLElement>(".hero__actions");
-		if (!title) return;
-
-		const all = [title, lead, actions];
-
-		// Reduced motion: skip the choreography, just reveal.
-		if (reduced.matches) {
-			show(all);
-			signalWorkReady();
-			return;
-		}
-
-		try {
-			// Split once fonts settle so line breaks are right — but cap the wait so
-			// the hero can never stay hidden if font loading stalls.
-			await Promise.race([document.fonts.ready, wait(1500)]);
-
-			const titleSplit = SplitText.create(title, { type: "words" });
-			const leadSplit = lead
-				? SplitText.create(lead, { type: "words" })
-				: null;
-			active = [titleSplit, leadSplit].filter(Boolean) as SplitText[];
-
-			show(all);
-
-			const tl = gsap.timeline({
-				// Gentler, slower ease than expo.out (which snaps then crawls).
-				defaults: { ease: "power2.out" },
-				// Restore normal, reflowable text once the reveal has played, then
-				// release the Work section to animate in after us.
-				onComplete: () => {
-					cleanup();
-					signalWorkReady();
-				},
-			});
-
-			// No clip/mask — words fade + drift up + sharpen from blur (the aritro.xyz
-			// feel), the same blur language as the header's blur-in (see
-			// SiteHeader.astro). `stagger.amount` spreads ALL words over a fixed time
-			// regardless of count. Words are cleaned up by split.revert() in
-			// cleanup(); the buttons clear their own filter.
-			tl.from(titleSplit.words, {
-				autoAlpha: 0,
-				y: 20,
-				filter: "blur(10px)",
-				duration: 0.9,
-				stagger: { amount: 0.5 },
-			});
-			if (leadSplit) {
-				tl.from(
-					leadSplit.words,
-					{
-						autoAlpha: 0,
-						y: 14,
-						filter: "blur(8px)",
-						duration: 0.8,
-						stagger: { amount: 0.7 },
-					},
-					"-=0.7",
-				);
-			}
-			if (actions) {
-				tl.from(
-					actions.children,
-					{
-						autoAlpha: 0,
-						y: 12,
-						filter: "blur(8px)",
-						duration: 0.6,
-						stagger: 0.08,
-						// "all" (not just "filter") so GSAP's inline transform props —
-						// incl. `scale: none` — are removed, freeing the buttons'
-						// :active press scale. Safe here: these children have no
-						// [data-reveal] visibility to preserve.
-						clearProps: "all",
-					},
-					"-=0.35",
-				);
-			}
-		} catch {
-			// Never leave the hero hidden if anything goes wrong.
-			cleanup();
-			show(all);
-			signalWorkReady();
-		}
-	}
-
-	document.addEventListener("astro:page-load", revealHero);
-	document.addEventListener("astro:before-swap", cleanup);
-</script>

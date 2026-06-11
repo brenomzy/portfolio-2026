@@ -2,6 +2,8 @@
 import { ClientRouter } from "astro:transitions";
 import ProgressiveBlur from "../components/ProgressiveBlur.astro";
 import "@fontsource-variable/geist";
+// Manrope (variable) — headings only; Geist stays the body face.
+import "@fontsource-variable/manrope";
 // Display face for the footer wordmark only (single 400 weight — the "Black").
 import "@fontsource/archivo-black";
 import "../styles/global.css";
@@ -102,17 +104,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 				position: relative;
 				z-index: 1;
 				background-color: var(--bg);
-				/* Foreground panel over the reveal footer: a large, soft downward
-				 * shadow makes the footer read as a recessed background layer as the
-				 * page lifts away. Bigger than --shadow-5 (this is a full-width seam,
-				 * not a small card) but low-alpha so it stays subtle. Only the bottom
-				 * edge shows at the reveal — sides sit at the viewport edge, the top is
-				 * covered by the sticky header. */
-				box-shadow:
-					0 8px 16px hsl(var(--shadow-hsl) / calc(0.05 + var(--shadow-strength))),
-					0 20px 40px hsl(var(--shadow-hsl) / calc(0.045 + var(--shadow-strength))),
-					0 40px 72px hsl(var(--shadow-hsl) / calc(0.04 + var(--shadow-strength))),
-					0 72px 120px hsl(var(--shadow-hsl) / calc(0.03 + var(--shadow-strength)));
+				/* Foreground panel over the reveal footer. Rounded bottom corners so it
+				 * reads as a card lifting away to uncover the footer (no shadow seam). */
+				border-bottom-left-radius: 1rem;
+				border-bottom-right-radius: 1rem;
+				/* Pull the footer up behind #main's last 1.5rem so the rounded corners
+				 * always have the footer behind them — otherwise at max scroll #main's
+				 * bottom meets the footer's top exactly and the corners reveal the page
+				 * background (same colour), making the radius vanish. */
+				margin-bottom: -1.5rem;
 			}
 
 			.c-skip-link {

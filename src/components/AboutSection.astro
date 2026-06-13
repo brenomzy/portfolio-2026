@@ -1,0 +1,241 @@
+---
+/*
+ * c-about — the homepage About section (condensed). One step deeper than the
+ * hero: a short approach-led blurb + portrait + a compact tool row, with a
+ * "More about me" link into the full /about page.
+ *
+ * Reveal language mirrors WorkSection: [data-reveal] + .js-about-reveal items
+ * park hidden (CSS guard in global.css) and slide up via a ScrollTrigger.batch
+ * when the section scrolls into view.
+ */
+import { ABOUT } from "../lib/about";
+
+// A compact subset of the toolset for the home teaser; the full grid lives on
+// the /about page.
+const tools = ABOUT.tools.slice(0, 8);
+---
+
+<section class="c-about" id="about" aria-label="About">
+	<div class="c-about__grid">
+		<div class="c-about__content">
+			<p class="c-about__eyebrow js-about-reveal" data-reveal>{ABOUT.home.heading}</p>
+			<h2 class="c-about__lead js-about-reveal" data-reveal>{ABOUT.home.lead}</h2>
+			<p class="c-about__body js-about-reveal" data-reveal>{ABOUT.home.body}</p>
+
+			<ul class="c-about__tools js-about-reveal" data-reveal aria-label="Tools I use">
+				{
+					tools.map((t) => (
+						<li class="c-about__tool" title={t.name}>
+							<span
+								class="c-about__tool-icon"
+								style={`--icon: url(/tools/${t.icon})`}
+								role="img"
+								aria-label={t.name}
+							/>
+						</li>
+					))
+				}
+			</ul>
+
+			<a class="c-about__more js-about-reveal" data-reveal href="/about">
+				More about me
+				<svg
+					class="c-about__arrow"
+					viewBox="0 0 256 256"
+					fill="currentColor"
+					aria-hidden="true"
+				>
+					<path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" />
+				</svg>
+			</a>
+		</div>
+
+		<div class="c-about__portrait js-about-reveal" data-reveal>
+			<img
+				src={ABOUT.portrait.src}
+				alt={ABOUT.portrait.alt}
+				width="600"
+				height="800"
+				loading="lazy"
+			/>
+		</div>
+	</div>
+</section>
+
+<style>
+	.c-about {
+		max-width: var(--container-content);
+		margin-inline: auto;
+		padding: var(--spacing-2xl) var(--spacing-m);
+	}
+	.c-about__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+		gap: var(--spacing-2xl);
+		align-items: center;
+	}
+	.c-about__content {
+		display: grid;
+		gap: var(--spacing-s);
+		/* Comfortable reading measure inside the wide container. */
+		max-width: 46ch;
+	}
+	.c-about__eyebrow {
+		font-size: 0.625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.18em;
+		color: var(--accent-ink);
+		font-weight: 600;
+	}
+	.c-about__lead {
+		font-size: var(--text-step-3);
+		text-wrap: pretty;
+	}
+	.c-about__body {
+		color: var(--text-muted);
+	}
+
+	/* Tool row — monochrome icons via CSS mask so they take the theme colour. */
+	.c-about__tools {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--spacing-s);
+		list-style: none;
+		padding: 0;
+		margin-top: var(--spacing-2xs);
+	}
+	.c-about__tool {
+		display: inline-flex;
+	}
+	.c-about__tool-icon {
+		display: block;
+		width: 1.5rem;
+		height: 1.5rem;
+		background-color: var(--text-muted);
+		-webkit-mask: var(--icon) center / contain no-repeat;
+		mask: var(--icon) center / contain no-repeat;
+		transition: background-color 0.25s var(--ease-out-expo);
+	}
+	@media (hover: hover) {
+		.c-about__tool:hover .c-about__tool-icon {
+			background-color: var(--text);
+		}
+	}
+
+	.c-about__more {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+		margin-top: var(--spacing-2xs);
+		width: fit-content;
+		font-size: var(--text-step--1);
+		font-weight: 560;
+		text-decoration: none;
+		color: var(--text);
+	}
+	.c-about__arrow {
+		width: 1.05em;
+		height: 1.05em;
+		transition: transform 0.3s var(--ease-out-expo);
+	}
+	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+		.c-about__more:is(:hover, :focus-visible) {
+			color: var(--accent-ink);
+		}
+		.c-about__more:is(:hover, :focus-visible) .c-about__arrow {
+			transform: translateX(0.2em);
+		}
+	}
+
+	.c-about__portrait {
+		overflow: hidden;
+		border-radius: var(--radius-md);
+		background: var(--thumb-bg);
+		box-shadow: var(--shadow-2);
+	}
+	.c-about__portrait img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		aspect-ratio: 3 / 4;
+	}
+
+	@media (max-width: 52rem) {
+		.c-about__grid {
+			grid-template-columns: 1fr;
+			gap: var(--spacing-xl);
+		}
+		/* Portrait first, then text, on narrow screens. */
+		.c-about__portrait {
+			order: -1;
+			max-width: 22rem;
+		}
+	}
+</style>
+
+<script>
+	import { gsap } from "gsap";
+	import { ScrollTrigger } from "gsap/ScrollTrigger";
+	import { CustomEase } from "gsap/CustomEase";
+
+	gsap.registerPlugin(ScrollTrigger, CustomEase);
+
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+	// Reuse the shared premium ease-out (same registry as Work/modal).
+	const EASE_OUT =
+		CustomEase.get("brand-out") ?? CustomEase.create("brand-out", "0.16,1,0.3,1");
+
+	let triggers: ScrollTrigger[] = [];
+
+	function killTriggers() {
+		triggers.forEach((t) => t.kill());
+		triggers = [];
+	}
+
+	const reveal = (els: HTMLElement | HTMLElement[]) =>
+		gsap.to(els, {
+			autoAlpha: 1,
+			y: 0,
+			duration: 0.8,
+			ease: EASE_OUT,
+			stagger: 0.08,
+			overwrite: true,
+		});
+
+	function setup() {
+		const items = gsap.utils.toArray<HTMLElement>(".js-about-reveal");
+		if (!items.length) return;
+		killTriggers();
+
+		if (reduced.matches) {
+			gsap.set(items, { autoAlpha: 1, y: 0 });
+			return;
+		}
+
+		// Park hidden + down (the data-reveal CSS guard prevents a pre-JS flash).
+		gsap.set(items, { autoAlpha: 0, y: 40 });
+
+		// Reveal anything already on-screen at load; scroll-reveal the rest per
+		// item (ScrollTrigger.batch skips items already past the start line).
+		const threshold = window.innerHeight * 0.9;
+		const onLoad: HTMLElement[] = [];
+		items.forEach((el) => {
+			if (el.getBoundingClientRect().top < threshold) onLoad.push(el);
+			else
+				triggers.push(
+					ScrollTrigger.create({
+						trigger: el,
+						start: "top 85%",
+						once: true,
+						onEnter: () => reveal(el),
+					}),
+				);
+		});
+		if (onLoad.length) reveal(onLoad);
+		ScrollTrigger.refresh();
+	}
+
+	document.addEventListener("astro:page-load", setup);
+	document.addEventListener("astro:before-swap", killTriggers);
+</script>

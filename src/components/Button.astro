@@ -166,6 +166,12 @@ const Tag = href ? "a" : "button";
 		height: 100%;
 		display: grid;
 		overflow: hidden;
+		/* The transformed wipe panels ride their own GPU layers, which `overflow:
+		 * hidden` + `border-radius` does NOT reliably clip in Chromium — their
+		 * square corners (incl. the orange flash) peek past the rounded button
+		 * corners mid-hover. `clip-path` clips at the paint level and IS respected
+		 * by composited descendants, so it removes the corner artifacts. */
+		clip-path: inset(0 round var(--btn-radius));
 	}
 
 	.c-button__bg-layer {

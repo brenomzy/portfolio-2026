@@ -690,10 +690,14 @@ import { ABOUT } from "../lib/about";
 					}),
 				);
 		});
-		// Hold the in-view items until the page-transition wipe has uncovered the
-		// page; below-fold items keep their own scroll triggers (set up above).
-		if (onLoad.length) whenRevealable().then(() => reveal(onLoad));
-		ScrollTrigger.refresh();
+		// Hold the in-view reveals AND the layout-heavy ScrollTrigger.refresh until
+		// the cross-fade has settled, so neither competes with the transition (the
+		// navigation freeze). Below-fold items keep their own scroll triggers (set up
+		// above). Resolves immediately on a fresh load, so that path is unchanged.
+		whenRevealable().then(() => {
+			if (onLoad.length) reveal(onLoad);
+			ScrollTrigger.refresh();
+		});
 	}
 
 	document.addEventListener("astro:page-load", setup);

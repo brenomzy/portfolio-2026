@@ -260,12 +260,11 @@ const PHOTOS = ABOUT.photos;
 				});
 			}
 
-			// The gallery as a whole fades/slides in first (it's a [data-reveal] item,
-			// animated by the about-page reveal), THEN — a beat later — the stacked
-			// cards fan out to the sides. Also held behind the page-transition wipe.
-			whenRevealable().then(() =>
-				gsap.delayedCall(0.45, () => renderCards(activeIndex)),
-			);
+			// The gallery as a whole fades/slides in first (the about-page reveal
+			// animates this [data-reveal] wrapper); a beat later the stacked cards fan
+			// out. Init itself is already deferred past the cross-fade (see the
+			// astro:page-load handler), so the fan-out just trails it by a beat.
+			gsap.delayedCall(0.45, () => renderCards(activeIndex));
 
 			if (total < 7) {
 				console.log("Not minimum of 7 cards");
@@ -359,7 +358,11 @@ const PHOTOS = ABOUT.photos;
 
 	document.addEventListener("astro:page-load", () => {
 		cleanupFlickCards();
-		initFlickCards();
+		// Defer the heavy setup — offsetWidth read, dragger DOM, Draggable.create —
+		// until the cross-fade has settled, so it never competes for the main thread
+		// with the page transition (the source of the navigation freeze). Resolves
+		// immediately on a fresh load, so the refresh/load path is unchanged.
+		whenRevealable().then(initFlickCards);
 	});
 	document.addEventListener("astro:before-swap", cleanupFlickCards);
 </script>

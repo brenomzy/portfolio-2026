@@ -13,11 +13,11 @@ import { CONTACT_EMAIL } from "../lib/site";
 
 <section class="hero">
 	<h1 class="hero__title" data-split>
-		Bridging design and code to build high-quality websites.
+		Design Engineer.<br />Webflow Developer.
 	</h1>
 	<p class="hero__lead" data-split>
-		I'm Breno — a developer from Brazil turning design into fast, accessible,
-		hand-built sites. Currently at BX Studio, open to select freelance work.
+		I'm Breno, from Brazil. I care about speed, accessibility, and motion
+		that earns its place. Currently at BX Studio, previously at Finsweet.
 	</p>
 	<div class="hero__actions" data-reveal>
 		<Button label="View work ↓" href="#work" variant="primary" />
@@ -39,7 +39,11 @@ import { CONTACT_EMAIL } from "../lib/site";
 		gap: var(--spacing-xs);
 	}
 	.hero__title {
-		font-size: var(--text-step-5);
+		/* Fluid down to phone widths so each title (split by the <br>) holds its
+		 * own single line instead of wrapping mid-title. Tops out at --text-step-6
+		 * (the big desktop size); shrinks on narrow screens where "Webflow
+		 * Developer." would otherwise break across two lines. */
+		font-size: clamp(1.9rem, 1rem + 4.6vw, var(--text-step-6));
 		max-width: 20ch;
 		/* Override the global h1 `text-wrap: balance` — it interferes with
 		 * SplitText line measurement. (Weight / tracking / line-height inherited.) */

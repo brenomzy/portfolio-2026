@@ -31,7 +31,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 		slug: "verifone",
 		client: "Verifone",
 		category: "Payments / Web",
-		role: "Design + Development",
+		role: "Webflow Development",
 		year: 2025,
 		cover: "/work/verifone/cover.webp",
 		gallery: [
@@ -40,7 +40,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 			"/work/verifone/shot-3.webp",
 		],
 		description:
-			"Marketing site for a global payments platform spanning devices, software, and services — a unified system that scales across product lines and 165+ markets without losing clarity.",
+			"I was the lead Webflow developer on Verifone's move off Drupal: 1,000+ pages rebuilt component-first with Lumos, scaling cleanly across 31 locales. CMS-driven navigation and custom JavaScript handle the logic Webflow can't, so the team ships in any market without touching code.",
 		liveUrl: "https://www.verifone.com/",
 	},
 	{
@@ -58,7 +58,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 			"/work/buildops/shot-3.webp",
 		],
 		description:
-			"A component-first site for an AI-native platform built for commercial contractors — service, projects, and financials in one place, presented to convert demos without burying the product.",
+			"A component-first build of 60+ components for an AI-native platform serving commercial contractors. Custom JavaScript powers the filtering and a copy-paste HTML library inside rich text, so the client runs everything without meeting the complexity underneath. Migrated 1,000+ blog posts along the way.",
 		liveUrl: "https://buildops.com/",
 	},
 	{
@@ -67,7 +67,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 		slug: "gainbridge",
 		client: "Gainbridge",
 		category: "Fintech / Web",
-		role: "Design + Development",
+		role: "Webflow Development",
 		year: 2026,
 		cover: "/work/gainbridge/cover.webp",
 		gallery: [
@@ -76,7 +76,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 			"/work/gainbridge/shot-3.webp",
 		],
 		description:
-			"A warm, trust-first site that makes a historically opaque product — annuities — feel simple and human: clear rates, plain language, and a calm reading rhythm end to end.",
+			"A component-first fintech site where I pivoted to a brand-new design system mid-project, handed over from another agency, without losing momentum. Custom JavaScript keeps a historically opaque product, annuities, manageable through an editor that stays genuinely simple.",
 		liveUrl: "https://gainbridge.com/",
 	},
 	{
@@ -94,7 +94,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 			"/work/sharp-performance/shot-3.webp",
 		],
 		description:
-			"A dark, tactical marketing site for an elite mental-performance coaching practice — built to feel as disciplined as the operators it trains, with motion that earns its restraint.",
+			"A marketing site driven by complex, full-screen section interactions built on fullPage.js and custom JavaScript. Every scroll, transition, and reveal is choreographed by hand for motion that feels intentional, never decorative.",
 		liveUrl: "https://www.sharpperformance.com/",
 	},
 ];

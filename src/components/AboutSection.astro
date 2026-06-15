@@ -201,6 +201,7 @@ const tools = ABOUT.tools.slice(0, 8);
 	import { gsap } from "gsap";
 	import { ScrollTrigger } from "gsap/ScrollTrigger";
 	import { CustomEase } from "gsap/CustomEase";
+	import { whenRevealable } from "../lib/page-reveal";
 
 	gsap.registerPlugin(ScrollTrigger, CustomEase);
 
@@ -255,8 +256,13 @@ const tools = ABOUT.tools.slice(0, 8);
 					}),
 				);
 		});
-		if (onLoad.length) reveal(onLoad);
-		ScrollTrigger.refresh();
+		// Defer the in-view reveals + the layout-heavy ScrollTrigger.refresh until
+		// the cross-fade settles, so neither competes with the page transition.
+		// Resolves immediately on a fresh load, so that path is unchanged.
+		whenRevealable().then(() => {
+			if (onLoad.length) reveal(onLoad);
+			ScrollTrigger.refresh();
+		});
 	}
 
 	document.addEventListener("astro:page-load", setup);

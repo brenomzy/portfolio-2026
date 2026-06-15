@@ -138,6 +138,14 @@
 
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 
+	// Read the persisted theme (cookie → system fallback). Mirrors the no-flash
+	// init in Base.astro; used to re-apply the theme after view-transition swaps.
+	function readTheme(): "light" | "dark" {
+		const m = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
+		if (m) return m[1] as "light" | "dark";
+		return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+	}
+
 	// Tab icon follows the site theme: orange mark on light, blue on dark.
 	// (Initial load is handled by the no-flash script in Base.astro.)
 	// Re-INSERTING the link (not just mutating href) is what reliably makes
@@ -183,9 +191,14 @@
 		btn?.addEventListener("click", toggleTheme);
 	});
 
-	// View-transition head swaps replace the favicon <link> with the new page's
-	// static (light) default — re-sync it to the active theme after each swap.
+	// A view-transition swap brings in the new page's STATIC <html> — which has no
+	// data-theme — so the live theme is lost (page snaps back to light) and the
+	// favicon <link> reverts to the static default. Re-apply both from the cookie
+	// on every swap. after-swap runs before paint, so there's no flash (and the
+	// page-transition wipe is covering the screen here anyway).
 	document.addEventListener("astro:after-swap", () => {
-		syncFavicon(document.documentElement.dataset.theme ?? "light");
+		const theme = readTheme();
+		document.documentElement.dataset.theme = theme;
+		syncFavicon(theme);
 	});
 </script>

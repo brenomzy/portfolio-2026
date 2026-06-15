@@ -1,0 +1,50 @@
+---
+/*
+ * Page transition orchestrator (no markup) — a clean CROSS-FADE between pages,
+ * then the new page plays its entrance animations IN ORDER.
+ *
+ * The cross-fade itself is CSS: the native View Transitions
+ * `::view-transition-old/new(root)` pair in global.css blends the old page out
+ * and the new page in. This script only handles the ordering + a swap-time fix:
+ *
+ *   - Holds the new page's entrance items (lib/page-reveal.ts → whenRevealable)
+ *     until the cross-fade has settled, then dispatches `page:revealed` so the
+ *     header → hero → sections animate in sequence in the open — not frozen
+ *     inside the cross-fade snapshot.
+ *   - Re-adds the `.js` FOUC-guard class, which a ClientRouter swap strips from
+ *     the incoming static <html> (same loss as the theme reset). Done on
+ *     `astro:after-swap`, which runs BEFORE the new snapshot is captured, so the
+ *     `html.js [data-reveal]` guard keeps entrance items hidden through the fade.
+ */
+---
+
+<script>
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+	// Must track the new-page fade-in duration in global.css (::view-transition-new).
+	const CROSSFADE = 0.45;
+	let active = false;
+
+	// Flag the transition so entrance items hold (whenRevealable waits on it).
+	document.addEventListener("astro:before-preparation", () => {
+		if (reduced.matches) return;
+		active = true;
+		window.__pageTransitionActive = true;
+	});
+
+	// Runs inside the swap, before the new snapshot is captured — re-add `.js` so
+	// the FOUC guard hides entrance items in the cross-fade snapshot.
+	document.addEventListener("astro:after-swap", () => {
+		document.documentElement.classList.add("js");
+	});
+
+	// Once the cross-fade has settled, release the entrance so the page's elements
+	// animate in order in the open.
+	document.addEventListener("astro:page-load", () => {
+		if (!active) return;
+		active = false;
+		window.setTimeout(() => {
+			window.__pageTransitionActive = false;
+			window.dispatchEvent(new Event("page:revealed"));
+		}, CROSSFADE * 1000);
+	});
+</script>

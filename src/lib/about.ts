@@ -4,10 +4,8 @@
  * lib/site.ts pattern: typed constants, edited here, read by the components.
  *
  * Copy is real (Breno's voice, light on em dashes). Still TODO before launch:
- *   - photos/portrait  → the /about photo strip is deferred (Osmo component
- *     coming later); the home section still uses a placeholder portrait.
  *   - socials.x        → real X/Twitter handle (placeholder URL for now)
- *   - jams[].trackId   → real Spotify track IDs (see note on the type)
+ *   - photos[].alt     → relationship guesses; confirm the alt text
  */
 
 import { CONTACT_EMAIL } from "./site";
@@ -59,6 +57,11 @@ export interface Social {
 	icon: "linkedin" | "x";
 }
 
+export interface Photo {
+	src: string;
+	alt: string;
+}
+
 export const ABOUT = {
 	/* ---- Homepage section (condensed) ------------------------------------ */
 	home: {
@@ -86,14 +89,27 @@ export const ABOUT = {
 		{ label: "X", href: "https://x.com/", icon: "x" },
 	] as Social[],
 
-	// Home section still uses this; the /about photo strip is deferred (Osmo).
-	portrait: { src: "/about/portrait.svg", alt: "Portrait of Breno" },
+	// Homepage About section portrait — Breno + cat at the desk.
+	portrait: { src: "/about/portrait.webp", alt: "Breno and his cat at his desk" },
+
+	/* Photos for the /about hero gallery (Osmo flick card-stack). Needs >= 7 to
+	 * enable dragging. g-1 (cat + desk) is also the homepage portrait and sits
+	 * first so it's the centre card on load. (Alt text is a first pass — tweak.) */
+	photos: [
+		{ src: "/about/gallery/g-1.webp", alt: "Breno and his cat at his desk" },
+		{ src: "/about/gallery/g-2.webp", alt: "Breno and his partner" },
+		{ src: "/about/gallery/g-3.webp", alt: "Breno's cat reaching up for a nuzzle" },
+		{ src: "/about/gallery/g-4.webp", alt: "The cat hiding in the Christmas tree" },
+		{ src: "/about/gallery/g-5.webp", alt: "Breno holding his daughter" },
+		{ src: "/about/gallery/g-6.webp", alt: "Breno's dog, all smiles" },
+		{ src: "/about/gallery/g-7.webp", alt: "Breno with his family" },
+	] as Photo[],
 
 	/* "My background" / story. */
 	background: [
 		"It started in 2002 with a Pokémon fan site. I was a kid who just wanted a page on the internet, so I taught myself enough HTML to put one together. It was rough, but it was mine, and that was it. I was hooked.",
 		"Photoshop pulled me in next. I spent years on design forums back then, posting work, soaking up critique, slowly figuring out what made something look good and why. That habit of jumping between building and designing never really left me.",
-		"Since then I've worked as a front-end developer and a UX/UI designer, and for the last few years I've gone deep on Webflow and custom code. Today I build marketing and product sites at BX Studio, still doing both sides of it: the design and the code.",
+		"Since then I've worked as a front-end developer and a UX/UI designer. These days my day job at BX Studio is Webflow development, building marketing and product sites. The design side still scratches an itch, so I keep it alive in personal projects where I get to own the whole thing, layout to code.",
 	],
 
 	/* "Approach / values" — numbered. */

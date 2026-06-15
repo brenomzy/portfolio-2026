@@ -61,6 +61,7 @@ import { CONTACT_EMAIL } from "../lib/site";
 <script>
 	import gsap from "gsap";
 	import { SplitText } from "gsap/SplitText";
+	import { whenRevealable } from "../lib/page-reveal";
 
 	gsap.registerPlugin(SplitText);
 
@@ -109,6 +110,10 @@ import { CONTACT_EMAIL } from "../lib/site";
 				? SplitText.create(lead, { type: "words" })
 				: null;
 			active = [titleSplit, leadSplit].filter(Boolean) as SplitText[];
+
+			// Hold the choreography until the page-transition wipe has uncovered the
+			// page, so the words reveal in the open (not behind the panel).
+			await whenRevealable();
 
 			show(all);
 

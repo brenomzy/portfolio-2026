@@ -57,19 +57,26 @@ import ThemeToggle from "./ThemeToggle.astro";
 
 <script>
 	import gsap from "gsap";
+	import { whenRevealable } from "../lib/page-reveal";
 
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 
-	function revealHeader() {
+	async function revealHeader() {
 		const brand = document.querySelector<HTMLElement>(".c-header__brand");
 		const actions = document.querySelector<HTMLElement>(".c-header__actions");
 		if (!brand || !actions) return;
 
 		// Brand, then each action (Contact, toggle) — staggered.
 		const items = [brand, ...actions.children] as HTMLElement[];
-		gsap.set([brand, actions], { visibility: "visible" });
 
-		if (reduced.matches) return;
+		if (reduced.matches) {
+			gsap.set([brand, actions], { visibility: "visible" });
+			return;
+		}
+
+		// Hold the blur-in until the page-transition wipe has uncovered the page.
+		await whenRevealable();
+		gsap.set([brand, actions], { visibility: "visible" });
 
 		gsap.from(items, {
 			autoAlpha: 0,

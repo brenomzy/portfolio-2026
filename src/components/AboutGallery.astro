@@ -6,15 +6,14 @@
  * per brief), and init is wired to Astro's astro:page-load with cleanup instead
  * of DOMContentLoaded. Needs >= 7 cards for drag to enable.
  *
- * Placeholder images for now — swap the srcs in PHOTOS for real photos.
+ * Photos come from lib/about.ts (ABOUT.photos).
  */
-const PHOTOS = Array.from(
-	{ length: 9 },
-	(_, i) => `/about/gallery/ph-${(i % 4) + 1}.svg`,
-);
+import { ABOUT } from "../lib/about";
+
+const PHOTOS = ABOUT.photos;
 ---
 
-<div class="about__gallery">
+<div class="about__gallery js-about-reveal" data-reveal>
 	<div data-flick-cards-init class="flick-group">
 		<div class="flick-group__relative-object">
 			<div class="flick-group__relative-object-before"></div>
@@ -22,7 +21,7 @@ const PHOTOS = Array.from(
 		<div data-flick-cards-collection class="flick-group__collection">
 			<div data-flick-cards-list class="flick-group__list">
 				{
-					PHOTOS.map((src) => (
+					PHOTOS.map((photo) => (
 						<div
 							data-flick-cards-item-status
 							data-flick-cards-item
@@ -34,8 +33,8 @@ const PHOTOS = Array.from(
 									<img
 										width="256"
 										loading="lazy"
-										alt=""
-										src={src}
+										alt={photo.alt}
+										src={photo.src}
 										class="cover-image"
 									/>
 								</div>
@@ -168,6 +167,7 @@ const PHOTOS = Array.from(
 <script>
 	import gsap from "gsap";
 	import { Draggable } from "gsap/Draggable";
+	import { whenRevealable } from "../lib/page-reveal";
 
 	gsap.registerPlugin(Draggable);
 
@@ -260,7 +260,12 @@ const PHOTOS = Array.from(
 				});
 			}
 
-			renderCards(activeIndex);
+			// The gallery as a whole fades/slides in first (it's a [data-reveal] item,
+			// animated by the about-page reveal), THEN — a beat later — the stacked
+			// cards fan out to the sides. Also held behind the page-transition wipe.
+			whenRevealable().then(() =>
+				gsap.delayedCall(0.45, () => renderCards(activeIndex)),
+			);
 
 			if (total < 7) {
 				console.log("Not minimum of 7 cards");

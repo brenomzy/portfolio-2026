@@ -43,11 +43,11 @@ const trackB = Array.from({ length: REPS }, () => rowB).flat();
 
 <section class="c-marquee" aria-label="More work">
 	<div class="c-marquee__band">
-		<div class="c-marquee__head">
+		<div class="c-marquee__head js-marquee-reveal" data-reveal>
 			<h2 class="c-marquee__heading">More work</h2>
 		</div>
 
-		<div class="c-marquee__viewport">
+		<div class="c-marquee__viewport js-marquee-reveal" data-reveal>
 		<div class="c-marquee__row c-marquee__row--a">
 			<div class="c-marquee__track">
 				{
@@ -227,3 +227,52 @@ const trackB = Array.from({ length: REPS }, () => rowB).flat();
 		}
 	}
 </style>
+
+<script>
+	// Scroll-reveal the band (heading, then the rows) when it enters view, matching
+	// the Work/About sections. Below the fold, so it's scroll-triggered — no need to
+	// gate on the page transition.
+	import { gsap } from "gsap";
+	import { ScrollTrigger } from "gsap/ScrollTrigger";
+	import { CustomEase } from "gsap/CustomEase";
+
+	gsap.registerPlugin(ScrollTrigger, CustomEase);
+
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+	const EASE_OUT =
+		CustomEase.get("brand-out") ?? CustomEase.create("brand-out", "0.16,1,0.3,1");
+
+	let triggers: ScrollTrigger[] = [];
+	const killTriggers = () => {
+		triggers.forEach((t) => t.kill());
+		triggers = [];
+	};
+
+	function setup() {
+		const items = gsap.utils.toArray<HTMLElement>(".js-marquee-reveal");
+		if (!items.length) return;
+		killTriggers();
+		if (reduced.matches) {
+			gsap.set(items, { autoAlpha: 1, y: 0 });
+			return;
+		}
+		gsap.set(items, { autoAlpha: 0, y: 40 });
+		triggers = ScrollTrigger.batch(items, {
+			start: "top 85%",
+			once: true,
+			onEnter: (batch) =>
+				gsap.to(batch, {
+					autoAlpha: 1,
+					y: 0,
+					duration: 0.8,
+					ease: EASE_OUT,
+					stagger: 0.12,
+					overwrite: true,
+				}),
+		});
+		ScrollTrigger.refresh();
+	}
+
+	document.addEventListener("astro:page-load", setup);
+	document.addEventListener("astro:before-swap", killTriggers);
+</script>

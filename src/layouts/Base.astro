@@ -1,6 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import ProgressiveBlur from "../components/ProgressiveBlur.astro";
+import PageTransition from "../components/PageTransition.astro";
 import "@fontsource-variable/geist";
 // Manrope (variable) — headings only; Geist stays the body face.
 import "@fontsource-variable/manrope";
@@ -82,6 +83,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 		</main>
 		<slot name="footer" />
 		<ProgressiveBlur />
+		<PageTransition />
 
 		<!-- Global copy-confirmation toast. A single instance for the whole app;
 		     the delegated handler below populates + reveals it. aria-live so the

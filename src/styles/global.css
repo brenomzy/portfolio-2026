@@ -148,6 +148,28 @@
 	transition: none;
 }
 
+/* Page navigations: a clean CROSS-FADE (old fades out, new fades in, overlapping)
+ * via the native View Transitions API. The new page's entrance items stay hidden
+ * (the FOUC guard below) through the fade, then animate in order once it settles
+ * (PageTransition.astro releases them). Theme changes keep their own `.is-theme-vt`
+ * wipe (above). Keep the new-fade duration in sync with CROSSFADE there. */
+:root:not(.is-theme-vt)::view-transition-old(root) {
+	animation: pt-fade-out 0.4s ease-in both;
+}
+:root:not(.is-theme-vt)::view-transition-new(root) {
+	animation: pt-fade-in 0.45s ease-out both;
+}
+@keyframes pt-fade-out {
+	to {
+		opacity: 0;
+	}
+}
+@keyframes pt-fade-in {
+	from {
+		opacity: 0;
+	}
+}
+
 /* Pre-reveal FOUC guard. Elements that get a JS-driven entrance (SplitText line
  * reveals, etc.) are hidden ONLY when JS is present (`.js` is set by the head
  * script). The reveal script flips them visible at the right frame; no-JS visitors

@@ -197,6 +197,7 @@ const { projects } = Astro.props;
 	import { gsap } from "gsap";
 	import { ScrollTrigger } from "gsap/ScrollTrigger";
 	import { CustomEase } from "gsap/CustomEase";
+	import { whenRevealable } from "../lib/page-reveal";
 
 	gsap.registerPlugin(ScrollTrigger, CustomEase);
 
@@ -253,10 +254,16 @@ const { projects } = Astro.props;
 		}
 		// Park hidden + down (the data-reveal CSS guard prevents a pre-JS flash).
 		gsap.set(items, { autoAlpha: 0, y: 40 });
-		// Sequence the reveal AFTER the hero intro; a timeout backstops the case
-		// where the hero signal never arrives (e.g. reduced motion / other entry).
-		document.addEventListener("hero:revealed", reveal, { once: true });
-		window.setTimeout(reveal, 2400);
+		// On a page transition, don't even start waiting for the hero (or the
+		// fallback timer) until the wipe has uncovered — otherwise the gated hero
+		// fires late and this 2.4s backstop wins, revealing the cards BEFORE the
+		// hero ("projects shows first"). Resolves immediately on a normal load.
+		whenRevealable().then(() => {
+			// Sequence the reveal AFTER the hero intro; a timeout backstops the case
+			// where the hero signal never arrives (e.g. reduced motion / other entry).
+			document.addEventListener("hero:revealed", reveal, { once: true });
+			window.setTimeout(reveal, 2400);
+		});
 	}
 
 	document.addEventListener("astro:page-load", setup);

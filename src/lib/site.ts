@@ -12,4 +12,6 @@ export const SITE_DESCRIPTION =
 // Contact email — hardcoded. All contact / "Get in touch" CTAs copy this to the
 // clipboard (with a toast) rather than opening a mail client; the mailto: href
 // is kept only as a no-JS fallback.
-export const CONTACT_EMAIL = "contato@brenodaroz.com";
+// hey@ is a Google Workspace alias that delivers to the real contato@ inbox —
+// nicer on an English-language site; mail still lands in the same place.
+export const CONTACT_EMAIL = "hey@brenodaroz.com";

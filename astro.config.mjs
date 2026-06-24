@@ -5,8 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  // Set to your production URL before deploy (used for canonical/OG links + sitemap).
-  site: 'https://example.com',
+  // Production URL — used for canonical/OG links + sitemap.
+  site: 'https://brenodaroz.com',
 
   vite: {
     plugins: [tailwindcss()],

@@ -40,7 +40,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 			"/work/verifone/shot-3.webp",
 		],
 		description:
-			"I was the lead Webflow developer on Verifone's move off Drupal: 1,000+ pages rebuilt component-first with Lumos, scaling cleanly across 31 locales. CMS-driven navigation and custom JavaScript handle the logic Webflow can't, so the team ships in any market without touching code.",
+			"I came on as the lead Webflow developer for Verifone's move off Drupal, and the brief was scale from day one: over 1,000 pages across 31 locales, with a content team that needed to ship in any market without waiting on engineering. I rebuilt everything component-first with Lumos so every page draws from one shared library, which keeps that many pages consistent and quick to update. CMS-driven navigation and custom JavaScript handle the logic Webflow can't do natively, so launching a new locale or reworking the nav is content work, not a code change.",
 		liveUrl: "https://www.verifone.com/",
 	},
 	{
@@ -58,7 +58,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 			"/work/buildops/shot-3.webp",
 		],
 		description:
-			"A component-first build of 60+ components for an AI-native platform serving commercial contractors. Custom JavaScript powers the filtering and a copy-paste HTML library inside rich text, so the client runs everything without meeting the complexity underneath. Migrated 1,000+ blog posts along the way.",
+			"BuildOps is an AI-native platform for commercial contractors that needed a marketing site able to move as fast as the product, so I built it component-first around 60+ reusable components the team can assemble into new pages on their own. The harder work lived under the surface: custom JavaScript drives the filtering, and I built a copy-paste HTML library inside rich text so the client can drop in complex blocks without touching code. I also migrated more than 1,000 blog posts into the new structure, so nothing was lost in the move.",
 		liveUrl: "https://buildops.com/",
 	},
 	{
@@ -76,7 +76,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 			"/work/gainbridge/shot-3.webp",
 		],
 		description:
-			"A component-first fintech site where I pivoted to a brand-new design system mid-project, handed over from another agency, without losing momentum. Custom JavaScript keeps a historically opaque product, annuities, manageable through an editor that stays genuinely simple.",
+			"Gainbridge took a sharp turn mid-build: a brand-new design system landed from another agency and I had to pivot the whole fintech site onto it without losing momentum, which is exactly what a component-first architecture makes survivable. Annuities are a famously opaque product, so the real goal was keeping the site easy to run day to day. Custom JavaScript carries the complexity behind the scenes and leaves the client with an editor that stays genuinely simple, even though the product underneath is anything but.",
 		liveUrl: "https://gainbridge.com/",
 	},
 	{
@@ -94,7 +94,7 @@ export const WORK_PROJECTS: WorkProject[] = [
 			"/work/sharp-performance/shot-3.webp",
 		],
 		description:
-			"A marketing site driven by complex, full-screen section interactions built on fullPage.js and custom JavaScript. Every scroll, transition, and reveal is choreographed by hand for motion that feels intentional, never decorative.",
+			"Sharp Performance was a design-and-build project where motion was the whole point. The site runs on full-screen section interactions built with fullPage.js and custom JavaScript, so each section is its own choreographed moment rather than a flat scroll. I designed and built it end to end, hand-tuning every transition and reveal so the motion feels intentional instead of decorative, which makes it the project where the craft is most visible.",
 		liveUrl: "https://www.sharpperformance.com/",
 	},
 ];

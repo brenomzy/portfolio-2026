@@ -16,11 +16,13 @@ interface Props {
 
 const {
 	title,
-	description = "Portfolio of Breno — designer & developer building fast, accessible websites.",
+	description = "Portfolio of Breno Daroz — design engineer & Webflow developer building fast, accessible websites.",
 } = Astro.props;
 
 const siteName = "Breno";
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
+// Absolute URL so social crawlers (LinkedIn, Slack, X) can fetch the card image.
+const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 ---
 
 <!doctype html>
@@ -47,7 +49,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonical} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
 		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:image" content={ogImage} />
 
 		<!-- No-flash theme init: runs before paint, before <body> renders.
 			 Preference is persisted in a `theme` cookie (see ThemeToggle.astro). -->

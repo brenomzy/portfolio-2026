@@ -4,7 +4,6 @@
  * lib/site.ts pattern: typed constants, edited here, read by the components.
  *
  * Copy is real (Breno's voice, light on em dashes). Still TODO before launch:
- *   - socials.x        → real X/Twitter handle (placeholder URL for now)
  *   - photos[].alt     → relationship guesses; confirm the alt text
  */
 
@@ -85,8 +84,7 @@ export const ABOUT = {
 
 	socials: [
 		{ label: "LinkedIn", href: "https://www.linkedin.com/in/breno-daroz", icon: "linkedin" },
-		// TODO: real X/Twitter handle.
-		{ label: "X", href: "https://x.com/", icon: "x" },
+		{ label: "X", href: "https://x.com/brenomzy", icon: "x" },
 	] as Social[],
 
 	// Homepage About section portrait — Breno + cat at the desk.

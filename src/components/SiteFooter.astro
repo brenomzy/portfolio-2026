@@ -69,10 +69,12 @@ const brand = SITE_NAME;
 		will-change: transform;
 	}
 
-	/* Narrow viewports: a shorter footer panel. */
+	/* Narrow viewports: a much shorter footer panel so the bottom-pinned wordmark
+	 * isn't marooned under a tall empty band (the wordmark is the only content, so
+	 * a tall panel reads as dead orange space on phones). */
 	@media (max-width: 40rem) {
 		.c-footer {
-			min-height: 46svh;
+			min-height: 28svh;
 		}
 	}
 
@@ -116,6 +118,19 @@ const brand = SITE_NAME;
 		letter-spacing: -0.1em; /* very tight — letters nearly touch at this weight */
 		/* Neutral darken — subtle "watermark" wordmark; works on orange + blue. */
 		fill: rgba(0, 0, 0, 0.17);
+	}
+
+	/* Mobile wordmark: drop the bottom crop. The wordmark is small here (100vw
+	 * spans only ~77px of height), so the -8vw bleed + the progressive-blur
+	 * dissolve would eat almost all of it (and the parallax is disabled on mobile
+	 * — see the script — so nothing lifts it back into view). Sit it flush at the
+	 * footer's bottom edge instead: fully legible, base still softly dissolved.
+	 * NOTE: this block must come AFTER the base .c-footer__wordmark rule above —
+	 * equal specificity, so source order decides. */
+	@media (max-width: 40rem) {
+		.c-footer__wordmark {
+			margin-bottom: 0;
+		}
 	}
 </style>
 
@@ -175,6 +190,17 @@ const brand = SITE_NAME;
 		st = null;
 		const inner = document.querySelector<HTMLElement>(".c-footer__inner");
 		if (!inner || reduced.matches) return;
+
+		// Skip the parallax on the short mobile footer (≤40rem, matches the CSS
+		// breakpoint). The drift starts by pushing the inner DOWN (y:64), which on
+		// the short panel shoves the bottom-pinned wordmark below the overflow clip
+		// — and the panel is too short for the scroll to ever scrub it back up to
+		// the -28 end, so the wordmark just vanishes. Static + flush reads better
+		// here. clearProps drops any transform left from a desktop→mobile resize.
+		if (window.matchMedia("(max-width: 40rem)").matches) {
+			gsap.set(inner, { clearProps: "transform" });
+			return;
+		}
 
 		const tween = gsap.fromTo(
 			inner,

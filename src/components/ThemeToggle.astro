@@ -1,163 +1,218 @@
 ---
 /*
- * c-theme-toggle — icon-only square that flips [data-theme] on <html> and
- * persists to a `theme` cookie (the no-flash init in Base.astro reads it back).
+ * c-theme-toggle — a segmented light/dark switch. Two cells (☀ sun / 🌙 moon-star,
+ * Lucide icons) on a subtle surface track, with a pill thumb that takes the brand
+ * accent (orange in light, blue in dark) and slides under the active mode.
  *
- * Square sized to match the CTA Button's height (3em) so it reads as a sibling.
- * Shows the TARGET mode: moon in light (click → go dark), sun in dark (→ go light).
- * On toggle the icons run a vertical rotate-and-slide swap inside a clipped window,
- * on --ease-default.
+ * Flips [data-theme] on <html> and persists to a `theme` cookie (the no-flash init
+ * in Base.astro reads it back). On change it runs the diagonal theme-wipe via the
+ * View Transitions API (see global.css → is-theme-vt); the thumb-slide plays on the
+ * instant / reduced-motion path. Position + active colours are driven off
+ * [data-theme] so the control always mirrors the live theme.
+ *
+ * Keeps the `theme-toggle` view-transition-name so it's lifted out of the page
+ * snapshot during the wipe (global.css relies on this name + the class). The track
+ * border is a SOLID, theme-INDEPENDENT colour so it never flashes mid-wipe.
  */
 ---
 
-<button
-	type="button"
-	class="c-theme-toggle js-theme-toggle"
-	data-theme-toggle
-	aria-label="Toggle colour theme"
->
-	<span class="c-theme-toggle__icon" aria-hidden="true">
-		<span class="c-theme-toggle__icon-box">
-			<!-- Moon — shown in light mode (click → go dark). Phosphor "moon-stars". -->
-			<!-- stroke-width 8 on the filled paths ≈ Phosphor's bold cut (16→24 units). -->
-			<svg viewBox="0 0 256 256" width="100%" fill="currentColor" stroke="currentColor" stroke-width="8" stroke-linejoin="round">
-				<path d="M240,96a8,8,0,0,1-8,8H216v16a8,8,0,0,1-16,0V104H184a8,8,0,0,1,0-16h16V72a8,8,0,0,1,16,0V88h16A8,8,0,0,1,240,96ZM144,56h8v8a8,8,0,0,0,16,0V56h8a8,8,0,0,0,0-16h-8V32a8,8,0,0,0-16,0v8h-8a8,8,0,0,0,0,16Zm72.77,97a8,8,0,0,1,1.43,8A96,96,0,1,1,95.07,37.8a8,8,0,0,1,10.6,9.06A88.07,88.07,0,0,0,209.14,150.33,8,8,0,0,1,216.77,153Zm-19.39,14.88c-1.79.09-3.59.14-5.38.14A104.11,104.11,0,0,1,88,64c0-1.79,0-3.59.14-5.38A80,80,0,1,0,197.38,167.86Z"></path>
-			</svg>
-		</span>
-		<span class="c-theme-toggle__icon-box is--absolute">
-			<!-- Sun — shown in dark mode (click → go light). Phosphor "sun". -->
-			<svg viewBox="0 0 256 256" width="100%" fill="currentColor" stroke="currentColor" stroke-width="8" stroke-linejoin="round">
-				<path d="M120,40V32a8,8,0,0,1,16,0v8a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-8-8A8,8,0,0,0,50.34,61.66Zm0,116.68-8,8a8,8,0,0,0,11.32,11.32l8-8a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l8-8a8,8,0,0,0-11.32-11.32l-8,8A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l8,8a8,8,0,0,0,11.32-11.32ZM40,120H32a8,8,0,0,0,0,16h8a8,8,0,0,0,0-16Zm88,88a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-8A8,8,0,0,0,128,208Zm96-88h-8a8,8,0,0,0,0,16h8a8,8,0,0,0,0-16Z"></path>
-			</svg>
-		</span>
-	</span>
-</button>
+<div class="c-theme-toggle" role="group" aria-label="Colour theme">
+	<span class="c-theme-toggle__thumb" aria-hidden="true"></span>
+
+	<button
+		type="button"
+		class="c-theme-toggle__btn"
+		data-theme-set="light"
+		aria-label="Light mode"
+		aria-pressed="true"
+	>
+		<svg class="c-theme-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<circle cx="12" cy="12" r="4"></circle>
+			<path d="M12 2v2"></path>
+			<path d="M12 20v2"></path>
+			<path d="m4.93 4.93 1.41 1.41"></path>
+			<path d="m17.66 17.66 1.41 1.41"></path>
+			<path d="M2 12h2"></path>
+			<path d="M20 12h2"></path>
+			<path d="m6.34 17.66-1.41 1.41"></path>
+			<path d="m19.07 4.93-1.41 1.41"></path>
+		</svg>
+	</button>
+
+	<button
+		type="button"
+		class="c-theme-toggle__btn"
+		data-theme-set="dark"
+		aria-label="Dark mode"
+		aria-pressed="false"
+	>
+		<svg class="c-theme-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<path d="M18 5h4"></path>
+			<path d="M20 3v4"></path>
+			<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path>
+		</svg>
+	</button>
+</div>
 
 <style>
 	.c-theme-toggle {
-		/* Square, sized to the CTA Button's 3em height so they align as siblings. */
+		/* Wider than tall → the thumb reads as a horizontal pill, control sits low. */
+		--cell-w: 3.1em;
+		--cell-h: 1.9em;
+		--pad: 0.3em;
+		position: relative;
+		display: inline-grid;
+		grid-template-columns: 1fr 1fr;
+		padding: var(--pad);
+		border-radius: 999px;
+		/* Track blends into the page (var(--bg), like the consulting language
+		 * toggle), with a subtle theme-aware hairline border. */
+		background: var(--bg);
+		border: 1px solid var(--border);
+		font-size: 0.8rem;
+		/* Deliberately NO view-transition-name. A theme-AWARE edge (this border)
+		 * flashes if the toggle gets its own VT snapshot: its old (light-border) and
+		 * new (dark-border) snapshots cross-fade, shimmering the 1px edge. Left
+		 * un-named, the toggle is revealed by the page's theme-wipe like the rest of
+		 * the page — the border just changes with the wipe, no flash. (The old solid
+		 * #857e74 border dodged the flash by being theme-INDEPENDENT; we keep the
+		 * subtle per-theme look instead by not cross-fading the toggle on its own.) */
+	}
+
+	.c-theme-toggle__thumb {
+		position: absolute;
+		top: var(--pad);
+		bottom: var(--pad);
+		left: var(--pad);
+		width: calc(50% - var(--pad));
+		border-radius: 999px;
+		/* Brand accent — orange in light, blue in dark (theme token). */
+		background: var(--accent);
+		box-shadow: var(--shadow-1);
+		/* Spring slide between modes (same micro-interaction as the consulting
+		 * language toggle). Plays directly on the instant / reduced-motion path. */
+		transition: transform 0.45s var(--ease-spring);
+		/* Its OWN view-transition snapshot so the slide also plays DURING the theme
+		 * wipe: the API tweens the thumb's old→new position (a real slide) instead
+		 * of the live CSS transition being skipped (the live DOM isn't painted mid
+		 * view-transition). Only the thumb is named — the track keeps riding the page
+		 * wipe, so its theme-aware border still never flashes. Timing is set on the
+		 * group below. */
+		view-transition-name: theme-thumb;
+	}
+	:global([data-theme="dark"]) .c-theme-toggle__thumb {
+		transform: translateX(100%);
+	}
+
+	.c-theme-toggle__btn {
+		position: relative;
+		z-index: 1;
 		display: inline-grid;
 		place-items: center;
-		width: 3em;
-		height: 3em;
-		font-size: 0.75rem;
-		/* Theme-INDEPENDENT, fully OPAQUE border. The toggle has its own
-		 * view-transition-name, so its old/new snapshots cross-fade on a theme
-		 * change. A per-theme colour blends light→dark mid-fade; a *translucent*
-		 * constant colour still shifts because it composites over the background,
-		 * which itself crossfades (the residual flash on switch-to-dark). A solid
-		 * colour is identical in both snapshots — nothing to blend, no flash. */
-		border: 1px solid #857e74;
-		/* Circle — a deliberate counterpoint to the squared Buttons. */
-		border-radius: 50%;
-		background-color: var(--surface);
-		color: var(--text);
+		width: var(--cell-w);
+		height: var(--cell-h);
+		padding: 0;
+		background: transparent;
+		border: none;
+		border-radius: 999px;
 		cursor: pointer;
-		position: relative;
-		overflow: hidden;
+		/* Inactive icon — muted ink on the surface track. */
+		color: var(--text-muted);
 		-webkit-tap-highlight-color: transparent;
-		/* Lifts the toggle out of the theme-wipe's page snapshot so its icon
-		 * animation plays live during the wipe (see global.css → is-theme-vt). */
-		view-transition-name: theme-toggle;
-		/* No hover state — just a tactile press, matching the Buttons. The press
-		 * scale-down is snappy (override on :active), settle is smooth. */
-		transition:
-			background-color 0.2s var(--ease-default),
-			scale 0.3s var(--ease-default);
+		transition: color 0.25s var(--ease-out-expo);
 	}
-
-	.c-theme-toggle:active {
-		scale: 0.92;
-		transition-duration: 0.1s;
-	}
-
-	.c-theme-toggle:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
-	}
-
-	/* ── Icon — vertical rotate-and-slide conveyor inside a clipped window ───── */
 	.c-theme-toggle__icon {
-		position: relative;
-		width: 1.5em;
-		height: 1.5em;
-		overflow: hidden;
-	}
-	.c-theme-toggle__icon-box {
-		position: absolute;
-		inset: 0;
-		display: grid;
-		place-items: center;
-		transition:
-			transform 0.45s var(--ease-default),
-			opacity 0.45s var(--ease-default);
+		width: 1.2em;
+		height: 1.2em;
 	}
 
-	/* Light (base): sun in view, moon parked below and pre-rotated. */
-	.c-theme-toggle__icon-box {
-		transform: translateY(0) rotate(0deg);
-		opacity: 1;
+	/* Each button gets its OWN view-transition snapshot too. Without this, the
+	 * named thumb is lifted to the top layer and briefly covers the active icon
+	 * (which otherwise rides in the root snapshot, below the thumb). Lifting the
+	 * buttons — they come after the thumb in DOM order, so their groups paint
+	 * above it — keeps the icons visible on top while the thumb slides under. */
+	.c-theme-toggle__btn[data-theme-set="light"] {
+		view-transition-name: theme-btn-light;
 	}
-	.c-theme-toggle__icon-box.is--absolute {
-		transform: translateY(120%) rotate(90deg);
-		opacity: 0;
-	}
-
-	/* Dark: sun exits upward, moon rises into place. */
-	:global([data-theme="dark"]) .c-theme-toggle__icon-box {
-		transform: translateY(-120%) rotate(-90deg);
-		opacity: 0;
-	}
-	:global([data-theme="dark"]) .c-theme-toggle__icon-box.is--absolute {
-		transform: translateY(0) rotate(0deg);
-		opacity: 1;
+	.c-theme-toggle__btn[data-theme-set="dark"] {
+		view-transition-name: theme-btn-dark;
 	}
 
-	/* Respect reduced-motion: keep the swap, drop the travel. */
+	/* Active icon — the cell the thumb is under (its data-theme-set matches the
+	 * live theme) → warm white, which reads on both the orange and blue accent. */
+	:global([data-theme="light"]) .c-theme-toggle__btn[data-theme-set="light"],
+	:global([data-theme="dark"]) .c-theme-toggle__btn[data-theme-set="dark"] {
+		color: hsl(38 44% 97%);
+	}
+
+	.c-theme-toggle__btn:active {
+		scale: 0.9;
+	}
+	.c-theme-toggle__btn:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 3px;
+	}
+
 	@media (prefers-reduced-motion: reduce) {
-		.c-theme-toggle__icon-box {
-			transition: opacity 0.2s linear;
-			transform: none !important;
-		}
-		.c-theme-toggle__icon-box.is--absolute {
-			opacity: 0;
-		}
-		:global([data-theme="dark"]) .c-theme-toggle__icon-box {
-			opacity: 0;
-		}
-		:global([data-theme="dark"]) .c-theme-toggle__icon-box.is--absolute {
-			opacity: 1;
+		.c-theme-toggle__thumb {
+			transition: none;
 		}
 	}
 </style>
 
+<style is:global>
+	/* The thumb has its own view-transition snapshot (theme-thumb) so its slide
+	 * plays during the theme wipe. Retime the API's default group tween to the
+	 * toggle's spring so the in-wipe slide matches the instant-path one, and match
+	 * the old/new colour crossfade (orange↔blue) to the same duration. Only applies
+	 * to theme changes (.is-theme-vt), never page navigations. Reduced-motion skips
+	 * the whole view transition in JS, so this never runs there. */
+	:root.is-theme-vt::view-transition-group(theme-thumb) {
+		animation-duration: 0.45s;
+		animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+	:root.is-theme-vt::view-transition-old(theme-thumb),
+	:root.is-theme-vt::view-transition-new(theme-thumb) {
+		animation-duration: 0.45s;
+	}
+	/* Icons are lifted too (so they stay above the sliding thumb); match their
+	 * muted↔white crossfade to the same duration so nothing pops out of sync. */
+	:root.is-theme-vt::view-transition-old(theme-btn-light),
+	:root.is-theme-vt::view-transition-new(theme-btn-light),
+	:root.is-theme-vt::view-transition-old(theme-btn-dark),
+	:root.is-theme-vt::view-transition-new(theme-btn-dark) {
+		animation-duration: 0.45s;
+	}
+</style>
+
 <script>
+	/* ── Theme persistence + view-transition wipe ─────────────────────────────── */
 	type ViewTransitionDoc = Document & {
 		startViewTransition?: (cb: () => void) => { finished: Promise<void> };
 	};
-
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 
-	// Read the persisted theme (cookie → system fallback). Mirrors the no-flash
-	// init in Base.astro; used to re-apply the theme after view-transition swaps.
 	function readTheme(): "light" | "dark" {
 		const m = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
 		if (m) return m[1] as "light" | "dark";
 		return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 	}
 
-	// Tab icon follows the site theme: orange mark on light, blue on dark.
-	// (Initial load is handled by the no-flash script in Base.astro.)
-	// Re-INSERTING the link (not just mutating href) is what reliably makes
-	// Chrome repaint the tab icon and skip its sticky favicon cache.
+	// Re-INSERT the favicon link (not just mutate href) so Chrome repaints the tab
+	// icon and skips its sticky favicon cache.
 	function syncFavicon(theme: string) {
-		const old = document.querySelector<HTMLLinkElement>(
-			'link[rel="icon"][type="image/svg+xml"]',
-		);
+		const old = document.querySelector<HTMLLinkElement>('link[rel="icon"][type="image/svg+xml"]');
 		if (!old) return;
 		const fresh = old.cloneNode() as HTMLLinkElement;
 		fresh.href = `/favicon-${theme}.svg`;
 		old.replaceWith(fresh);
+	}
+
+	// aria-pressed reflects the active mode on both buttons.
+	function syncAria(theme: string) {
+		document.querySelectorAll<HTMLButtonElement>(".c-theme-toggle__btn").forEach((b) => {
+			b.setAttribute("aria-pressed", String(b.dataset.themeSet === theme));
+		});
 	}
 
 	function setTheme(next: "light" | "dark") {
@@ -165,40 +220,39 @@
 		// 1-year cookie; Lax so it rides top-level navigations but not cross-site.
 		document.cookie = `theme=${next}; path=/; max-age=31536000; samesite=lax`;
 		syncFavicon(next);
+		syncAria(next);
 	}
 
-	function toggleTheme() {
+	function applyTheme(next: "light" | "dark") {
 		const root = document.documentElement;
-		const next = root.dataset.theme === "dark" ? "light" : "dark";
+		if (root.dataset.theme === next) return; // already active — no-op
 		const doc = document as ViewTransitionDoc;
 
-		// No View Transitions support / reduced-motion → swap instantly.
+		// No View Transitions / reduced-motion → swap instantly (the thumb slides).
 		if (!doc.startViewTransition || reduced.matches) {
 			setTheme(next);
 			return;
 		}
 
-		// `is-theme-vt` scopes the clip-path wipe (see global.css) so it only runs
-		// for theme changes, never for page navigations (which also transition root).
+		// `is-theme-vt` scopes the clip-path wipe (global.css) to theme changes only.
 		root.classList.add("is-theme-vt");
 		const transition = doc.startViewTransition(() => setTheme(next));
 		transition.finished.finally(() => root.classList.remove("is-theme-vt"));
 	}
 
-	// Bind on every navigation so the button works after View Transitions.
 	document.addEventListener("astro:page-load", () => {
-		const btn = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
-		btn?.addEventListener("click", toggleTheme);
+		syncAria(readTheme());
+		document.querySelectorAll<HTMLButtonElement>(".c-theme-toggle__btn").forEach((b) => {
+			b.addEventListener("click", () => applyTheme(b.dataset.themeSet as "light" | "dark"));
+		});
 	});
 
-	// A view-transition swap brings in the new page's STATIC <html> — which has no
-	// data-theme — so the live theme is lost (page snaps back to light) and the
-	// favicon <link> reverts to the static default. Re-apply both from the cookie
-	// on every swap. after-swap runs before paint, so there's no flash (and the
-	// page-transition wipe is covering the screen here anyway).
+	// A view-transition swap brings in the new page's static <html> (no data-theme),
+	// so re-apply theme + favicon + aria from the cookie before paint.
 	document.addEventListener("astro:after-swap", () => {
 		const theme = readTheme();
 		document.documentElement.dataset.theme = theme;
 		syncFavicon(theme);
+		syncAria(theme);
 	});
 </script>

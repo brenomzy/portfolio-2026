@@ -29,6 +29,9 @@ pnpm-debug.log*
 # local-only claude settings (keep launch.json / settings.json shareable)
 .claude/settings.local.json
 
+# talk prep notes (prompt archive + slide rundowns) — local only
+talk/
+
 # generated video media — kept out of git, rebuilt via scripts/ when needed
 *.mp4
 *.webm

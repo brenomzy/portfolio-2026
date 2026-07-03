@@ -35,4 +35,6 @@ talk/
 # generated video media — kept out of git, rebuilt via scripts/ when needed
 *.mp4
 *.webm
+!public/work/**/demo-5mb.mp4
+!public/work/**/demo-8mb.mp4
 public/work/**/scroll-*-poster.webp

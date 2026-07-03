@@ -114,45 +114,48 @@ const { projects } = Astro.props;
 	.c-work__media {
 		position: relative;
 		z-index: 1;
-		display: block;
+		display: grid;
 		aspect-ratio: 16 / 9;
 		overflow: hidden;
 		border-radius: var(--radius-md);
-		/* Theme-aware gradient behind the card; the cover SVG is transparent
-		 * around its floating browser frame, so this shows through the margin.
-		 * Opaque, so it masks all but the 1px gradient-border ring behind it. */
+		padding: 5.38%;
+		--preview-radius: var(--radius-sm);
+		/* Theme-aware fallback behind the real first-frame poster. Opaque, so it
+		 * masks all but the 1px gradient-border ring behind it. */
 		background: var(--thumb-bg);
 	}
 	.c-work__media img {
 		display: block;
+		position: static;
 		width: 100%;
 		height: 100%;
+		min-width: 0;
+		min-height: 0;
 		object-fit: cover;
 		/* will-change below promotes this img to its own GPU layer, which Chromium
 		 * then won't clip to .c-work__media's rounded corners — so round the layer
 		 * itself (inherits the media's --radius-md) to keep the corners crisp. */
-		border-radius: inherit;
-		/* Source covers carry a transparent margin that's 20px heavier at the
-		 * bottom (top 52 / bottom 72 of 900) — every asset, identically. Nudge the
-		 * image down ~half that (10/900 = 1.11% of height) so top/bottom even out
-		 * at 62/62. The exposed/clipped strips are transparent → all --thumb-bg,
-		 * so no seam. translateY in % stays correct at any frame size. */
-		transform: translateY(1.11%);
+		border-radius: var(--preview-radius);
+		outline: 1px solid rgb(0 0 0 / 0.1);
+		outline-offset: -1px;
 		/* Inner zoom on hover. will-change keeps the GPU layer warm (no shimmer);
-		 * the hover/focus rules re-state the translate so the scale composes. */
+		 * only the image scales, never the card. */
 		transition: transform 0.45s var(--ease-out-expo);
 		will-change: transform;
+	}
+	[data-theme="dark"] .c-work__media img {
+		outline-color: rgb(255 255 255 / 0.1);
 	}
 	@media (hover: hover) {
 		/* Scoped to the FRAME, not the whole card — hovering the title/meta text
 		 * below shouldn't touch the thumbnail. Only the image zooms (inside its
 		 * clipped media box); the cursor glow fades in. The card itself never
-		 * scales. translateY repeats the resting nudge so only scale animates. */
+		 * scales. */
 		.c-work__frame:hover::after {
 			opacity: 1;
 		}
 		.c-work__frame:hover .c-work__media img {
-			transform: translateY(1.11%) scale(1.025);
+			transform: scale(1.025);
 		}
 	}
 	/* Keyboard parity — same zoom + glow on focus (works on touch/no-hover too). */
@@ -160,7 +163,7 @@ const { projects } = Astro.props;
 		opacity: 1;
 	}
 	.c-work__card:focus-visible .c-work__media img {
-		transform: translateY(1.11%) scale(1.025);
+		transform: scale(1.025);
 	}
 	.c-work__meta {
 		display: flex;

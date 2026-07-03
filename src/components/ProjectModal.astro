@@ -64,7 +64,22 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 			<div class="c-pmodal__layout" data-media-side="left">
 				<div class="c-pmodal__media">
 					<figure class="c-pmodal__hero" data-pmodal-hero>
-						<img src={p?.cover ?? ""} alt={p?.title ?? ""} />
+						{
+							p?.video ? (
+								<video
+									src={p.video}
+									poster={p.cover}
+									muted
+									autoplay
+									loop
+									playsinline
+									preload="metadata"
+									aria-label={`${p.title} website preview`}
+								/>
+							) : (
+								<img src={p?.cover ?? ""} alt={p?.title ?? ""} />
+							)
+						}
 					</figure>
 					<div class="c-pmodal__shots" data-pmodal-shots>
 						{
@@ -226,20 +241,35 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	.c-pmodal__hero,
 	.c-pmodal__media :global(.c-pmodal__shot) {
 		position: relative;
+		display: grid;
 		aspect-ratio: 16 / 9;
 		overflow: hidden;
 		border-radius: var(--radius-md);
+		padding: 5.38%;
+		--preview-radius: var(--radius-sm);
 		/* Same theme-aware backdrop as the grid cards so the flown card lands on
 		 * a matching gradient (the cover/shot SVGs are transparent around them). */
 		background: var(--thumb-bg);
 		margin: 0;
 	}
-	.c-pmodal__media :global(img) {
-		position: absolute;
-		inset: 0;
+	.c-pmodal__media :global(img),
+	.c-pmodal__media :global(video) {
+		position: static;
 		width: 100%;
 		height: 100%;
+		min-width: 0;
+		min-height: 0;
 		object-fit: cover;
+		border-radius: var(--preview-radius);
+		outline: 1px solid rgb(0 0 0 / 0.1);
+		outline-offset: -1px;
+	}
+	.c-pmodal__media :global(video) {
+		display: block;
+	}
+	[data-theme="dark"] .c-pmodal__media :global(img),
+	[data-theme="dark"] .c-pmodal__media :global(video) {
+		outline-color: rgb(255 255 255 / 0.1);
 	}
 
 	.c-pmodal__info {
@@ -390,6 +420,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	let isBusy = false; // ignore input mid-choreography
 	let cardImg: HTMLImageElement | null = null;
 	let lastFocus: HTMLElement | null = null;
+	let currentCover = "";
 	// True while the address bar shows /work/<slug> because the modal is open (set
 	// in openModal / initFromDeepLink). Close restores "/" via replaceState.
 	let urlChanged = false;
@@ -419,15 +450,78 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		}
 	}
 
+	function lockModalScroll(scroll: HTMLElement, on: boolean) {
+		scroll.style.overflowY = on ? "hidden" : "";
+	}
+
 	function setText(sel: string, value: string) {
 		const el = q(sel);
 		if (el) el.textContent = value;
+	}
+
+	function renderHero(project: any) {
+		const hero = q("[data-pmodal-hero]")!;
+		hero.innerHTML = "";
+		currentCover = project.cover;
+
+		if (project.video) {
+			const video = document.createElement("video");
+			video.src = project.video;
+			video.poster = project.cover;
+			video.muted = true;
+			video.autoplay = true;
+			video.loop = true;
+			video.playsInline = true;
+			video.preload = "metadata";
+			video.setAttribute("aria-label", `${project.title} website preview`);
+			hero.appendChild(video);
+			return video;
+		}
+
+		const img = document.createElement("img");
+		img.src = project.cover;
+		img.alt = project.title;
+		hero.appendChild(img);
+		return img;
+	}
+
+	function getHeroMedia() {
+		return q("[data-pmodal-hero]")?.querySelector<HTMLImageElement | HTMLVideoElement>(
+			"img, video",
+		);
+	}
+
+	function playHeroVideo() {
+		const video = q("[data-pmodal-hero]")?.querySelector("video");
+		if (!video) return;
+		video.currentTime = 0;
+		video.play().catch(() => {});
+	}
+
+	function pauseHeroVideo() {
+		const video = q("[data-pmodal-hero]")?.querySelector("video");
+		video?.pause();
 	}
 
 	function makeClone(src: HTMLImageElement, rect: DOMRect) {
 		const clone = src.cloneNode() as HTMLImageElement;
 		clone.removeAttribute("class");
 		clone.removeAttribute("loading");
+		positionClone(clone, rect);
+		q("[data-pmodal-flight]")?.appendChild(clone);
+		return clone;
+	}
+
+	function makePosterClone(src: string, alt: string, rect: DOMRect) {
+		const clone = document.createElement("img");
+		clone.src = src;
+		clone.alt = alt;
+		positionClone(clone, rect);
+		q("[data-pmodal-flight]")?.appendChild(clone);
+		return clone;
+	}
+
+	function positionClone(clone: HTMLImageElement, rect: DOMRect) {
 		gsap.set(clone, {
 			position: "fixed",
 			top: rect.top,
@@ -437,8 +531,6 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 			margin: 0,
 			maxWidth: "none",
 		});
-		q("[data-pmodal-flight]")?.appendChild(clone);
-		return clone;
 	}
 
 	function openModal(trigger: HTMLElement) {
@@ -457,9 +549,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		const link = q<HTMLAnchorElement>("[data-pmodal-link]");
 		if (link) link.href = project.liveUrl;
 
-		const heroImg = q<HTMLImageElement>("[data-pmodal-hero] img")!;
-		heroImg.src = project.cover;
-		heroImg.alt = project.title;
+		const heroMedia = renderHero(project);
 
 		const shots = q("[data-pmodal-shots]")!;
 		shots.innerHTML = "";
@@ -486,6 +576,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		modal.setAttribute("aria-hidden", "false");
 		lockScroll(true);
 		scroll.scrollTop = 0;
+		lockModalScroll(scroll, true);
 		document.addEventListener("keydown", onKeydown);
 
 		// Reflect a shareable URL WITHOUT touching the history stack: replaceState
@@ -501,6 +592,8 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		if (reduced.matches || !cardImg) {
 			gsap.set(overlay, { autoAlpha: 1 });
 			gsap.set(panel, { yPercent: 0 });
+			playHeroVideo();
+			lockModalScroll(scroll, false);
 			isBusy = false;
 			q<HTMLButtonElement>(".c-pmodal__close")?.focus();
 			return;
@@ -509,19 +602,21 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		// Measure the hero's landed position: park the panel at rest, read,
 		// park it offscreen — all synchronous, no paint in between.
 		gsap.set(panel, { y: 0, yPercent: 0 });
-		const heroState = Flip.getState(hero);
+		const heroState = Flip.getState(heroMedia);
 		gsap.set(panel, { yPercent: 103 });
 
 		const rect = cardImg.getBoundingClientRect();
 		const clone = makeClone(cardImg, rect);
 		gsap.set(cardImg, { visibility: "hidden" });
-		gsap.set(heroImg, { visibility: "hidden" });
+		gsap.set(heroMedia, { visibility: "hidden" });
 
 		const tl = gsap.timeline({
 			defaults: { ease: EASE_OUT },
 			onComplete: () => {
-				gsap.set(heroImg, { visibility: "visible" });
+				gsap.set(heroMedia, { visibility: "visible" });
+				playHeroVideo();
 				clone.remove();
+				lockModalScroll(scroll, false);
 				isBusy = false;
 			},
 		});
@@ -588,11 +683,12 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		const scroll = q("[data-pmodal-scroll]")!;
 		const overlay = q("[data-pmodal-overlay]")!;
 		const hero = q("[data-pmodal-hero]")!;
-		const heroImg = hero.querySelector("img")!;
+		const heroMedia = getHeroMedia()!;
+		pauseHeroVideo();
 
 		const finalize = () => {
 			if (cardImg) gsap.set(cardImg, { visibility: "visible" });
-			gsap.set(heroImg, { visibility: "visible" });
+			if (heroMedia) gsap.set(heroMedia, { visibility: "visible" });
 			modal.classList.remove("is-open");
 			modal.setAttribute("aria-hidden", "true");
 			gsap.set("[data-pmodal-info], .c-pmodal__close", { clearProps: "all" });
@@ -611,6 +707,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 			!reduced.matches && cardImg && scroll.scrollTop < hero.offsetHeight * 0.6;
 
 		if (reduced.matches) {
+			lockModalScroll(scroll, false);
 			gsap.set(overlay, { autoAlpha: 0 });
 			gsap.set(panel, { yPercent: 103 });
 			finalize();
@@ -620,8 +717,12 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		const tl = gsap.timeline({ defaults: { ease: EASE_OUT }, onComplete: finalize });
 
 		if (heroVisible && cardImg) {
-			const clone = makeClone(heroImg, hero.getBoundingClientRect());
-			gsap.set(heroImg, { visibility: "hidden" });
+			const clone = makePosterClone(
+				currentCover || cardImg.src,
+				cardImg.alt,
+				heroMedia.getBoundingClientRect(),
+			);
+			gsap.set(heroMedia, { visibility: "hidden" });
 			const cardState = Flip.getState(cardImg); // hidden, but holds layout
 			tl.add(
 				Flip.fit(clone, cardState, {
@@ -640,6 +741,8 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 				[],
 				D_CLOSE,
 			);
+		} else if (cardImg) {
+			gsap.set(cardImg, { visibility: "visible" });
 		}
 
 		tl.to(panel, { yPercent: 103, duration: D_CLOSE }, 0)

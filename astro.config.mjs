@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   // Production URL — used for canonical/OG links + sitemap.
-  site: 'https://brenodaroz.com',
+  site: 'https://breno.work',
 
   vite: {
     plugins: [tailwindcss()],

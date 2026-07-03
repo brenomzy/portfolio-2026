@@ -29,7 +29,7 @@ const svg = `
     <rect x="100" y="232" width="56" height="6" rx="3" fill="${ACCENT}"/>
     <text x="100" y="350" font-size="104" font-weight="800" fill="${CREAM}" letter-spacing="-3">Breno Daroz</text>
     <text x="100" y="416" font-size="40" font-weight="500" fill="${MUTED}">Design Engineer &#183; Webflow Developer</text>
-    <text x="100" y="548" font-size="26" font-weight="600" fill="${MUTED}" letter-spacing="1">brenodaroz.com</text>
+    <text x="100" y="548" font-size="26" font-weight="600" fill="${MUTED}" letter-spacing="1">breno.work</text>
   </g>
 </svg>`;
 

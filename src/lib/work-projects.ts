@@ -27,6 +27,9 @@ export interface WorkProject {
 	liveUrl: string;
 }
 
+const ASSET_VERSION = "20260703-video-previews";
+const asset = (path: string) => `${path}?v=${ASSET_VERSION}`;
+
 export const WORK_PROJECTS: WorkProject[] = [
 	{
 		id: "verifone",
@@ -36,13 +39,13 @@ export const WORK_PROJECTS: WorkProject[] = [
 		category: "Payments / Web",
 		role: "Webflow Development",
 		year: 2025,
-		cover: "/work/verifone/cover.webp",
-		video: "/work/verifone/demo-5mb.mp4",
-		videoHigh: "/work/verifone/demo-8mb.mp4",
+		cover: asset("/work/verifone/cover.webp"),
+		video: asset("/work/verifone/demo-5mb.mp4"),
+		videoHigh: asset("/work/verifone/demo-8mb.mp4"),
 		gallery: [
-			"/work/verifone/shot-1.webp",
-			"/work/verifone/shot-2.webp",
-			"/work/verifone/shot-3.webp",
+			asset("/work/verifone/shot-1.webp"),
+			asset("/work/verifone/shot-2.webp"),
+			asset("/work/verifone/shot-3.webp"),
 		],
 		description:
 			"I came on as the lead Webflow developer for Verifone's move off Drupal, and the brief was scale from day one: over 1,000 pages across 31 locales, with a content team that needed to ship in any market without waiting on engineering. I rebuilt everything component-first with Lumos so every page draws from one shared library, which keeps that many pages consistent and quick to update. CMS-driven navigation and custom JavaScript handle the logic Webflow can't do natively, so launching a new locale or reworking the nav is content work, not a code change.",
@@ -56,13 +59,13 @@ export const WORK_PROJECTS: WorkProject[] = [
 		category: "SaaS / Web",
 		role: "Webflow Development",
 		year: 2026,
-		cover: "/work/buildops/cover.webp",
-		video: "/work/buildops/demo-5mb.mp4",
-		videoHigh: "/work/buildops/demo-8mb.mp4",
+		cover: asset("/work/buildops/cover.webp"),
+		video: asset("/work/buildops/demo-5mb.mp4"),
+		videoHigh: asset("/work/buildops/demo-8mb.mp4"),
 		gallery: [
-			"/work/buildops/shot-1.webp",
-			"/work/buildops/shot-2.webp",
-			"/work/buildops/shot-3.webp",
+			asset("/work/buildops/shot-1.webp"),
+			asset("/work/buildops/shot-2.webp"),
+			asset("/work/buildops/shot-3.webp"),
 		],
 		description:
 			"BuildOps is an AI-native platform for commercial contractors that needed a marketing site able to move as fast as the product, so I built it component-first around 60+ reusable components the team can assemble into new pages on their own. The harder work lived under the surface: custom JavaScript drives the filtering, and I built a copy-paste HTML library inside rich text so the client can drop in complex blocks without touching code. I also migrated more than 1,000 blog posts into the new structure, so nothing was lost in the move.",
@@ -76,13 +79,13 @@ export const WORK_PROJECTS: WorkProject[] = [
 		category: "Fintech / Web",
 		role: "Webflow Development",
 		year: 2026,
-		cover: "/work/gainbridge/cover.webp",
-		video: "/work/gainbridge/demo-5mb.mp4",
-		videoHigh: "/work/gainbridge/demo-8mb.mp4",
+		cover: asset("/work/gainbridge/cover.webp"),
+		video: asset("/work/gainbridge/demo-5mb.mp4"),
+		videoHigh: asset("/work/gainbridge/demo-8mb.mp4"),
 		gallery: [
-			"/work/gainbridge/shot-1.webp",
-			"/work/gainbridge/shot-2.webp",
-			"/work/gainbridge/shot-3.webp",
+			asset("/work/gainbridge/shot-1.webp"),
+			asset("/work/gainbridge/shot-2.webp"),
+			asset("/work/gainbridge/shot-3.webp"),
 		],
 		description:
 			"Gainbridge took a sharp turn mid-build: a brand-new design system landed from another agency and I had to pivot the whole fintech site onto it without losing momentum, which is exactly what a component-first architecture makes survivable. Annuities are a famously opaque product, so the real goal was keeping the site easy to run day to day. Custom JavaScript carries the complexity behind the scenes and leaves the client with an editor that stays genuinely simple, even though the product underneath is anything but.",
@@ -96,13 +99,13 @@ export const WORK_PROJECTS: WorkProject[] = [
 		category: "Brand / Web",
 		role: "Design + Development",
 		year: 2025,
-		cover: "/work/sharp-performance/cover.webp",
-		video: "/work/sharp-performance/demo-5mb.mp4",
-		videoHigh: "/work/sharp-performance/demo-8mb.mp4",
+		cover: asset("/work/sharp-performance/cover.webp"),
+		video: asset("/work/sharp-performance/demo-5mb.mp4"),
+		videoHigh: asset("/work/sharp-performance/demo-8mb.mp4"),
 		gallery: [
-			"/work/sharp-performance/shot-1.webp",
-			"/work/sharp-performance/shot-2.webp",
-			"/work/sharp-performance/shot-3.webp",
+			asset("/work/sharp-performance/shot-1.webp"),
+			asset("/work/sharp-performance/shot-2.webp"),
+			asset("/work/sharp-performance/shot-3.webp"),
 		],
 		description:
 			"Sharp Performance was a design-and-build project where motion was the whole point. The site runs on full-screen section interactions built with fullPage.js and custom JavaScript, so each section is its own choreographed moment rather than a flat scroll. I designed and built it end to end, hand-tuning every transition and reveal so the motion feels intentional instead of decorative, which makes it the project where the craft is most visible.",

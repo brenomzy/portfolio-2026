@@ -6,6 +6,8 @@ import Button from "../components/Button.astro";
 import AboutGallery from "../components/AboutGallery.astro";
 import { SITE_NAME } from "../lib/site";
 import { ABOUT } from "../lib/about";
+
+const DESIGN_FORUMS_PHRASE = "design forums";
 ---
 
 <Base
@@ -56,7 +58,46 @@ import { ABOUT } from "../lib/about";
 		<section class="about__row">
 			<p class="about__rowlabel js-about-reveal" data-reveal><span>01</span> Background</p>
 			<div class="about__prose">
-				{ABOUT.background.map((para) => <p class="js-about-reveal" data-reveal>{para}</p>)}
+				{
+					ABOUT.background.map((para) => {
+						const [before, after] = para.split(DESIGN_FORUMS_PHRASE);
+
+						return (
+							<p class="js-about-reveal" data-reveal>
+								{after === undefined ? (
+									para
+								) : (
+									<>
+										{before}
+										<span class="about__forum js-forum-preview">
+											<button
+												class="about__forum-trigger"
+												type="button"
+												aria-expanded="false"
+												aria-controls="thunder-design-preview"
+											>
+												{DESIGN_FORUMS_PHRASE}
+											</button>
+											<span
+												class="about__forum-preview"
+												id="thunder-design-preview"
+												aria-hidden="true"
+											>
+												<img
+													class="about__forum-image"
+													src="/about/thunder-design.jpg"
+													alt=""
+													loading="lazy"
+												/>
+											</span>
+										</span>
+										{after}
+									</>
+								)}
+							</p>
+						);
+					})
+				}
 			</div>
 		</section>
 
@@ -303,6 +344,60 @@ import { ABOUT } from "../lib/about";
 	}
 	.about__prose p {
 		text-wrap: pretty;
+	}
+	.about__forum {
+		position: relative;
+		display: inline-block;
+	}
+	.about__forum-trigger {
+		appearance: none;
+		border: 0;
+		padding: 0;
+		background: none;
+		font: inherit;
+		color: var(--text);
+		cursor: pointer;
+		text-decoration: underline;
+		text-decoration-thickness: 0.08em;
+		text-underline-offset: 0.16em;
+		text-decoration-color: color-mix(in srgb, var(--accent-ink) 65%, transparent);
+		transition:
+			color 0.2s ease,
+			text-decoration-color 0.2s ease;
+	}
+	.about__forum-trigger:is(:hover, :focus-visible),
+	.about__forum-trigger[aria-expanded="true"] {
+		color: var(--accent-ink);
+		text-decoration-color: currentColor;
+	}
+	.about__forum-preview {
+		position: fixed;
+		z-index: 20;
+		left: 0;
+		top: 0;
+		width: min(28rem, calc(100vw - 2rem), calc((100vh - 2rem) * 902 / 886));
+		pointer-events: none;
+		visibility: hidden;
+		opacity: 0;
+		transform: translate3d(var(--preview-x, 0px), var(--preview-y, 0px), 0);
+	}
+	.about__forum-image {
+		display: block;
+		width: 100%;
+		aspect-ratio: 902 / 886;
+		object-fit: cover;
+		border-radius: var(--radius-md);
+		outline: 1px solid rgb(0 0 0 / 0.1);
+		outline-offset: -1px;
+		box-shadow: var(--shadow-5);
+	}
+	[data-theme="dark"] .about__forum-image {
+		outline-color: rgb(255 255 255 / 0.1);
+	}
+	@media (max-width: 48rem) {
+		.about__forum-preview {
+			width: min(22rem, calc(100vw - 2rem));
+		}
 	}
 
 	/* ── The relic: my 2004 site in a little browser window ─────────────── */
@@ -641,14 +736,20 @@ import { ABOUT } from "../lib/about";
 	gsap.registerPlugin(ScrollTrigger, CustomEase);
 
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+	const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
 	const EASE_OUT =
 		CustomEase.get("brand-out") ?? CustomEase.create("brand-out", "0.16,1,0.3,1");
 
 	let triggers: ScrollTrigger[] = [];
+	let previewCleanups: (() => void)[] = [];
 
 	function killTriggers() {
 		triggers.forEach((t) => t.kill());
 		triggers = [];
+	}
+	function killForumPreviews() {
+		previewCleanups.forEach((cleanup) => cleanup());
+		previewCleanups = [];
 	}
 
 	const reveal = (els: HTMLElement | HTMLElement[]) =>
@@ -659,15 +760,17 @@ import { ABOUT } from "../lib/about";
 			ease: EASE_OUT,
 			stagger: 0.08,
 			overwrite: true,
+			clearProps: "transform",
 		});
 
 	function setup() {
 		const items = gsap.utils.toArray<HTMLElement>(".js-about-reveal");
 		if (!items.length) return;
 		killTriggers();
+		setupForumPreviews();
 
 		if (reduced.matches) {
-			gsap.set(items, { autoAlpha: 1, y: 0 });
+			gsap.set(items, { autoAlpha: 1, y: 0, clearProps: "transform" });
 			return;
 		}
 
@@ -700,6 +803,182 @@ import { ABOUT } from "../lib/about";
 		});
 	}
 
+	function setupForumPreviews() {
+		killForumPreviews();
+
+		const previews = gsap.utils.toArray<HTMLElement>(".js-forum-preview");
+		previews.forEach((wrap) => {
+			const trigger = wrap.querySelector<HTMLButtonElement>(
+				".about__forum-trigger",
+			);
+			const preview = wrap.querySelector<HTMLElement>(".about__forum-preview");
+			const image = wrap.querySelector<HTMLElement>(".about__forum-image");
+			if (!trigger || !preview || !image) return;
+
+			const originalParent = preview.parentNode;
+			const originalNextSibling = preview.nextSibling;
+			let isOpen = false;
+
+			document.body.appendChild(preview);
+			gsap.set(preview, { autoAlpha: 0 });
+			gsap.set(image, {
+				autoAlpha: 0,
+				scale: reduced.matches ? 1 : 0.94,
+				y: reduced.matches ? 0 : 10,
+				filter: reduced.matches ? "none" : "blur(4px)",
+				transformOrigin: "18% 100%",
+			});
+
+			const showPreview = () => {
+				isOpen = true;
+				trigger.setAttribute("aria-expanded", "true");
+
+				const linkRect = trigger.getBoundingClientRect();
+				const previewWidth = preview.offsetWidth;
+				const previewHeight = preview.offsetHeight;
+				const margin = 16;
+				const gap = 14;
+				const preferredX = linkRect.left - previewWidth * 0.18;
+				const preferredY =
+					linkRect.top >= previewHeight + margin + gap
+						? linkRect.top - previewHeight - gap
+						: linkRect.bottom + gap;
+				const x = Math.min(
+					Math.max(preferredX, margin),
+					window.innerWidth - previewWidth - margin,
+				);
+				const y = Math.min(
+					Math.max(preferredY, margin),
+					window.innerHeight - previewHeight - margin,
+				);
+				const opensAbove = y < linkRect.top;
+
+				preview.style.setProperty("--preview-x", `${x}px`);
+				preview.style.setProperty("--preview-y", `${y}px`);
+				gsap.set(image, {
+					transformOrigin: opensAbove ? "18% 100%" : "18% 0%",
+				});
+
+				gsap.killTweensOf([preview, image]);
+
+				if (reduced.matches) {
+					gsap.set(preview, { autoAlpha: 1 });
+					gsap.set(image, { autoAlpha: 1, scale: 1, y: 0, filter: "none" });
+					return;
+				}
+
+				gsap.set(preview, { autoAlpha: 1 });
+				gsap.fromTo(
+					image,
+					{
+						autoAlpha: 0,
+						scale: 0.94,
+						y: 10,
+						filter: "blur(4px)",
+					},
+					{
+						autoAlpha: 1,
+						scale: 1,
+						y: 0,
+						filter: "blur(0px)",
+						duration: 0.42,
+						ease: "power3.out",
+						overwrite: true,
+					},
+				);
+			};
+
+			const hidePreview = () => {
+				isOpen = false;
+				trigger.setAttribute("aria-expanded", "false");
+
+				if (reduced.matches) {
+					gsap.set(preview, { autoAlpha: 0 });
+					return;
+				}
+
+				gsap.killTweensOf([preview, image]);
+				gsap.to(image, {
+					autoAlpha: 0,
+					scale: 0.97,
+					y: 6,
+					filter: "blur(3px)",
+					duration: 0.16,
+					ease: "power2.in",
+					overwrite: true,
+					onComplete: () => {
+						if (!isOpen) gsap.set(preview, { autoAlpha: 0 });
+					},
+				});
+			};
+
+			const showOnHover = (event: PointerEvent) => {
+				if (event.pointerType === "touch" || !finePointer.matches) return;
+				showPreview();
+			};
+
+			const hideOnHover = (event: PointerEvent) => {
+				if (event.pointerType === "touch" || !finePointer.matches) return;
+				hidePreview();
+			};
+
+			const showOnFocus = () => {
+				if (!finePointer.matches) return;
+				showPreview();
+			};
+
+			const hideOnBlur = () => {
+				if (!finePointer.matches) return;
+				hidePreview();
+			};
+
+			const togglePreview = (event: MouseEvent) => {
+				if (finePointer.matches) return;
+				event.preventDefault();
+				if (isOpen) hidePreview();
+				else showPreview();
+			};
+
+			const handleDocumentPointerDown = (event: PointerEvent) => {
+				if (!isOpen || wrap.contains(event.target as Node)) return;
+				hidePreview();
+			};
+
+			const handleKeyDown = (event: KeyboardEvent) => {
+				if (event.key !== "Escape" || !isOpen) return;
+				hidePreview();
+				trigger.focus();
+			};
+
+			trigger.addEventListener("pointerenter", showOnHover);
+			trigger.addEventListener("focus", showOnFocus);
+			trigger.addEventListener("pointerleave", hideOnHover);
+			trigger.addEventListener("blur", hideOnBlur);
+			trigger.addEventListener("click", togglePreview);
+			document.addEventListener("pointerdown", handleDocumentPointerDown);
+			document.addEventListener("keydown", handleKeyDown);
+
+			previewCleanups.push(() => {
+				trigger.removeEventListener("pointerenter", showOnHover);
+				trigger.removeEventListener("focus", showOnFocus);
+				trigger.removeEventListener("pointerleave", hideOnHover);
+				trigger.removeEventListener("blur", hideOnBlur);
+				trigger.removeEventListener("click", togglePreview);
+				document.removeEventListener("pointerdown", handleDocumentPointerDown);
+				document.removeEventListener("keydown", handleKeyDown);
+				gsap.killTweensOf([preview, image]);
+				if (originalParent?.isConnected) {
+					originalParent.insertBefore(preview, originalNextSibling);
+				} else {
+					preview.remove();
+				}
+			});
+		});
+	}
+
 	document.addEventListener("astro:page-load", setup);
-	document.addEventListener("astro:before-swap", killTriggers);
+	document.addEventListener("astro:before-swap", () => {
+		killTriggers();
+		killForumPreviews();
+	});
 </script>

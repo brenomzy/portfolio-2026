@@ -13,7 +13,14 @@ import { CONTACT_EMAIL } from "../lib/site";
 
 <section class="hero">
 	<h1 class="hero__title" data-split>
-		Design Engineer.<br />Webflow Developer.
+		Webflow Developer.
+		<span class="hero__title-secondary">
+			<span
+				class="hero__title-rotator js-title-rotator"
+				data-titles="Design Engineer.|Product Designer.|UI Designer."
+				>Design Engineer.</span
+			>
+		</span>
 	</h1>
 	<p class="hero__lead" data-split>
 		I'm Breno, from Brazil. I care about speed, accessibility, and motion
@@ -49,6 +56,16 @@ import { CONTACT_EMAIL } from "../lib/site";
 		 * SplitText line measurement. (Weight / tracking / line-height inherited.) */
 		text-wrap: pretty;
 	}
+	.hero__title-secondary {
+		display: block;
+		color: var(--text);
+		opacity: 0.52;
+	}
+	.hero__title-rotator {
+		display: inline-block;
+		min-width: 17ch;
+		will-change: transform, opacity, filter;
+	}
 	.hero__lead {
 		font-size: 1.125rem; /* 18px — trialing a smaller lead per request */
 		color: var(--text-muted);
@@ -79,14 +96,63 @@ import { CONTACT_EMAIL } from "../lib/site";
 		document.dispatchEvent(new CustomEvent("hero:revealed"));
 
 	let active: SplitText[] = [];
+	let titleRotation: gsap.core.Tween | null = null;
+	let titleRotationTimer: number | null = null;
 
 	function show(els: (Element | null)[]) {
 		gsap.set(els.filter(Boolean) as Element[], { visibility: "visible" });
 	}
 
 	function cleanup() {
+		titleRotation?.kill();
+		titleRotation = null;
+		if (titleRotationTimer) {
+			window.clearTimeout(titleRotationTimer);
+			titleRotationTimer = null;
+		}
 		active.forEach((s) => s.revert());
 		active = [];
+	}
+
+	function startTitleRotation() {
+		const rotator =
+			document.querySelector<HTMLElement>(".js-title-rotator");
+		if (!rotator || reduced.matches) return;
+
+		const titles = rotator.dataset.titles?.split("|").filter(Boolean) ?? [];
+		if (titles.length < 2) return;
+
+		let index = Math.max(0, titles.indexOf(rotator.textContent?.trim() ?? ""));
+
+		const rotate = () => {
+			titleRotation = gsap.to(rotator, {
+				autoAlpha: 0,
+				y: 10,
+				filter: "blur(6px)",
+				duration: 0.34,
+				ease: "power2.in",
+				onComplete: () => {
+					index = (index + 1) % titles.length;
+					rotator.textContent = titles[index];
+					titleRotation = gsap.fromTo(
+						rotator,
+						{ autoAlpha: 0, y: -8, filter: "blur(6px)" },
+						{
+							autoAlpha: 1,
+							y: 0,
+							filter: "blur(0px)",
+							duration: 0.52,
+							ease: "power3.out",
+							onComplete: () => {
+								titleRotationTimer = window.setTimeout(rotate, 2600);
+							},
+						},
+					);
+				},
+			});
+		};
+
+		titleRotationTimer = window.setTimeout(rotate, 2200);
 	}
 
 	async function revealHero() {
@@ -129,6 +195,7 @@ import { CONTACT_EMAIL } from "../lib/site";
 				onComplete: () => {
 					cleanup();
 					signalWorkReady();
+					startTitleRotation();
 				},
 			});
 

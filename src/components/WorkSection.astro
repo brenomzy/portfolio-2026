@@ -80,6 +80,9 @@ const { projects } = Astro.props;
 	 * overflow clip here so the border can sit just outside the tile. */
 	.c-work__frame {
 		position: relative;
+		--preview-padding: clamp(1.25rem, 2vw, 2rem);
+		--preview-shell-radius: var(--radius-lg);
+		--preview-radius: var(--radius-md);
 	}
 	/* 1px border ring, behind the opaque tile (square — no radius). TWO layers on
 	 * it: ::before is the faint hairline that's always on; ::after is the brand
@@ -91,8 +94,8 @@ const { projects } = Astro.props;
 		position: absolute;
 		inset: -1px;
 		z-index: 0;
-		/* Concentric with the media (media radius + the 1px ring offset). */
-		border-radius: calc(var(--radius-md) + 1px);
+		/* Concentric with the capped preview shell plus the 1px ring offset. */
+		border-radius: calc(var(--preview-shell-radius) + 1px);
 	}
 	.c-work__frame::before {
 		background: var(--card-border-base);
@@ -114,12 +117,10 @@ const { projects } = Astro.props;
 	.c-work__media {
 		position: relative;
 		z-index: 1;
-		display: grid;
-		aspect-ratio: 16 / 9;
+		display: block;
 		overflow: hidden;
-		border-radius: var(--radius-md);
-		padding: 5.38%;
-		--preview-radius: var(--radius-sm);
+		border-radius: var(--preview-shell-radius);
+		padding: var(--preview-padding);
 		/* Theme-aware fallback behind the real first-frame poster. Opaque, so it
 		 * masks all but the 1px gradient-border ring behind it. */
 		background: var(--thumb-bg);
@@ -128,9 +129,9 @@ const { projects } = Astro.props;
 		display: block;
 		position: static;
 		width: 100%;
-		height: 100%;
+		height: auto;
 		min-width: 0;
-		min-height: 0;
+		aspect-ratio: 1918 / 944;
 		object-fit: cover;
 		/* will-change below promotes this img to its own GPU layer, which Chromium
 		 * then won't clip to .c-work__media's rounded corners — so round the layer
@@ -138,6 +139,7 @@ const { projects } = Astro.props;
 		border-radius: var(--preview-radius);
 		outline: 1px solid rgb(0 0 0 / 0.1);
 		outline-offset: -1px;
+		box-shadow: var(--shadow-3);
 		/* Inner zoom on hover. will-change keeps the GPU layer warm (no shimmer);
 		 * only the image scales, never the card. */
 		transition: transform 0.45s var(--ease-out-expo);

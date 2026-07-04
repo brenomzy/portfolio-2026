@@ -241,12 +241,13 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	.c-pmodal__hero,
 	.c-pmodal__media :global(.c-pmodal__shot) {
 		position: relative;
-		display: grid;
-		aspect-ratio: 16 / 9;
+		display: block;
 		overflow: hidden;
-		border-radius: var(--radius-md);
-		padding: 5.38%;
-		--preview-radius: var(--radius-sm);
+		--preview-padding: clamp(1.5rem, 2vw, 2rem);
+		--preview-shell-radius: var(--radius-lg);
+		--preview-radius: var(--radius-md);
+		border-radius: var(--preview-shell-radius);
+		padding: var(--preview-padding);
 		/* Same theme-aware backdrop as the grid cards so the flown card lands on
 		 * a matching gradient (the cover/shot SVGs are transparent around them). */
 		background: var(--thumb-bg);
@@ -256,13 +257,14 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	.c-pmodal__media :global(video) {
 		position: static;
 		width: 100%;
-		height: 100%;
+		height: auto;
 		min-width: 0;
-		min-height: 0;
+		aspect-ratio: 1918 / 944;
 		object-fit: cover;
 		border-radius: var(--preview-radius);
 		outline: 1px solid rgb(0 0 0 / 0.1);
 		outline-offset: -1px;
+		box-shadow: var(--shadow-3);
 	}
 	.c-pmodal__media :global(video) {
 		display: block;

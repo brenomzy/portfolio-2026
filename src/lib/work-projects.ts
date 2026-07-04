@@ -27,7 +27,7 @@ export interface WorkProject {
 	liveUrl: string;
 }
 
-const ASSET_VERSION = "20260703-video-previews";
+const ASSET_VERSION = "20260704-video-previews-1080p";
 const asset = (path: string) => `${path}?v=${ASSET_VERSION}`;
 
 export const WORK_PROJECTS: WorkProject[] = [
@@ -40,8 +40,8 @@ export const WORK_PROJECTS: WorkProject[] = [
 		role: "Webflow Development",
 		year: 2025,
 		cover: asset("/work/verifone/cover.webp"),
-		video: asset("/work/verifone/demo-5mb.mp4"),
-		videoHigh: asset("/work/verifone/demo-8mb.mp4"),
+		video: asset("/work/verifone/demo-1080p.mp4"),
+		videoHigh: asset("/work/verifone/demo-1080p.mp4"),
 		gallery: [
 			asset("/work/verifone/shot-1.webp"),
 			asset("/work/verifone/shot-2.webp"),
@@ -60,8 +60,8 @@ export const WORK_PROJECTS: WorkProject[] = [
 		role: "Webflow Development",
 		year: 2026,
 		cover: asset("/work/buildops/cover.webp"),
-		video: asset("/work/buildops/demo-5mb.mp4"),
-		videoHigh: asset("/work/buildops/demo-8mb.mp4"),
+		video: asset("/work/buildops/demo-1080p.mp4"),
+		videoHigh: asset("/work/buildops/demo-1080p.mp4"),
 		gallery: [
 			asset("/work/buildops/shot-1.webp"),
 			asset("/work/buildops/shot-2.webp"),
@@ -80,8 +80,8 @@ export const WORK_PROJECTS: WorkProject[] = [
 		role: "Webflow Development",
 		year: 2026,
 		cover: asset("/work/gainbridge/cover.webp"),
-		video: asset("/work/gainbridge/demo-5mb.mp4"),
-		videoHigh: asset("/work/gainbridge/demo-8mb.mp4"),
+		video: asset("/work/gainbridge/demo-1080p.mp4"),
+		videoHigh: asset("/work/gainbridge/demo-1080p.mp4"),
 		gallery: [
 			asset("/work/gainbridge/shot-1.webp"),
 			asset("/work/gainbridge/shot-2.webp"),
@@ -100,8 +100,8 @@ export const WORK_PROJECTS: WorkProject[] = [
 		role: "Design + Development",
 		year: 2025,
 		cover: asset("/work/sharp-performance/cover.webp"),
-		video: asset("/work/sharp-performance/demo-5mb.mp4"),
-		videoHigh: asset("/work/sharp-performance/demo-8mb.mp4"),
+		video: asset("/work/sharp-performance/demo-1080p.mp4"),
+		videoHigh: asset("/work/sharp-performance/demo-1080p.mp4"),
 		gallery: [
 			asset("/work/sharp-performance/shot-1.webp"),
 			asset("/work/sharp-performance/shot-2.webp"),

@@ -37,4 +37,5 @@ talk/
 *.webm
 !public/work/**/demo-5mb.mp4
 !public/work/**/demo-8mb.mp4
+!public/work/**/demo-1080p.mp4
 public/work/**/scroll-*-poster.webp

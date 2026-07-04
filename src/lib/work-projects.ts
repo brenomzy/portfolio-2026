@@ -27,7 +27,9 @@ export interface WorkProject {
 	liveUrl: string;
 }
 
-const ASSET_VERSION = "20260704-video-previews-1080p";
+// Cloudflare Pages has a 25 MiB limit per deployed asset. Keep preview videos
+// below that limit and bump this value whenever replacing media bytes.
+const ASSET_VERSION = "20260704-video-previews-1080p-cf-safe";
 const asset = (path: string) => `${path}?v=${ASSET_VERSION}`;
 
 export const WORK_PROJECTS: WorkProject[] = [

@@ -1,43 +1,19 @@
-# Astro Starter Kit: Minimal
+# Portfolio
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Astro portfolio for brenodaroz.com.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Commands
 
-## 🚀 Project Structure
+| Command | Action |
+| --- | --- |
+| `npm install` | Install dependencies |
+| `npm run dev` | Start local dev server |
+| `npm run build` | Build production output to `dist/` |
+| `npm run preview` | Preview the production build |
 
-Inside of your Astro project, you'll see the following folders and files:
+## Deployment Notes
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- The site is served behind Cloudflare. Cloudflare Pages has a `25 MiB` limit per deployed asset.
+- Keep project preview videos under `25 MiB`; otherwise the deployment can fail and production may keep serving the previous build.
+- When replacing media bytes, bump `ASSET_VERSION` in `src/lib/work-projects.ts` so thumbnails/videos get fresh URLs.
+- Current project preview videos are 60fps H.264 MP4s at `1918x944`, exported as `public/work/<slug>/demo-1080p.mp4`.

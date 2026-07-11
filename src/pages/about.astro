@@ -4,6 +4,8 @@ import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import Button from "../components/Button.astro";
 import AboutGallery from "../components/AboutGallery.astro";
+import AboutApproachTabs from "../components/AboutApproachTabs.astro";
+import SocialLinks from "../components/SocialLinks.astro";
 import { SITE_NAME } from "../lib/site";
 import { ABOUT } from "../lib/about";
 
@@ -20,50 +22,27 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		<!-- Intro + hero gallery --------------------------------------------- -->
 		<header class="about__hero">
 			<div class="about__intro">
-			<p class="about__eyebrow js-about-reveal" data-reveal>About</p>
 			<h1 class="about__title js-about-reveal" data-reveal>{ABOUT.introTitle}</h1>
 			<p class="about__intro-body js-about-reveal" data-reveal>{ABOUT.introBody}</p>
 			<p class="about__tenure js-about-reveal" data-reveal>{ABOUT.tenure}</p>
-			<ul class="about__socials js-about-reveal" data-reveal aria-label="Find me elsewhere">
-				{
-					ABOUT.socials.map((s) => (
-						<li>
-							<a
-								class="about__social"
-								href={s.href}
-								target="_blank"
-								rel="noopener noreferrer"
-								aria-label={s.label}
-							>
-								{s.icon === "linkedin" ? (
-									<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-										<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-									</svg>
-								) : (
-									<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-										<path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z" />
-									</svg>
-								)}
-							</a>
-						</li>
-					))
-				}
-			</ul>
+			<SocialLinks class="js-about-reveal" data-reveal />
 			</div>
 
 			<AboutGallery />
 		</header>
 
 		<!-- Background ------------------------------------------------------- -->
-		<section class="about__row">
-			<p class="about__rowlabel js-about-reveal" data-reveal><span>01</span> Background</p>
-			<div class="about__prose">
+		<section class="about__background">
+			<p class="about__background-lead js-about-reveal" data-reveal>
+				{ABOUT.background[0]}
+			</p>
+			<div class="about__background-chapters">
 				{
-					ABOUT.background.map((para) => {
+					ABOUT.background.slice(1).map((para) => {
 						const [before, after] = para.split(DESIGN_FORUMS_PHRASE);
 
 						return (
-							<p class="js-about-reveal" data-reveal>
+							<p class="about__background-chapter js-about-reveal" data-reveal>
 								{after === undefined ? (
 									para
 								) : (
@@ -102,62 +81,93 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		</section>
 
 		<!-- The relic: my actual 2004 site, rebuilt from the Internet Archive --->
-		<figure class="about__relic js-about-reveal" data-reveal>
-			<div class="about__relic-bar" aria-hidden="true">
-				<span class="about__relic-dots"><i></i><i></i><i></i></span>
-				<span class="about__relic-url">http://www.pokeloukos.cjb.net</span>
+		<section class="about__artifact" aria-labelledby="artifact-title">
+			<div class="about__artifact-copy js-about-reveal" data-reveal>
+				<h2 class="about__artifact-title" id="artifact-title">The site that started it.</h2>
+				<p class="about__artifact-body">
+					Poké Loukos v2.0 was the Pokémon fan site I built in 2004. I rebuilt it
+					from the Internet Archive here, keeping the original pixels, awkward
+					choices, and all.
+				</p>
 			</div>
-			<div class="about__relic-screen">
-				<iframe
-					class="about__relic-frame"
-					src="/about/pokeloukos/index.html"
-					title="Poké Loukos v2.0 — the Pokémon fan site I built in 2004"
-					loading="lazy"
-					scrolling="no"
-				></iframe>
-			</div>
-			<figcaption class="about__relic-cap">
-				Poké Loukos v2.0, the Pokémon fan site I built in 2004. Rebuilt here
-				from the Internet Archive, original pixels and all.
-			</figcaption>
-		</figure>
 
-		<!-- Approach / values ----------------------------------------------- -->
-		<section class="about__row">
-			<p class="about__rowlabel js-about-reveal" data-reveal><span>02</span> Approach</p>
-			<ol class="about__values">
+			<figure class="about__relic js-about-reveal" data-reveal>
+				<div class="about__relic-bar" aria-hidden="true">
+					<span class="about__relic-dots"><i></i><i></i><i></i></span>
+					<span class="about__relic-url">http://www.pokeloukos.cjb.net</span>
+				</div>
+				<div class="about__relic-screen">
+					<iframe
+						class="about__relic-frame"
+						src="/about/pokeloukos/index.html"
+						title="Poké Loukos v2.0 — the Pokémon fan site I built in 2004"
+						loading="lazy"
+						scrolling="no"
+					></iframe>
+				</div>
+				<figcaption class="about__relic-cap">
+					A working preview of the original 2004 layout.
+				</figcaption>
+			</figure>
+		</section>
+
+		<!-- Experience ------------------------------------------------------- -->
+		<section
+			class="about__experience"
+			aria-labelledby="experience-title"
+			data-step-timeline-init
+			data-step-timeline-activation="0.5"
+		>
+			<header class="about__experience-header js-about-reveal" data-reveal>
+				<h2 class="about__experience-title" id="experience-title">Where I've been</h2>
+				<p class="about__experience-intro">
+					A path from product design to specialist Webflow development, with the same
+					focus throughout: clear systems, thoughtful details, and work that holds up
+					in the real world.
+				</p>
+			</header>
+
+			<div class="about__timeline-wrap">
+				<div class="about__timeline-line" data-step-timeline-line aria-hidden="true">
+					<div class="about__timeline-fill" data-step-timeline-fill></div>
+				</div>
+			<ol class="about__timeline">
 				{
-					ABOUT.values.map((v) => (
-						<li class="about__value js-about-reveal" data-reveal>
-							<span class="about__value-no">{v.no}</span>
-							<h2 class="about__value-title">{v.title}</h2>
-							<p class="about__value-body">{v.body}</p>
+					ABOUT.experience.map((e, index) => (
+						<li class="about__exp" data-step-timeline-item>
+							<div class="about__exp-marker" data-step-timeline-marker aria-hidden="true">
+								<span>{String(index + 1).padStart(2, "0")}</span>
+							</div>
+							<div class="about__exp-content">
+								<p class="c-meta-label about__exp-period">{e.period}</p>
+								<h3 class="about__exp-role">{e.role}</h3>
+								<p class="about__exp-org">{e.org}</p>
+								<p class="about__exp-description">{e.description}</p>
+								{e.note && <p class="about__exp-note">{e.note}</p>}
+							</div>
 						</li>
 					))
 				}
 			</ol>
-		</section>
-
-		<!-- Fact cards: Now · Résumé · Tools · Jams -------------------------- -->
-		<section class="about__cards" aria-label="At a glance">
-			<div class="c-card about__now js-about-reveal" data-reveal>
-				<p class="c-card__label">{ABOUT.now.label}</p>
-				<p class="about__now-body">{ABOUT.now.body}</p>
 			</div>
-
-			<div class="c-card about__resume js-about-reveal" data-reveal>
-				<p class="c-card__label">Résumé</p>
-				<p class="about__resume-body">My experience and background, in detail.</p>
+			<div class="about__experience-cta js-about-reveal" data-reveal>
 				<Button
-					label="Download PDF ↓"
+					label="Download résumé"
 					href={ABOUT.resumeUrl}
 					variant="secondary"
+					icon="download"
 					download
 				/>
 			</div>
+		</section>
 
+		<!-- Approach / values ----------------------------------------------- -->
+		<AboutApproachTabs values={ABOUT.values} />
+
+		<!-- A quieter personal-details epilogue ----------------------------- -->
+		<section class="about__cards" aria-label="Tools and personal details">
 			<div class="c-card about__toolstack js-about-reveal" data-reveal>
-				<p class="c-card__label">Tool stack</p>
+				<p class="c-meta-label">Tool stack</p>
 				<ul class="about__tools" aria-label="Tools I build with">
 					{
 						ABOUT.tools.map((t) => (
@@ -177,7 +187,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 			</div>
 
 			<div class="c-card about__jams js-about-reveal" data-reveal>
-				<p class="c-card__label">Some of my favorite songs</p>
+				<p class="c-meta-label">Some of my favorite songs</p>
 				<div class="about__jams-grid">
 					{
 						ABOUT.jams.map((j) => (
@@ -195,22 +205,6 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 					}
 				</div>
 			</div>
-		</section>
-
-		<!-- Experience ------------------------------------------------------- -->
-		<section class="about__row">
-			<p class="about__rowlabel js-about-reveal" data-reveal><span>03</span> Experience</p>
-			<ol class="about__timeline">
-				{
-					ABOUT.experience.map((e) => (
-						<li class="about__exp js-about-reveal" data-reveal>
-							<p class="about__exp-period">{e.period}</p>
-							<h2 class="about__exp-role">{e.role}</h2>
-							<span class="about__exp-note">Remote</span>
-						</li>
-					))
-				}
-			</ol>
 		</section>
 
 		<!-- Contact ---------------------------------------------------------- -->
@@ -231,6 +225,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 
 <style>
 	.about {
+		--about-section-width: 70rem;
 		max-width: var(--container-content);
 		margin-inline: auto;
 		padding-inline: var(--spacing-m);
@@ -255,13 +250,6 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		gap: var(--spacing-s);
 		max-width: 38rem;
 	}
-	.about__eyebrow {
-		font-size: 0.625rem;
-		text-transform: uppercase;
-		letter-spacing: 0.18em;
-		color: var(--accent-ink);
-		font-weight: 600;
-	}
 	.about__title {
 		font-size: var(--text-step-3);
 		max-width: 22ch;
@@ -273,77 +261,51 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		max-width: 46ch;
 		text-wrap: pretty;
 	}
-	.about__socials {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
-		list-style: none;
-		padding: 0;
-		font-size: var(--text-step--1);
-		margin-top: var(--spacing-2xs);
-	}
 	.about__tenure {
 		font-size: var(--text-step--1);
 		color: var(--text-muted);
 	}
-	.about__social {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 2.5rem;
-		height: 2.5rem;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
-		color: var(--text-muted);
-		transition:
-			color 0.25s var(--ease-out-expo),
-			border-color 0.25s var(--ease-out-expo),
-			background-color 0.25s var(--ease-out-expo);
-	}
-	.about__social svg {
-		width: 1.1rem;
-		height: 1.1rem;
-	}
-	@media (hover: hover) {
-		.about__social:is(:hover, :focus-visible) {
-			color: var(--text);
-			background-color: var(--surface-raised);
-			border-color: var(--text-muted);
-		}
-	}
-
 	/* Photo strip deferred (Osmo component coming) — markup removed for now. */
 
-	/* ── Generic two-column row (label left, content right) ─────────────── */
+	/* ── Content rows ───────────────────────────────────────────────── */
 	.about__row {
-		display: grid;
-		grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
-		gap: var(--spacing-l) var(--spacing-xl);
-		align-items: start;
-	}
-	.about__rowlabel {
-		font-size: 0.7rem;
-		text-transform: uppercase;
-		letter-spacing: 0.14em;
-		color: var(--text-muted);
-		font-weight: 600;
-		display: flex;
-		align-items: baseline;
-		gap: 0.6em;
-	}
-	.about__rowlabel span {
-		color: var(--accent-ink);
+		width: 100%;
+		max-width: var(--about-section-width);
+		margin-inline: auto;
 	}
 
-	.about__prose {
+	.about__background {
+		width: 100%;
+		max-width: var(--about-section-width);
+		margin-inline: auto;
 		display: grid;
-		gap: var(--spacing-s);
-		max-width: 60ch;
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+		gap: var(--spacing-2xl);
+		align-items: start;
+	}
+	.about__background-lead {
+		font-family: var(--font-heading);
+		font-size: var(--text-step-2);
+		font-weight: 560;
+		line-height: 1.25;
+		letter-spacing: -0.035em;
+		color: var(--text);
+		text-wrap: balance;
+	}
+	.about__background-chapters {
+		display: grid;
+	}
+	.about__background-chapter {
+		padding-block: var(--spacing-m);
 		font-size: var(--text-step-1);
 		color: var(--text-muted);
-	}
-	.about__prose p {
 		text-wrap: pretty;
+	}
+	.about__background-chapter:first-child {
+		padding-top: 0;
+	}
+	.about__background-chapter + .about__background-chapter {
+		border-top: 1px solid var(--border);
 	}
 	.about__forum {
 		position: relative;
@@ -400,14 +362,32 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		}
 	}
 
-	/* ── The relic: my 2004 site in a little browser window ─────────────── */
-	.about__relic {
-		margin: 0 auto;
-		/* width:100% so the grid item fills the column up to the cap — without it,
-		 * margin-inline:auto makes it shrink to its content (the URL-bar text,
-		 * since the container-type screen contributes no intrinsic width). */
+	/* ── The relic: an editorial artifact chapter ───────────────────────── */
+	.about__artifact {
 		width: 100%;
-		max-width: min(100%, 60rem);
+		max-width: var(--about-section-width);
+		margin-inline: auto;
+		display: grid;
+		grid-template-columns: minmax(14rem, 0.38fr) minmax(0, 0.62fr);
+		gap: var(--spacing-xl);
+		align-items: center;
+	}
+	.about__artifact-copy {
+		display: grid;
+		gap: var(--spacing-s);
+	}
+	.about__artifact-title {
+		max-width: none;
+		font-size: var(--text-step-3);
+	}
+	.about__artifact-body {
+		max-width: 34ch;
+		color: var(--text-muted);
+	}
+	.about__relic {
+		margin: 0;
+		width: 100%;
+		min-width: 0;
 	}
 	.about__relic-bar {
 		display: flex;
@@ -447,7 +427,8 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	/* The screen is a container; the fixed-size iframe scales to fill it. */
 	.about__relic-screen {
 		container-type: inline-size;
-		/* Match the rebuilt page's real rendered height (780×785) so nothing clips. */
+		/* Match the rebuilt page's complete 780×785 canvas so the artifact is fully
+		 * visible without an internal scroll or a separate destination. */
 		aspect-ratio: 780 / 785;
 		overflow: hidden;
 		border: 1px solid var(--border);
@@ -464,104 +445,37 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	}
 	.about__relic-cap {
 		margin-top: var(--spacing-xs);
-		text-align: center;
+		text-align: left;
 		font-size: 0.72rem;
 		color: var(--text-muted);
-		max-width: 62ch;
-		margin-inline: auto;
+		max-width: 42ch;
 		text-wrap: balance;
-	}
-
-	/* ── Values ────────────────────────────────────────────────────────── */
-	.about__values {
-		list-style: none;
-		padding: 0;
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-		gap: var(--spacing-l);
-		counter-reset: none;
-	}
-	.about__value {
-		display: grid;
-		gap: var(--spacing-2xs);
-		align-content: start;
-	}
-	.about__value-no {
-		font-size: var(--text-step-3);
-		color: var(--border);
-		font-weight: 600;
-		line-height: 1;
-	}
-	.about__value-title {
-		font-size: var(--text-step-1);
-	}
-	.about__value-body {
-		color: var(--text-muted);
-		font-size: var(--text-step--1);
 	}
 
 	/* ── Fact cards ────────────────────────────────────────────────────── */
 	.about__cards {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		/* Bento: Now + Résumé share the top row, the Tool stack runs full width as
-		 * a centered icon dock, Jams full width below. (A tall tool card left dead
-		 * space — 11 small tiles can't fill it; centering reads cleaner.) */
-		grid-template-areas:
-			"now   resume"
-			"tools tools"
-			"jams  jams";
-		gap: var(--spacing-2xs);
-	}
-	.about__now {
-		grid-area: now;
-	}
-	.about__resume {
-		grid-area: resume;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--spacing-l);
+		width: 100%;
+		max-width: var(--about-section-width);
+		margin-inline: auto;
+		padding-block: var(--spacing-l);
+		border-block: 1px solid var(--border);
 	}
 	.c-card {
-		background: var(--surface-raised);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
-		padding: var(--spacing-s);
-		box-shadow: var(--shadow-1);
 		display: grid;
 		gap: var(--spacing-xs);
 		align-content: start;
 	}
-	.c-card__label {
-		font-size: 0.7rem;
-		text-transform: uppercase;
-		letter-spacing: 0.14em;
-		color: var(--text-muted);
-		font-weight: 600;
-	}
-	.about__now-body {
-		font-size: var(--text-step-1);
-		text-wrap: pretty;
-	}
-	.about__resume {
-		justify-items: start;
-	}
-	.about__resume-body {
-		color: var(--text-muted);
-	}
-	.about__toolstack {
-		grid-area: tools;
-	}
-	/* Jams runs the full width below the bento. */
-	.about__jams {
-		grid-area: jams;
-	}
-
 	/* Icon dock — tiles stretch to fill the full card width (auto-fit collapses
 	 * the empty tracks, so 11 tiles share the row edge-to-edge on desktop and
 	 * wrap into fewer, larger tiles as the card narrows). */
 	.about__tools {
 		list-style: none;
 		padding: 0;
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr));
+		display: flex;
+		flex-wrap: wrap;
 		gap: var(--spacing-2xs);
 		margin-top: var(--spacing-3xs);
 	}
@@ -573,7 +487,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	.about__tool-tile {
 		display: grid;
 		place-items: center;
-		width: 100%;
+		width: 3.75rem;
 		aspect-ratio: 1;
 		border-radius: var(--radius-md);
 		background: var(--tile);
@@ -587,7 +501,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		-webkit-mask: var(--icon) center / contain no-repeat;
 		mask: var(--icon) center / contain no-repeat;
 	}
-	@media (hover: hover) {
+	@media (hover: hover) and (pointer: fine) {
 		.about__tool:hover .about__tool-tile {
 			transform: translateY(-3px);
 		}
@@ -607,7 +521,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 
 	.about__jams-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
 		gap: var(--spacing-2xs);
 	}
 	.about__jam {
@@ -617,60 +531,136 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	}
 
 	/* ── Experience timeline ───────────────────────────────────────────── */
+	.about__experience {
+		width: 100%;
+		max-width: var(--about-section-width);
+		margin-inline: auto;
+	}
+	.about__experience-header {
+		display: grid;
+		gap: var(--spacing-xs);
+		max-width: 42rem;
+		margin-bottom: var(--spacing-2xl);
+	}
+	.about__experience-title {
+		font-size: var(--text-step-4);
+		letter-spacing: -0.045em;
+		text-wrap: balance;
+	}
+	.about__experience-intro {
+		max-width: 58ch;
+		color: var(--text-muted);
+		font-size: var(--text-step-1);
+		text-wrap: pretty;
+	}
+	.about__timeline-wrap {
+		position: relative;
+	}
+	.about__experience-cta {
+		display: flex;
+		justify-content: flex-start;
+		margin-top: var(--spacing-xl);
+		padding-left: calc(3rem + var(--spacing-l));
+	}
 	.about__timeline {
 		list-style: none;
 		padding: 0;
-		display: grid;
-		gap: 0;
-		/* Rule the whole column runs down. */
-		border-left: 1px solid var(--border);
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-xl);
 	}
 	.about__exp {
 		position: relative;
-		display: grid;
-		grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) auto;
-		/* Period, role and tag share a baseline so the row reads as one line. */
-		align-items: baseline;
-		column-gap: var(--spacing-l);
-		padding: var(--spacing-m) 0 var(--spacing-m) var(--spacing-l);
+		display: flex;
+		align-items: flex-start;
+		gap: var(--spacing-l);
 	}
-	.about__exp:not(:last-child) {
-		border-bottom: 1px solid var(--border);
-	}
-	/* Dot sits on the rule, aligned to the role's first line. */
-	.about__exp::before {
-		content: "";
+	.about__timeline-line {
+		pointer-events: none;
 		position: absolute;
-		left: -5px;
-		top: calc(var(--spacing-m) + 0.42em);
-		width: 9px;
-		height: 9px;
-		border-radius: 50%;
+		left: calc(1.5rem - 1px);
+		width: 2px;
+		background: var(--border);
+	}
+	.about__timeline-fill {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		transform-origin: 50% 0;
 		background: var(--accent);
 	}
-	.about__exp-period {
-		font-size: var(--text-step--1);
+	.about__exp-marker {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		place-items: center;
+		flex: 0 0 auto;
+		width: 3rem;
+		height: 3rem;
+		border: 1px solid var(--border);
+		border-radius: 50%;
+		background: var(--surface);
 		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		font-variant-numeric: tabular-nums;
+		transition-property: color, background-color, border-color, box-shadow;
+		transition-duration: 0.24s;
+		transition-timing-function: var(--ease-out-expo);
+	}
+	[data-step-timeline-item][data-status="active"] .about__exp-marker {
+		color: var(--surface);
+		background: var(--accent);
+		border-color: var(--accent);
+	}
+	[data-step-timeline-item][data-current] .about__exp-marker {
+		box-shadow: 0 0 0 0.5rem color-mix(in srgb, var(--accent) 18%, transparent);
+	}
+	.about__exp-content {
+		display: grid;
+		gap: var(--spacing-3xs);
+		max-width: 38rem;
+		padding-top: 0.2rem;
+		opacity: 0.28;
+		transition: opacity 0.3s ease;
+	}
+	[data-step-timeline-item][data-status="active"] .about__exp-content {
+		opacity: 0.58;
+	}
+	[data-step-timeline-item][data-current] .about__exp-content {
+		opacity: 1;
+	}
+	.about__exp-period {
+		color: var(--accent-ink);
 		font-variant-numeric: tabular-nums;
 	}
 	.about__exp-role {
-		font-size: var(--text-step-1);
+		font-size: var(--text-step-2);
 		line-height: 1.1;
+		letter-spacing: -0.035em;
+	}
+	.about__exp-org {
+		font-size: var(--text-step-1);
+	}
+	.about__exp-description {
+		margin-top: var(--spacing-xs);
+		max-width: 56ch;
+		color: var(--text-muted);
+		text-wrap: pretty;
 	}
 	.about__exp-note {
-		align-self: center;
-		font-size: 0.625rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
+		margin-top: var(--spacing-2xs);
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
 		color: var(--text-muted);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-sm);
-		padding: 0.15em 0.6em;
-		white-space: nowrap;
 	}
 
 	/* ── Contact ───────────────────────────────────────────────────────── */
 	.about__contact {
+		width: 100%;
+		max-width: var(--about-section-width);
+		margin-inline: auto;
 		display: grid;
 		justify-items: center;
 		text-align: center;
@@ -695,34 +685,45 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		.about__intro {
 			max-width: 46ch;
 		}
+		.about__background {
+			grid-template-columns: 1fr;
+			gap: var(--spacing-l);
+		}
+		.about__background-lead {
+			max-width: 26ch;
+		}
+		.about__artifact {
+			grid-template-columns: 1fr;
+			gap: var(--spacing-l);
+		}
+		.about__artifact-body {
+			max-width: 28rem;
+		}
 	}
 	@media (max-width: 48rem) {
 		.about {
 			gap: var(--spacing-2xl);
 		}
-		.about__row {
-			grid-template-columns: 1fr;
-			gap: var(--spacing-s);
-		}
-		.about__cards {
-			grid-template-columns: 1fr;
-			grid-template-areas:
-				"now"
-				"resume"
-				"tools"
-				"jams";
-		}
 		.about__title {
 			font-size: var(--text-step-2);
 		}
-		/* Period on its own line, then role + tag share a row. */
 		.about__exp {
-			grid-template-columns: 1fr auto;
-			column-gap: var(--spacing-s);
-			row-gap: var(--spacing-3xs);
+			gap: var(--spacing-m);
 		}
-		.about__exp-period {
-			grid-column: 1 / -1;
+		.about__timeline {
+			gap: var(--spacing-xl);
+		}
+		.about__experience-header {
+			margin-bottom: var(--spacing-xl);
+		}
+		.about__experience-title {
+			font-size: var(--text-step-3);
+		}
+		.about__exp-role {
+			font-size: var(--text-step-1);
+		}
+		.about__experience-cta {
+			padding-left: calc(3rem + var(--spacing-m));
 		}
 	}
 </style>
@@ -742,6 +743,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 
 	let triggers: ScrollTrigger[] = [];
 	let previewCleanups: (() => void)[] = [];
+	let timelineCleanup: (() => void) | undefined;
 
 	function killTriggers() {
 		triggers.forEach((t) => t.kill());
@@ -750,6 +752,10 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	function killForumPreviews() {
 		previewCleanups.forEach((cleanup) => cleanup());
 		previewCleanups = [];
+	}
+	function killTimeline() {
+		timelineCleanup?.();
+		timelineCleanup = undefined;
 	}
 
 	const reveal = (els: HTMLElement | HTMLElement[]) =>
@@ -768,6 +774,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		if (!items.length) return;
 		killTriggers();
 		setupForumPreviews();
+		setupStepTimeline();
 
 		if (reduced.matches) {
 			gsap.set(items, { autoAlpha: 1, y: 0, clearProps: "transform" });
@@ -803,6 +810,128 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		});
 	}
 
+	function setupStepTimeline() {
+		killTimeline();
+
+		const root = document.querySelector<HTMLElement>("[data-step-timeline-init]");
+		if (!root) return;
+
+		const line = root.querySelector<HTMLElement>("[data-step-timeline-line]");
+		const fill = root.querySelector<HTMLElement>("[data-step-timeline-fill]");
+		const items = gsap.utils.toArray<HTMLElement>(
+			root.querySelectorAll("[data-step-timeline-item]"),
+		);
+		if (!line || !fill || !items.length) return;
+
+		const anchors = items.map(
+			(item) =>
+				item.querySelector<HTMLElement>("[data-step-timeline-marker]") ?? item,
+		);
+		const activationInput = Number.parseFloat(
+			root.dataset.stepTimelineActivation ?? "0.5",
+		);
+		const activation = Number.isNaN(activationInput)
+			? 0.5
+			: Math.min(Math.max(activationInput, 0), 1);
+		const activationPercent = activation * 100;
+		const lastIndex = items.length - 1;
+		let anchorFractions = [0];
+		let currentIndex = -2;
+
+		const measureLine = () => {
+			if (items.length < 2) {
+				line.style.height = "0px";
+				anchorFractions = [0];
+				return;
+			}
+
+			const base = line.parentElement?.getBoundingClientRect().top ?? 0;
+			const centers = anchors.map((anchor) => {
+				const box = anchor.getBoundingClientRect();
+				return box.top + box.height / 2 - base;
+			});
+			const firstCenter = centers[0];
+			const span = centers[lastIndex] - firstCenter;
+			line.style.top = `${firstCenter}px`;
+			line.style.height = `${span}px`;
+			anchorFractions = centers.map((center) =>
+				span > 0 ? (center - firstCenter) / span : 0,
+			);
+		};
+
+		const setCurrentIndex = (index: number) => {
+			if (index === currentIndex) return;
+			currentIndex = index;
+			items.forEach((item, itemIndex) => {
+				item.dataset.status =
+					index >= 0 && itemIndex <= index ? "active" : "inactive";
+				item.toggleAttribute("data-current", itemIndex === index);
+				item.toggleAttribute("data-previous", itemIndex === index - 1);
+				item.toggleAttribute("data-next", itemIndex === index + 1);
+			});
+		};
+
+		const updateFromScroll = (self: ScrollTrigger) => {
+			const reached = self.isActive || self.progress >= 1;
+			let index = reached ? 0 : -1;
+			if (reached) {
+				anchorFractions.forEach((fraction, itemIndex) => {
+					if (self.progress + 0.0001 >= fraction) index = itemIndex;
+				});
+			}
+			setCurrentIndex(index);
+		};
+
+		setCurrentIndex(-1);
+		gsap.set(fill, { transformOrigin: "top", scaleY: 0 });
+
+		const media = gsap.matchMedia();
+		media.add("(prefers-reduced-motion: no-preference)", () => {
+			measureLine();
+			ScrollTrigger.addEventListener("refreshInit", measureLine);
+
+			const tween =
+				items.length > 1
+					? gsap.fromTo(
+							fill,
+							{ scaleY: 0 },
+							{
+								scaleY: 1,
+								ease: "none",
+								scrollTrigger: {
+									trigger: line,
+									start: `top ${activationPercent}%`,
+									end: `bottom ${activationPercent}%`,
+									scrub: true,
+									onUpdate: updateFromScroll,
+									onToggle: updateFromScroll,
+									onRefresh: updateFromScroll,
+								},
+							},
+						)
+					: undefined;
+			if (items.length === 1) setCurrentIndex(0);
+
+			const refresh = () => ScrollTrigger.refresh();
+			window.addEventListener("load", refresh);
+			document.fonts?.ready.then(refresh);
+
+			return () => {
+				window.removeEventListener("load", refresh);
+				ScrollTrigger.removeEventListener("refreshInit", measureLine);
+				tween?.kill();
+			};
+		});
+
+		media.add("(prefers-reduced-motion: reduce)", () => {
+			measureLine();
+			gsap.set(fill, { scaleY: 1 });
+			setCurrentIndex(lastIndex);
+		});
+
+		timelineCleanup = () => media.revert();
+	}
+
 	function setupForumPreviews() {
 		killForumPreviews();
 
@@ -823,9 +952,9 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 			gsap.set(preview, { autoAlpha: 0 });
 			gsap.set(image, {
 				autoAlpha: 0,
-				scale: reduced.matches ? 1 : 0.94,
-				y: reduced.matches ? 0 : 10,
-				filter: reduced.matches ? "none" : "blur(4px)",
+				scale: reduced.matches ? 1 : 0.97,
+				y: reduced.matches ? 0 : 6,
+				filter: reduced.matches ? "none" : "blur(2px)",
 				transformOrigin: "18% 100%",
 			});
 
@@ -872,16 +1001,16 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 					image,
 					{
 						autoAlpha: 0,
-						scale: 0.94,
-						y: 10,
-						filter: "blur(4px)",
+						scale: 0.97,
+						y: 6,
+						filter: "blur(2px)",
 					},
 					{
 						autoAlpha: 1,
 						scale: 1,
 						y: 0,
 						filter: "blur(0px)",
-						duration: 0.42,
+						duration: 0.2,
 						ease: "power3.out",
 						overwrite: true,
 					},
@@ -980,5 +1109,6 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	document.addEventListener("astro:before-swap", () => {
 		killTriggers();
 		killForumPreviews();
+		killTimeline();
 	});
 </script>

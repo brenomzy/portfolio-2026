@@ -1,0 +1,735 @@
+---
+import type { AboutValue } from "../lib/about";
+
+interface Props {
+	values: AboutValue[];
+}
+
+const { values } = Astro.props;
+
+const visuals = [
+	{
+		kind: "motion",
+		src: "/about/approach/motion-v2.webp",
+		alt: "Geometric motion path showing a square moving through a deliberate arc",
+	},
+	{
+		kind: "layouts",
+		src: "/about/approach/layouts-v2.webp",
+		alt: "Geometric responsive layout diagram translating a desktop grid into mobile",
+	},
+	{
+		kind: "performance",
+		src: "/about/approach/performance-v2.webp",
+		alt: "Geometric performance diagram resolving a complex network into one direct route",
+	},
+] as const;
+---
+
+<section class="c-approach-tabs js-about-reveal" data-reveal aria-labelledby="approach-title">
+	<div class="c-approach-tabs__intro">
+		<h2 class="c-approach-tabs__heading" id="approach-title">
+			Motion should guide. Layouts should survive real content. Performance should
+			be built in from the start.
+		</h2>
+		<p class="c-approach-tabs__intro-body">
+			The work is only finished when it holds up in the browser: clear to use,
+			flexible enough for what actually ships, and fast where it matters.
+		</p>
+	</div>
+
+	<div
+		class="c-approach-tabs__layout"
+		data-tabs="wrapper"
+		data-tabs-autoplay="true"
+		data-tabs-autoplay-duration="6000"
+	>
+		<div class="c-approach-tabs__content-col">
+			<div class="c-approach-tabs__content-inner">
+				<div class="c-approach-tabs__list" role="tablist" aria-label="Working principles">
+					{
+						values.map((value, index) => (
+							<button
+								class="c-approach-tabs__item"
+								type="button"
+								role="tab"
+								id={`approach-tab-${index + 1}`}
+								aria-controls={`approach-panel-${index + 1}`}
+								aria-selected={index === 0 ? "true" : "false"}
+								tabindex={index === 0 ? 0 : -1}
+								data-tabs="content-item"
+							>
+								<span class="c-approach-tabs__item-main">
+									<span class="c-approach-tabs__number">{value.no}</span>
+									<span class="c-approach-tabs__item-title">{value.title}</span>
+								</span>
+								<span class="c-approach-tabs__details" data-tabs="item-details">
+									<span class="c-approach-tabs__description">{value.body}</span>
+								</span>
+								<span class="c-approach-tabs__track" aria-hidden="true">
+									<span class="c-approach-tabs__progress" data-tabs="item-progress" />
+								</span>
+							</button>
+						))
+					}
+				</div>
+			</div>
+		</div>
+
+		<div class="c-approach-tabs__visual-col">
+			<div class="c-approach-tabs__visual-wrap" aria-live="polite">
+				{
+					visuals.map((visual, index) => (
+						<div
+							class:list={["c-approach-tabs__visual-item", { active: index === 0 }]}
+							id={`approach-panel-${index + 1}`}
+							role="tabpanel"
+							aria-labelledby={`approach-tab-${index + 1}`}
+							aria-hidden={index === 0 ? "false" : "true"}
+							data-tabs="visual-item"
+						>
+							<div class="c-approach-tabs__visual-inner">
+								<img
+									class="c-approach-tabs__media c-approach-tabs__media--illustration"
+									src={visual.src}
+									alt={visual.alt}
+									loading={index === 0 ? "eager" : "lazy"}
+									decoding="async"
+								/>
+								<span
+									class:list={[
+										"c-approach-tabs__accent",
+										`c-approach-tabs__accent--${visual.kind}`,
+									]}
+									aria-hidden="true"
+								/>
+							</div>
+						</div>
+					))
+				}
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.c-approach-tabs {
+		width: 100%;
+		max-width: var(--about-section-width, 70rem);
+		margin-inline: auto;
+	}
+
+	.c-approach-tabs__intro {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		row-gap: var(--spacing-l);
+		margin-bottom: var(--spacing-xl);
+	}
+
+	.c-approach-tabs__heading {
+		grid-column: 1 / -1;
+		max-width: none;
+		font-size: var(--text-step-4);
+		line-height: 1.06;
+		text-wrap: balance;
+	}
+
+	.c-approach-tabs__intro-body {
+		grid-column: 8 / -1;
+		max-width: 40ch;
+		color: var(--text-muted);
+		font-size: var(--text-step-0);
+		text-wrap: pretty;
+	}
+
+	.c-approach-tabs__layout {
+		display: grid;
+		grid-template-columns: minmax(18rem, 0.8fr) minmax(0, 1.2fr);
+		gap: var(--spacing-xl);
+		align-items: stretch;
+	}
+
+	.c-approach-tabs__content-inner {
+		display: flex;
+		min-height: 100%;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: var(--spacing-l);
+	}
+
+	.c-approach-tabs__list {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.c-approach-tabs__item {
+		position: relative;
+		display: block;
+		width: 100%;
+		padding: var(--spacing-s) 0;
+		appearance: none;
+		border: 0;
+		background: transparent;
+		color: var(--text);
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+		transition-property: color, scale;
+		transition-duration: 0.25s, 0.15s;
+		transition-timing-function: var(--ease-default), var(--ease-out-expo);
+	}
+
+	.c-approach-tabs__item:active {
+		scale: 0.96;
+	}
+
+	.c-approach-tabs__item:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 0.35rem;
+		border-radius: var(--radius-sm);
+	}
+
+	.c-approach-tabs__item-main {
+		display: grid;
+		grid-template-columns: 2.5rem minmax(0, 1fr);
+		gap: var(--spacing-s);
+		align-items: start;
+	}
+
+	.c-approach-tabs__number {
+		display: grid;
+		width: 2.5rem;
+		height: 2.5rem;
+		place-items: center;
+		border-radius: 999px;
+		background: var(--surface-raised);
+		box-shadow: 0 0 0 1px var(--border);
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		font-variant-numeric: tabular-nums;
+		transition-property: color, background-color, box-shadow, transform;
+		transition-duration: 0.3s;
+		transition-timing-function: var(--ease-default);
+	}
+
+	.c-approach-tabs__item-title {
+		padding-top: 0.32rem;
+		font-family: var(--font-heading);
+		font-size: var(--text-step-1);
+		font-weight: 600;
+		line-height: 1.1;
+		text-wrap: balance;
+	}
+
+	.c-approach-tabs__item.active .c-approach-tabs__number {
+		color: var(--bg);
+		background: var(--text);
+		box-shadow: 0 0 0 1px var(--text);
+		transform: rotate(-5deg);
+	}
+
+	.c-approach-tabs__details {
+		display: block;
+		height: 0;
+		padding-left: calc(2.5rem + var(--spacing-s));
+		overflow: hidden;
+	}
+
+	.c-approach-tabs__description {
+		display: block;
+		max-width: 39ch;
+		padding-top: var(--spacing-xs);
+		padding-bottom: var(--spacing-2xs);
+		color: var(--text-muted);
+		font-size: var(--text-step--1);
+		line-height: 1.5;
+		text-wrap: pretty;
+	}
+
+	.c-approach-tabs__track {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		height: 1px;
+		background: var(--border);
+		overflow: hidden;
+	}
+
+	.c-approach-tabs__progress {
+		display: block;
+		width: 100%;
+		height: 100%;
+		background: var(--accent);
+		transform: scaleX(0);
+		transform-origin: left center;
+	}
+
+	.c-approach-tabs__visual-col {
+		min-width: 0;
+	}
+
+	.c-approach-tabs__visual-wrap {
+		position: sticky;
+		top: var(--spacing-m);
+		aspect-ratio: 3 / 2;
+		min-height: 28rem;
+	}
+
+	.c-approach-tabs__visual-item {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		visibility: hidden;
+	}
+
+	.c-approach-tabs__visual-item.active,
+	.c-approach-tabs__visual-item.is-leaving {
+		visibility: visible;
+	}
+
+	.c-approach-tabs__visual-item.active {
+		z-index: 2;
+	}
+
+	.c-approach-tabs__visual-item.is-leaving {
+		z-index: 1;
+	}
+
+	.c-approach-tabs__visual-inner {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		padding: 0;
+		border-radius: var(--radius-lg);
+		background: #fff;
+		box-shadow: 0 0 0 1px var(--border);
+		overflow: hidden;
+	}
+
+	.c-approach-tabs__media {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border-radius: inherit;
+		background: #fff;
+		object-fit: cover;
+		object-position: center;
+		outline: 1px solid rgb(0 0 0 / 0.1);
+		outline-offset: -1px;
+	}
+
+	:global([data-theme="dark"]) .c-approach-tabs__media {
+		outline-color: rgb(255 255 255 / 0.1);
+	}
+
+	.c-approach-tabs__media--illustration {
+		transition-property: filter;
+		transition-duration: 0.35s;
+		transition-timing-function: var(--ease-default);
+	}
+
+	:global([data-theme="dark"]) .c-approach-tabs__visual-inner {
+		background: #000;
+	}
+
+	:global([data-theme="dark"]) .c-approach-tabs__media--illustration {
+		filter: invert(1) hue-rotate(180deg) brightness(0.94) contrast(1.04);
+	}
+
+	.c-approach-tabs__accent {
+		position: absolute;
+		z-index: 3;
+		display: block;
+		background: var(--accent);
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent), transparent 35%);
+		pointer-events: none;
+	}
+
+	.c-approach-tabs__accent--motion {
+		top: 50.3%;
+		left: 83.4%;
+		width: 5.85%;
+		aspect-ratio: 1;
+		transform: translate(-50%, -50%);
+		border-radius: 1px;
+	}
+
+	.c-approach-tabs__accent--layouts {
+		top: 9.1%;
+		left: 4.25%;
+		width: 1.95%;
+		aspect-ratio: 1.55;
+		border-radius: 1px;
+	}
+
+	.c-approach-tabs__accent--performance {
+		top: 51.05%;
+		left: 88.5%;
+		width: 3.15%;
+		aspect-ratio: 1;
+		transform: translate(-50%, -50%);
+		border-radius: 999px;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.c-approach-tabs__item:not(.active):hover .c-approach-tabs__number {
+			color: var(--accent-ink);
+			transform: rotate(-3deg);
+		}
+	}
+
+	@media (max-width: 60rem) {
+		.c-approach-tabs__intro {
+			grid-template-columns: 1fr;
+			margin-bottom: var(--spacing-l);
+		}
+
+		.c-approach-tabs__heading,
+		.c-approach-tabs__intro-body {
+			grid-column: 1;
+		}
+
+		.c-approach-tabs__heading {
+			max-width: none;
+			font-size: var(--text-step-3);
+		}
+
+		.c-approach-tabs__layout {
+			grid-template-columns: 1fr;
+			gap: var(--spacing-l);
+		}
+
+		.c-approach-tabs__content-inner {
+			gap: var(--spacing-m);
+		}
+
+		.c-approach-tabs__visual-wrap {
+			position: relative;
+			top: auto;
+			min-height: 0;
+		}
+	}
+
+	@media (max-width: 36rem) {
+		.c-approach-tabs__visual-wrap {
+			aspect-ratio: 3 / 2;
+		}
+
+		.c-approach-tabs__visual-inner {
+			padding: 0;
+			border-radius: var(--radius-md);
+		}
+
+		.c-approach-tabs__media {
+			border-radius: var(--radius-md);
+		}
+
+		.c-approach-tabs__item-main {
+			grid-template-columns: 2.25rem minmax(0, 1fr);
+			gap: var(--spacing-xs);
+		}
+
+		.c-approach-tabs__number {
+			width: 2.25rem;
+			height: 2.25rem;
+		}
+
+		.c-approach-tabs__details {
+			padding-left: calc(2.25rem + var(--spacing-xs));
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.c-approach-tabs__item,
+		.c-approach-tabs__number {
+			transition: none;
+		}
+
+		.c-approach-tabs__progress {
+			display: none;
+		}
+	}
+</style>
+
+<script>
+	import { gsap } from "gsap";
+	import { CustomEase } from "gsap/CustomEase";
+
+	gsap.registerPlugin(CustomEase);
+
+	const EASE_MOVE =
+		CustomEase.get("brand-in-out") ??
+		CustomEase.create("brand-in-out", "0.7,0,0.3,1");
+
+	let tabCleanups: Array<() => void> = [];
+
+	function destroyTabSystems() {
+		tabCleanups.forEach((cleanup) => cleanup());
+		tabCleanups = [];
+	}
+
+	function initTabSystem() {
+		destroyTabSystems();
+
+		const wrappers = gsap.utils.toArray<HTMLElement>('[data-tabs="wrapper"]');
+		wrappers.forEach((wrapper) => {
+			const contentItems = gsap.utils.toArray<HTMLButtonElement>(
+				wrapper.querySelectorAll('[data-tabs="content-item"]'),
+			);
+			const visualItems = gsap.utils.toArray<HTMLElement>(
+				wrapper.querySelectorAll('[data-tabs="visual-item"]'),
+			);
+			if (!contentItems.length || contentItems.length !== visualItems.length) return;
+
+			const autoplay = wrapper.dataset.tabsAutoplay === "true";
+			const autoplayDuration = Number.parseInt(
+				wrapper.dataset.tabsAutoplayDuration ?? "5000",
+				10,
+			);
+			const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+			let activeIndex = 0;
+			let isInView = false;
+			let interactionPaused = false;
+			let progressTween: gsap.core.Tween | null = null;
+			let switchTimeline: gsap.core.Timeline | null = null;
+
+			const detailsAt = (index: number) =>
+				contentItems[index]?.querySelector<HTMLElement>('[data-tabs="item-details"]');
+			const descriptionAt = (index: number) =>
+				contentItems[index]?.querySelector<HTMLElement>(".c-approach-tabs__description");
+			const progressAt = (index: number) =>
+				contentItems[index]?.querySelector<HTMLElement>('[data-tabs="item-progress"]');
+
+			function settle(index: number) {
+				contentItems.forEach((item, itemIndex) => {
+					const isActive = itemIndex === index;
+					item.classList.toggle("active", isActive);
+					item.setAttribute("aria-selected", String(isActive));
+					item.tabIndex = isActive ? 0 : -1;
+
+					const details = detailsAt(itemIndex);
+					const description = descriptionAt(itemIndex);
+					const progress = progressAt(itemIndex);
+					if (details) gsap.set(details, { height: isActive ? "auto" : 0 });
+					if (description) gsap.set(description, { autoAlpha: 1, y: 0 });
+					if (progress) gsap.set(progress, { scaleX: 0, transformOrigin: "left center" });
+				});
+
+				visualItems.forEach((visual, visualIndex) => {
+					const isActive = visualIndex === index;
+					visual.classList.toggle("active", isActive);
+					visual.classList.remove("is-leaving");
+					visual.setAttribute("aria-hidden", String(!isActive));
+					visual.toggleAttribute("inert", !isActive);
+					gsap.set(visual, {
+						autoAlpha: isActive ? 1 : 0,
+						xPercent: 0,
+						scale: 1,
+					});
+				});
+
+				activeIndex = index;
+			}
+
+			function canAutoAdvance() {
+				return (
+					autoplay &&
+					!reduced.matches &&
+					isInView &&
+					!interactionPaused &&
+					document.visibilityState === "visible"
+				);
+			}
+
+			function startProgressBar(index: number) {
+				progressTween?.kill();
+				progressTween = null;
+
+				const bar = progressAt(index);
+				if (!bar) return;
+				gsap.set(bar, { scaleX: 0, transformOrigin: "left center" });
+				if (!canAutoAdvance()) return;
+
+				progressTween = gsap.to(bar, {
+					scaleX: 1,
+					duration: autoplayDuration / 1000,
+					ease: "none",
+					onComplete: () => switchTab((index + 1) % contentItems.length),
+				});
+			}
+
+			function updatePlayback() {
+				if (canAutoAdvance()) {
+					if (progressTween) progressTween.resume();
+					else startProgressBar(activeIndex);
+				} else {
+					progressTween?.pause();
+				}
+			}
+
+			function switchTab(index: number) {
+				if (index < 0 || index >= contentItems.length || index === activeIndex) return;
+
+				if (switchTimeline) {
+					switchTimeline.kill();
+					switchTimeline = null;
+					settle(activeIndex);
+				}
+
+				progressTween?.kill();
+				progressTween = null;
+
+				const outgoingIndex = activeIndex;
+				const outgoingContent = contentItems[outgoingIndex];
+				const outgoingVisual = visualItems[outgoingIndex];
+				const outgoingDetails = detailsAt(outgoingIndex);
+				const outgoingDescription = descriptionAt(outgoingIndex);
+				const incomingContent = contentItems[index];
+				const incomingVisual = visualItems[index];
+				const incomingDetails = detailsAt(index);
+				const incomingDescription = descriptionAt(index);
+				const direction =
+					(index - outgoingIndex + contentItems.length) % contentItems.length === 1 ? 1 : -1;
+
+				activeIndex = index;
+				contentItems.forEach((item, itemIndex) => {
+					const isActive = itemIndex === index;
+					item.classList.toggle("active", isActive);
+					item.setAttribute("aria-selected", String(isActive));
+					item.tabIndex = isActive ? 0 : -1;
+				});
+
+				outgoingVisual.classList.add("is-leaving");
+				incomingVisual.classList.add("active");
+				incomingVisual.removeAttribute("inert");
+				incomingVisual.setAttribute("aria-hidden", "false");
+				outgoingContent.classList.remove("active");
+				incomingContent.classList.add("active");
+
+				if (reduced.matches) {
+					settle(index);
+					startProgressBar(index);
+					return;
+				}
+
+				switchTimeline = gsap.timeline({
+					defaults: { ease: EASE_MOVE },
+					onComplete: () => {
+						switchTimeline = null;
+						settle(index);
+						startProgressBar(index);
+					},
+				});
+
+				if (outgoingDetails) {
+					switchTimeline.to(outgoingDetails, { height: 0, duration: 0.28 }, 0);
+				}
+				if (outgoingDescription) {
+					switchTimeline.to(
+						outgoingDescription,
+						{ autoAlpha: 0, y: -8, duration: 0.24 },
+						0,
+					);
+				}
+				if (incomingDetails) {
+					switchTimeline.fromTo(
+						incomingDetails,
+						{ height: 0 },
+						{ height: "auto", duration: 0.28, immediateRender: false },
+						0,
+					);
+				}
+				if (incomingDescription) {
+					switchTimeline.fromTo(
+						incomingDescription,
+						{ autoAlpha: 0, y: 12 },
+						{ autoAlpha: 1, y: 0, duration: 0.24, immediateRender: false },
+						0.06,
+					);
+				}
+				switchTimeline
+					.to(
+						outgoingVisual,
+						{ autoAlpha: 0, xPercent: direction * -2, scale: 0.985, duration: 0.28 },
+						0,
+					)
+					.fromTo(
+						incomingVisual,
+						{ autoAlpha: 0, xPercent: direction * 3, scale: 0.985 },
+						{
+							autoAlpha: 1,
+							xPercent: 0,
+							scale: 1,
+							duration: 0.28,
+							immediateRender: false,
+						},
+						0,
+					);
+			}
+
+			function pauseForInteraction() {
+				interactionPaused = true;
+				updatePlayback();
+			}
+
+			function resumeAfterInteraction() {
+				interactionPaused = wrapper.matches(":hover") || wrapper.contains(document.activeElement);
+				updatePlayback();
+			}
+
+			function handleVisibilityChange() {
+				updatePlayback();
+			}
+
+			contentItems.forEach((item, index) => {
+				item.addEventListener("click", () => switchTab(index));
+				item.addEventListener("keydown", (event) => {
+					if (!["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+					event.preventDefault();
+
+					let nextIndex = index;
+					if (event.key === "Home") nextIndex = 0;
+					else if (event.key === "End") nextIndex = contentItems.length - 1;
+					else if (event.key === "ArrowDown" || event.key === "ArrowRight")
+						nextIndex = (index + 1) % contentItems.length;
+					else nextIndex = (index - 1 + contentItems.length) % contentItems.length;
+
+					contentItems[nextIndex].focus();
+					switchTab(nextIndex);
+				});
+			});
+
+			wrapper.addEventListener("pointerenter", pauseForInteraction);
+			wrapper.addEventListener("pointerleave", resumeAfterInteraction);
+			wrapper.addEventListener("focusin", pauseForInteraction);
+			wrapper.addEventListener("focusout", resumeAfterInteraction);
+			document.addEventListener("visibilitychange", handleVisibilityChange);
+
+			const observer = new IntersectionObserver(
+				([entry]) => {
+					isInView = entry.isIntersecting;
+					updatePlayback();
+				},
+				{ threshold: 0.25 },
+			);
+			observer.observe(wrapper);
+
+			settle(0);
+
+			tabCleanups.push(() => {
+				observer.disconnect();
+				progressTween?.kill();
+				switchTimeline?.kill();
+				wrapper.removeEventListener("pointerenter", pauseForInteraction);
+				wrapper.removeEventListener("pointerleave", resumeAfterInteraction);
+				wrapper.removeEventListener("focusin", pauseForInteraction);
+				wrapper.removeEventListener("focusout", resumeAfterInteraction);
+				document.removeEventListener("visibilitychange", handleVisibilityChange);
+			});
+		});
+	}
+
+	document.addEventListener("astro:page-load", initTabSystem);
+	document.addEventListener("astro:before-swap", destroyTabSystems);
+</script>

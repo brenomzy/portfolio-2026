@@ -36,7 +36,13 @@ button hover flood), never body text or large fields.
 
 **Geist Sans** everywhere. Fluid scale `--text-step--1 … 6` via `clamp()`
 (320 → 1240px). **Archivo Black** is loaded as a display face for the footer
-wordmark only.
+wordmark only. **Geist Pixel Square** is self-hosted for the reusable
+`c-meta-label` component label: `9px`, `600`, uppercase, `0.14em` tracking.
+It is decorative metadata inside an established card or component, never a
+section introduction.
+
+**No section eyebrows.** Section hierarchy comes from the heading, composition,
+spacing, and copy. Do not place a small label above a section heading.
 
 > **Geist Mono dropped.** `--font-mono` now resolves to a *system* mono stack;
 > the Geist Mono webfont import was removed since nothing uses it (the footer meta
@@ -544,9 +550,8 @@ layer at the reveal seam. (We tried a border-radius on the seam too — removed;
 shadow alone reads cleaner and more premium.)
 
 **Contact card (top row).**
-- **Desktop:** lead (eyebrow → headline → white `Get in touch` button, the `primary`
-  variant) on the left; meta column (socials, location) **right-aligned and
-  bottom-aligned** to the button baseline.
+- **Desktop:** headline, supporting copy, and white `Get in touch` button (the
+  `primary` variant), with socials below.
 - Socials render inline as `LinkedIn / X` (hairline `/` separator), real URLs,
   `target="_blank" rel="me noopener"`.
 - **Mobile (< 40rem):** the row stacks to a column, **everything left-aligned**

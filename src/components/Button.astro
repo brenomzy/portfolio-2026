@@ -17,6 +17,8 @@
  * Buttons are theme-independent objects (constant paper/ink), each self-defined
  * by a faint border so it stays legible on any background in either theme.
  */
+import { Download } from "@lucide/astro";
+
 interface Props {
 	label: string;
 	href?: string;
@@ -24,7 +26,7 @@ interface Props {
 	type?: "button" | "submit" | "reset";
 	/* Append the external-link arrow (Phosphor "arrow-up-right", bold-faked with a
 	 * stroke like the theme toggle). Pairs with variant="link" for a tertiary CTA. */
-	icon?: boolean;
+	icon?: boolean | "external" | "download";
 	class?: string;
 	[key: string]: unknown;
 }
@@ -55,7 +57,9 @@ const Tag = href ? "a" : "button";
 	</span>
 	<span class="c-button__label">
 		{label}
-		{
+		{icon === "download" ? (
+			<Download class="c-button__icon" size={16} strokeWidth={2} aria-hidden="true" />
+		) : (
 			icon && (
 				<svg
 					class="c-button__icon"
@@ -69,7 +73,7 @@ const Tag = href ? "a" : "button";
 					<path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z" />
 				</svg>
 			)
-		}
+		)}
 	</span>
 </Tag>
 
@@ -211,6 +215,10 @@ const Tag = href ? "a" : "button";
 		z-index: 1;
 		padding: var(--btn-padding);
 		text-align: center;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.55em;
 		transition: color 0.4s var(--btn-ease);
 		transition-delay: 0.08s;
 	}
@@ -286,18 +294,17 @@ const Tag = href ? "a" : "button";
 		display: none;
 	}
 	.c-button[data-variant="link"] .c-button__label {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.55em;
 		/* Overridable so the link adapts to its surface — defaults to the theme
 		 * text colour (modal), the footer sets it to the footer foreground. */
 		color: var(--btn-link-color, var(--text));
 		transition: color 0.25s var(--btn-ease);
 	}
-	.c-button[data-variant="link"] .c-button__icon {
+	.c-button__icon {
 		width: 1.05em;
 		height: 1.05em;
 		flex: none;
+	}
+	.c-button[data-variant="link"] .c-button__icon {
 		transition: transform 0.3s var(--btn-ease);
 	}
 	@media (hover: hover) and (pointer: fine) {

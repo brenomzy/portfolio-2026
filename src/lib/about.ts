@@ -25,6 +25,8 @@ export interface ExperienceItem {
 	url?: string;
 	/** Optional location / arrangement, e.g. "New York · Remote". */
 	note?: string;
+	/** Short narrative used by the experience timeline. */
+	description: string;
 }
 
 export interface Tool {
@@ -158,10 +160,34 @@ export const ABOUT = {
 
 	/* Real history, from the résumé. */
 	experience: [
-		{ period: "2025 – Now", role: "Senior Webflow Developer", org: "BX Studio", note: "New York · Remote" },
-		{ period: "2023 – 2025", role: "Webflow Developer", org: "Finsweet", note: "Remote" },
-		{ period: "2022 – 2023", role: "Senior UX/UI Designer", org: "Promob", note: "Caxias do Sul · Remote" },
-		{ period: "2020 – 2022", role: "UX/UI Designer", org: "Thes Sistemas Eclesiais", note: "Maringá, BR" },
+		{
+			period: "2025 – Now",
+			role: "Senior Webflow Developer",
+			org: "BX Studio",
+			note: "New York · Remote",
+			description: "Leading high-fidelity Webflow builds, with reusable component systems and GSAP interactions that stay fast, responsive, and easy to maintain.",
+		},
+		{
+			period: "2023 – 2025",
+			role: "Webflow Developer",
+			org: "Finsweet",
+			note: "Remote",
+			description: "Built precise, scalable client sites with structured class systems, flexible CMS architecture, and custom JavaScript where Webflow needed to go further.",
+		},
+		{
+			period: "2022 – 2023",
+			role: "Senior UX/UI Designer",
+			org: "Promob",
+			note: "Caxias do Sul · Remote",
+			description: "Designed product interfaces from early wireframes through polished UI, strengthening reusable patterns and keeping design and development closely aligned.",
+		},
+		{
+			period: "2020 – 2022",
+			role: "UX/UI Designer",
+			org: "Theòs Sistemas Eclesiais",
+			note: "Maringá, BR",
+			description: "Turned complex web-system workflows into clearer interfaces, iterating with users and developers to make everyday tasks simpler and more consistent.",
+		},
 	] as ExperienceItem[],
 
 	contact: {

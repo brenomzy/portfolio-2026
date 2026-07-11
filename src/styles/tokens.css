@@ -20,8 +20,8 @@
 :root {
 	color-scheme: light;
 
-	/* Surfaces — warm light cream to pair with the orange accent. */
-	--bg: #f7f6f0;
+	/* Surfaces — neutral light-grey page with warm raised surfaces. */
+	--bg: #f4f4f4;
 	--surface: hsl(36 34% 91%);
 	--surface-raised: hsl(42 52% 97%);
 
@@ -113,7 +113,7 @@
 	--logo-grad-2: #294e9e;
 
 	/* Contrast band flips to the LIGHT palette on dark mode (mirrors light :root). */
-	--contrast-bg: #f7f6f0;
+	--contrast-bg: #f4f4f4;
 	--contrast-text: hsl(24 16% 12%);
 	--contrast-muted: hsl(26 10% 38%);
 }
@@ -143,6 +143,7 @@
 	--font-heading: "Manrope Variable", "Geist Variable", ui-sans-serif, system-ui,
 		-apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	--font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+	--font-pixel: "Geist Pixel Square", "Geist Mono", ui-monospace, monospace;
 
 	/* Fluid type scale (~minor-third → major-third, 320px → 1240px viewport).
 	 * Utilities: text-step--1 … text-step-6 */

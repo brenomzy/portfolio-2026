@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
+@font-face {
+	font-family: "Geist Pixel Square";
+	src: url("/fonts/GeistPixel-Square.woff2") format("woff2");
+	font-display: swap;
+	font-style: normal;
+	font-weight: 500;
+}
+
 /*
  * Base layer — minimal reset + element defaults wired to design tokens.
  * Component-level styling lives in scoped .astro <style> blocks (BEM, c- prefix).
@@ -18,6 +26,7 @@
 
 	html {
 		-webkit-text-size-adjust: 100%;
+		overflow-x: clip;
 		scroll-behavior: smooth;
 		/* Offset in-page anchor jumps (e.g. #work) for the 3.5rem sticky header
 		 * (see SiteHeader.astro) so targets land below it, not under it. */
@@ -91,6 +100,18 @@
 			scroll-behavior: auto !important;
 		}
 	}
+}
+
+/* Reusable component-level metadata label. It labels content inside an
+ * established component or surface and must never introduce a section. */
+.c-meta-label {
+	font-family: var(--font-pixel);
+	font-size: 0.5625rem;
+	font-weight: 600;
+	line-height: 1.2;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--text-muted);
 }
 
 /* ----------------------------------------------------------------------------

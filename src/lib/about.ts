@@ -109,7 +109,8 @@ export const ABOUT = {
 
 	/* "My background" / story. */
 	background: [
-		"It started in 2002 with a Pokémon fan site. I was a kid who just wanted a page on the internet, so I taught myself enough HTML to put one together. It was rough, but it was mine, and that was it. I was hooked.",
+		"It started in 2002 with a Pokémon fan site.",
+		"I was a kid who just wanted a page on the internet, so I taught myself enough HTML to put one together. It was rough, but it was mine, and that was it. I was hooked.",
 		"Photoshop pulled me in next. I spent years on design forums back then, posting work, soaking up critique, slowly figuring out what made something look good and why. That habit of jumping between building and designing never really left me.",
 		"Since then I've worked as a front-end developer and a UX/UI designer. These days my day job at BX Studio is Webflow development, building marketing and product sites. The design side still scratches an itch, so I keep it alive in personal projects where I get to own the whole thing, layout to code.",
 	],

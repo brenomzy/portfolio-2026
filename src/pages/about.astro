@@ -32,9 +32,30 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 
 		<!-- Background ------------------------------------------------------- -->
 		<section class="about__background">
-			<p class="about__background-lead js-about-reveal" data-reveal>
-				{ABOUT.background[0]}
-			</p>
+			<div class="about__background-story">
+				<p class="about__background-lead js-about-reveal" data-reveal>
+					{ABOUT.background[0]}
+				</p>
+
+				<figure class="about__relic js-about-reveal" data-reveal>
+					<div class="about__relic-bar" aria-hidden="true">
+						<span class="about__relic-dots"><i></i><i></i><i></i></span>
+						<span class="about__relic-url">http://www.pokeloukos.cjb.net</span>
+					</div>
+					<div class="about__relic-screen">
+						<iframe
+							class="about__relic-frame"
+							src="/about/pokeloukos/index.html"
+							title="Poké Loukos v2.0 — the Pokémon fan site I built in 2004"
+							loading="lazy"
+							scrolling="no"
+						></iframe>
+					</div>
+					<figcaption class="about__relic-cap">
+						My 2004 Pokémon fan site, rebuilt from the Internet Archive.
+					</figcaption>
+				</figure>
+			</div>
 			<div class="about__background-chapters">
 				{
 					ABOUT.background.slice(1).map((para) => {
@@ -76,38 +97,30 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 						);
 					})
 				}
+				<figure class="about__relics js-about-reveal" data-reveal>
+					<div class="about__relics-grid">
+						<img
+							src="/about/relics/relic1.webp"
+							alt="A PixelForge graphic-design community forum layout"
+							loading="lazy"
+						/>
+						<img
+							src="/about/relics/relic2.webp"
+							alt="A customized digital-art community profile layout"
+							loading="lazy"
+						/>
+						<img
+							src="/about/relics/relic3.webp"
+							alt="A dark gaming-clan community website layout"
+							loading="lazy"
+						/>
+					</div>
+					<figcaption>
+						The kinds of community sites, profiles, and clan pages we made for each
+						other back then.
+					</figcaption>
+				</figure>
 			</div>
-		</section>
-
-		<!-- The relic: my actual 2004 site, rebuilt from the Internet Archive --->
-		<section class="about__artifact" aria-labelledby="artifact-title">
-			<div class="about__artifact-copy js-about-reveal" data-reveal>
-				<h2 class="about__artifact-title" id="artifact-title">The site that started it.</h2>
-				<p class="about__artifact-body">
-					Poké Loukos v2.0 was the Pokémon fan site I built in 2004. I rebuilt it
-					from the Internet Archive here, keeping the original pixels, awkward
-					choices, and all.
-				</p>
-			</div>
-
-			<figure class="about__relic js-about-reveal" data-reveal>
-				<div class="about__relic-bar" aria-hidden="true">
-					<span class="about__relic-dots"><i></i><i></i><i></i></span>
-					<span class="about__relic-url">http://www.pokeloukos.cjb.net</span>
-				</div>
-				<div class="about__relic-screen">
-					<iframe
-						class="about__relic-frame"
-						src="/about/pokeloukos/index.html"
-						title="Poké Loukos v2.0 — the Pokémon fan site I built in 2004"
-						loading="lazy"
-						scrolling="no"
-					></iframe>
-				</div>
-				<figcaption class="about__relic-cap">
-					A working preview of the original 2004 layout.
-				</figcaption>
-			</figure>
 		</section>
 
 		<!-- Experience ------------------------------------------------------- -->
@@ -132,7 +145,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 				</div>
 			<ol class="about__timeline">
 				{
-					ABOUT.experience.map((e, index) => (
+					ABOUT.experience.toReversed().map((e, index) => (
 						<li class="about__exp" data-step-timeline-item>
 							<div class="about__exp-marker" data-step-timeline-marker aria-hidden="true">
 								<span>{String(index + 1).padStart(2, "0")}</span>
@@ -223,7 +236,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 
 <style>
 	.about {
-		--about-section-width: 70rem;
+		--about-section-width: var(--container-content);
 		max-width: var(--container-content);
 		margin-inline: auto;
 		padding-inline: var(--spacing-m);
@@ -232,31 +245,38 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		 * implicit column is max-content-sized by the horizontally-scrolling photo
 		 * strip, blowing the whole page out and breaking its overflow-x scroll. */
 		grid-template-columns: minmax(0, 1fr);
-		gap: var(--spacing-3xl);
+		gap: clamp(4.75rem, 4.1rem + 3.2vw, 7rem);
 	}
 
 	/* ── Intro ─────────────────────────────────────────────────────────── */
 	.about__hero {
+		width: 100%;
+		max-width: var(--about-section-width);
+		margin-inline: auto;
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-		gap: var(--spacing-xl);
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+		gap: clamp(2.5rem, 1.7rem + 3vw, 4.5rem);
 		align-items: center;
 		padding-top: var(--spacing-2xl);
 	}
 	.about__intro {
 		display: grid;
-		gap: var(--spacing-s);
-		max-width: 38rem;
+		gap: var(--spacing-xs);
+		max-width: 42rem;
 	}
 	.about__title {
-		font-size: var(--text-step-3);
-		max-width: 22ch;
+		font-size: clamp(2.1rem, 1.85rem + 0.9vw, 2.5rem);
+		line-height: 1.08;
+		letter-spacing: -0.03em;
+		max-width: 27ch;
 		text-wrap: balance;
 	}
 	.about__intro-body {
-		font-size: var(--text-step-1);
+		margin-top: var(--spacing-2xs);
+		font-size: clamp(1.125rem, 1.03rem + 0.42vw, 1.35rem);
+		line-height: 1.5;
 		color: var(--text-muted);
-		max-width: 46ch;
+		max-width: 40ch;
 		text-wrap: pretty;
 	}
 	.about__tenure {
@@ -278,32 +298,74 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		margin-inline: auto;
 		display: grid;
 		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-		gap: var(--spacing-2xl);
-		align-items: start;
+		column-gap: var(--spacing-2xl);
+		row-gap: var(--spacing-xl);
+		align-items: stretch;
+	}
+	.about__background-story {
+		display: contents;
 	}
 	.about__background-lead {
+		grid-column: 1 / -1;
 		font-family: var(--font-heading);
-		font-size: var(--text-step-2);
+		font-size: clamp(2.5rem, 2rem + 1.8vw, 3.5rem);
 		font-weight: 560;
-		line-height: 1.25;
+		line-height: 1.08;
 		letter-spacing: -0.035em;
 		color: var(--text);
+		max-width: 20ch;
 		text-wrap: balance;
 	}
 	.about__background-chapters {
+		grid-column: 2;
+		grid-row: 2;
 		display: grid;
+		grid-template-rows: auto auto 1fr auto;
+		gap: var(--spacing-l);
+		min-width: 0;
 	}
 	.about__background-chapter {
-		padding-block: var(--spacing-m);
-		font-size: var(--text-step-1);
+		font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.2rem);
+		line-height: 1.65;
 		color: var(--text-muted);
 		text-wrap: pretty;
 	}
-	.about__background-chapter:first-child {
-		padding-top: 0;
+	.about__background-chapter:nth-child(3) {
+		grid-row: 4;
+		align-self: end;
 	}
-	.about__background-chapter + .about__background-chapter {
-		border-top: 1px solid var(--border);
+	.about__relics {
+		grid-row: 3;
+		align-self: center;
+		margin: 0;
+		padding: var(--spacing-s);
+		background: color-mix(in srgb, var(--bg), var(--text) 5%);
+		border-radius: var(--radius-lg);
+	}
+	.about__relics-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--spacing-2xs);
+	}
+	.about__relics-grid img {
+		width: 100%;
+		aspect-ratio: 4 / 3;
+		object-fit: cover;
+		object-position: top;
+		border-radius: var(--radius-md);
+		outline: 1px solid rgb(0 0 0 / 0.1);
+		outline-offset: -1px;
+	}
+	:global([data-theme="dark"]) .about__relics-grid img {
+		outline-color: rgb(255 255 255 / 0.1);
+	}
+	.about__relics figcaption {
+		margin-top: var(--spacing-xs);
+		max-width: 68ch;
+		font-size: 0.75rem;
+		line-height: 1.45;
+		color: var(--text-muted);
+		text-wrap: pretty;
 	}
 	.about__forum {
 		position: relative;
@@ -360,29 +422,10 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		}
 	}
 
-	/* ── The relic: an editorial artifact chapter ───────────────────────── */
-	.about__artifact {
-		width: 100%;
-		max-width: var(--about-section-width);
-		margin-inline: auto;
-		display: grid;
-		grid-template-columns: minmax(14rem, 0.38fr) minmax(0, 0.62fr);
-		gap: var(--spacing-xl);
-		align-items: center;
-	}
-	.about__artifact-copy {
-		display: grid;
-		gap: var(--spacing-s);
-	}
-	.about__artifact-title {
-		max-width: none;
-		font-size: var(--text-step-3);
-	}
-	.about__artifact-body {
-		max-width: 34ch;
-		color: var(--text-muted);
-	}
+	/* ── The relic: an editorial artifact inside the origin story ──────── */
 	.about__relic {
+		grid-column: 1;
+		grid-row: 2;
 		margin: 0;
 		width: 100%;
 		min-width: 0;
@@ -446,8 +489,8 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		text-align: left;
 		font-size: 0.72rem;
 		color: var(--text-muted);
-		max-width: 42ch;
-		text-wrap: balance;
+		max-width: none;
+		white-space: nowrap;
 	}
 
 	/* ── Fact cards ────────────────────────────────────────────────────── */
@@ -552,28 +595,41 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		width: 100%;
 		max-width: var(--about-section-width);
 		margin-inline: auto;
+		display: grid;
+		grid-template-columns: minmax(18rem, 4fr) minmax(0, 8fr);
+		column-gap: var(--spacing-xl);
+		align-items: start;
 	}
 	.about__experience-header {
+		position: sticky;
+		top: 7rem;
 		display: grid;
-		gap: var(--spacing-xs);
-		max-width: 42rem;
-		margin-bottom: var(--spacing-2xl);
+		grid-template-columns: 1fr;
+		align-items: start;
+		gap: var(--spacing-s);
+		max-width: none;
+		margin-bottom: 0;
 	}
 	.about__experience-title {
-		font-size: var(--text-step-4);
-		letter-spacing: -0.045em;
+		font-size: clamp(2.25rem, 1.95rem + 1vw, 3rem);
+		line-height: 1.08;
+		letter-spacing: -0.035em;
 		text-wrap: balance;
+		white-space: nowrap;
 	}
 	.about__experience-intro {
-		max-width: 58ch;
+		max-width: 40ch;
 		color: var(--text-muted);
-		font-size: var(--text-step-1);
+		font-size: clamp(1rem, 0.97rem + 0.12vw, 1.0625rem);
+		line-height: 1.6;
 		text-wrap: pretty;
 	}
 	.about__timeline-wrap {
 		position: relative;
+		grid-column: 2;
 	}
 	.about__experience-cta {
+		grid-column: 2;
 		display: flex;
 		justify-content: flex-start;
 		margin-top: var(--spacing-xl);
@@ -653,12 +709,12 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		font-variant-numeric: tabular-nums;
 	}
 	.about__exp-role {
-		font-size: var(--text-step-2);
-		line-height: 1.1;
-		letter-spacing: -0.035em;
+		font-size: clamp(1.4rem, 1.25rem + 0.55vw, 1.7rem);
+		line-height: 1.16;
+		letter-spacing: -0.025em;
 	}
 	.about__exp-org {
-		font-size: var(--text-step-1);
+		font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.2rem);
 	}
 	.about__exp-description {
 		margin-top: var(--spacing-xs);
@@ -685,11 +741,136 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		padding: var(--spacing-xl) 0;
 	}
 	.about__contact-title {
-		font-size: var(--text-step-4);
+		font-size: clamp(2.5rem, 2rem + 1.8vw, 3.5rem);
+		line-height: 1.08;
 	}
 	.about__contact-blurb {
 		color: var(--text-muted);
 		max-width: 40ch;
+	}
+
+	/* Alternate direction: a more personal, image-led opening. The content
+	 * chapters retain the same measure so the page still settles into one rhythm. */
+	:global(html[data-about-layout="portrait"]) .about__hero {
+		grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+		align-items: end;
+		padding-top: clamp(5rem, 3.5rem + 5vw, 8rem);
+	}
+	:global(html[data-about-layout="portrait"]) .about__intro {
+		padding-bottom: var(--spacing-m);
+	}
+	:global(html[data-about-layout="portrait"]) .about__title {
+		font-size: clamp(2.5rem, 1.9rem + 2.1vw, 3.65rem);
+		max-width: 13ch;
+	}
+
+	/* Profile split — image first, then biography. Inspired by profile and
+	 * leadership pages where the portrait establishes the subject immediately. */
+	:global(html[data-about-layout="profile"]) .about__hero {
+		grid-template-columns: minmax(0, 7fr) minmax(18rem, 5fr);
+		gap: clamp(2.5rem, 1.5rem + 4vw, 5.5rem);
+		align-items: center;
+		padding-top: clamp(4rem, 3rem + 3vw, 6.5rem);
+	}
+	:global(html[data-about-layout="profile"]) :global(.about__gallery) {
+		grid-column: 1;
+		grid-row: 1;
+	}
+	:global(html[data-about-layout="profile"]) .about__intro {
+		grid-column: 2;
+		grid-row: 1;
+		max-width: 29rem;
+	}
+	:global(html[data-about-layout="profile"]) .about__title {
+		font-size: clamp(2.35rem, 1.9rem + 1.65vw, 3.25rem);
+		max-width: 14ch;
+	}
+	:global(html[data-about-layout="profile"]) .about__background {
+		grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+	}
+
+	/* Monograph — a large opening statement followed by an offset image chapter.
+	 * The negative space is intentional and makes the page read like a profile. */
+	:global(html[data-about-layout="monograph"]) .about__hero {
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		column-gap: var(--spacing-s);
+		row-gap: var(--spacing-xl);
+		align-items: start;
+		padding-top: clamp(5rem, 3.4rem + 5vw, 8.5rem);
+	}
+	:global(html[data-about-layout="monograph"]) .about__intro {
+		grid-column: 1 / span 9;
+		max-width: 50rem;
+	}
+	:global(html[data-about-layout="monograph"]) .about__title {
+		font-size: clamp(3.5rem, 2.3rem + 4.1vw, 5.75rem);
+		line-height: 1.02;
+		letter-spacing: -0.045em;
+		max-width: 15ch;
+	}
+	:global(html[data-about-layout="monograph"]) .about__intro-body {
+		max-width: 38ch;
+	}
+	:global(html[data-about-layout="monograph"]) :global(.about__gallery) {
+		grid-column: 5 / -1;
+		width: 100%;
+		justify-self: end;
+	}
+	:global(html[data-about-layout="monograph"]) .about__background {
+		grid-template-columns: minmax(12rem, 3fr) minmax(0, 6fr) minmax(0, 1fr);
+	}
+	:global(html[data-about-layout="monograph"]) .about__background-lead {
+		grid-column: 1;
+	}
+	:global(html[data-about-layout="monograph"]) .about__background-chapters {
+		grid-column: 2;
+	}
+
+	/* Story index — bold opening, then a career chapter with a stable left rail
+	 * and a compact chronological index on the right. */
+	:global(html[data-about-layout="index"]) .about__hero {
+		grid-template-columns: 1fr;
+		gap: var(--spacing-xl);
+		align-items: start;
+		padding-top: clamp(5rem, 3.2rem + 5vw, 8rem);
+	}
+	:global(html[data-about-layout="index"]) .about__intro {
+		max-width: 58rem;
+	}
+	:global(html[data-about-layout="index"]) .about__title {
+		font-size: clamp(3.2rem, 2.15rem + 3.7vw, 5.25rem);
+		max-width: 16ch;
+	}
+	:global(html[data-about-layout="index"]) .about__intro-body {
+		max-width: 48ch;
+	}
+	:global(html[data-about-layout="index"]) :global(.about__gallery) {
+		width: min(72%, 48rem);
+		justify-self: end;
+	}
+	:global(html[data-about-layout="index"]) .about__experience {
+		display: grid;
+		grid-template-columns: minmax(15rem, 4fr) minmax(0, 8fr);
+		column-gap: var(--spacing-xl);
+		align-items: start;
+	}
+	:global(html[data-about-layout="index"]) .about__experience-header {
+		position: sticky;
+		top: 7rem;
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: var(--spacing-s);
+		margin-bottom: 0;
+	}
+	:global(html[data-about-layout="index"]) .about__experience-title {
+		font-size: clamp(2.5rem, 2rem + 1.8vw, 3.5rem);
+	}
+	:global(html[data-about-layout="index"]) .about__timeline-wrap,
+	:global(html[data-about-layout="index"]) .about__experience-cta {
+		grid-column: 2;
+	}
+	:global(html[data-about-layout="index"]) .about__experience-cta {
+		padding-inline-start: calc(3rem + var(--spacing-l));
 	}
 
 	/* ── Responsive ────────────────────────────────────────────────────── */
@@ -706,23 +887,101 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 			grid-template-columns: 1fr;
 			gap: var(--spacing-l);
 		}
+		.about__background-lead,
+		.about__relic,
+		.about__background-chapters {
+			grid-column: 1;
+			grid-row: auto;
+		}
+		.about__background-chapters {
+			grid-template-rows: auto;
+		}
+		.about__background-chapter:nth-child(3) {
+			grid-row: auto;
+			align-self: start;
+		}
+		.about__relics {
+			grid-row: auto;
+			align-self: auto;
+		}
+		.about__relic-cap {
+			white-space: normal;
+			text-wrap: pretty;
+		}
 		.about__background-lead {
 			max-width: 26ch;
 		}
-		.about__artifact {
+		.about__experience-header {
+			position: static;
 			grid-template-columns: 1fr;
-			gap: var(--spacing-l);
+			gap: var(--spacing-s);
+			margin-bottom: var(--spacing-xl);
 		}
-		.about__artifact-body {
-			max-width: 28rem;
+		.about__experience {
+			display: block;
+		}
+		.about__experience-title {
+			white-space: normal;
+		}
+		:global(html[data-about-layout="portrait"]) .about__hero {
+			grid-template-columns: 1fr;
+			align-items: start;
+			padding-top: var(--spacing-2xl);
+		}
+		:global(html[data-about-layout="portrait"]) .about__intro {
+			padding-bottom: 0;
+		}
+		:global(html[data-about-layout="profile"]) .about__hero,
+		:global(html[data-about-layout="monograph"]) .about__hero,
+		:global(html[data-about-layout="index"]) .about__hero {
+			grid-template-columns: 1fr;
+		}
+		:global(html[data-about-layout="profile"]) :global(.about__gallery),
+		:global(html[data-about-layout="profile"]) .about__intro,
+		:global(html[data-about-layout="monograph"]) :global(.about__gallery),
+		:global(html[data-about-layout="monograph"]) .about__intro {
+			grid-column: 1;
+			grid-row: auto;
+		}
+		:global(html[data-about-layout="profile"]) :global(.about__gallery) {
+			grid-row: 2;
+		}
+		:global(html[data-about-layout="monograph"]) .about__background {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		:global(html[data-about-layout="monograph"]) .about__background-lead,
+		:global(html[data-about-layout="monograph"]) .about__background-chapters {
+			grid-column: 1;
+		}
+		:global(html[data-about-layout="index"]) :global(.about__gallery) {
+			width: 100%;
+		}
+		:global(html[data-about-layout="index"]) .about__experience {
+			display: block;
+		}
+		:global(html[data-about-layout="index"]) .about__experience-header {
+			position: static;
+			margin-bottom: var(--spacing-xl);
+		}
+		:global(html[data-about-layout="index"]) .about__experience-cta {
+			padding-inline-start: calc(3rem + var(--spacing-m));
 		}
 	}
 	@media (max-width: 48rem) {
 		.about {
+			/* Sit content inside the shared guide rails instead of directly on them. */
+			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
 			gap: var(--spacing-2xl);
 		}
 		.about__title {
-			font-size: var(--text-step-2);
+			font-size: clamp(1.9rem, 1.65rem + 1.2vw, 2.2rem);
+			max-width: 20ch;
+		}
+		:global(html[data-about-layout="monograph"]) .about__title,
+		:global(html[data-about-layout="index"]) .about__title {
+			font-size: clamp(2.35rem, 1.9rem + 2.2vw, 2.8rem);
+			line-height: 1.06;
+			max-width: 17ch;
 		}
 		.about__exp {
 			gap: var(--spacing-m);

@@ -26,6 +26,8 @@
 
 	html {
 		-webkit-text-size-adjust: 100%;
+		font-synthesis: none;
+		font-optical-sizing: auto;
 		overflow-x: clip;
 		scroll-behavior: smooth;
 		/* Offset in-page anchor jumps (e.g. #work) for the 3.5rem sticky header
@@ -41,6 +43,7 @@
 		font-size: var(--text-step-0);
 		line-height: 1.6;
 		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
 		text-rendering: optimizeLegibility;
 	}
 
@@ -60,13 +63,20 @@
 	}
 
 	h1,
-	h2,
+	h2 {
+		font-family: var(--font-heading);
+		font-weight: 600;
+		line-height: 1.08;
+		letter-spacing: -0.035em;
+		text-wrap: balance;
+	}
+
 	h3,
 	h4 {
 		font-family: var(--font-heading);
 		font-weight: 600;
-		line-height: 1.05;
-		letter-spacing: -0.045em;
+		line-height: 1.15;
+		letter-spacing: -0.025em;
 		text-wrap: balance;
 	}
 
@@ -87,6 +97,7 @@
 		color: inherit;
 		text-decoration-thickness: from-font;
 		text-underline-offset: 0.15em;
+		text-decoration-skip-ink: auto;
 	}
 
 	:where(input, button, textarea, select) {

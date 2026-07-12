@@ -44,16 +44,18 @@ import { CONTACT_EMAIL } from "../lib/site";
 
 <style>
 	.c-contact {
-		max-width: var(--container-content);
-		margin-inline: auto;
+		width: 100%;
 		padding: var(--spacing-3xl) var(--spacing-m)
 			calc(var(--spacing-3xl) + var(--spacing-2xl));
+		border-top: 1px solid var(--grid-line);
 	}
 	.c-contact__inner {
 		display: grid;
 		justify-items: center;
 		text-align: center;
 		gap: var(--spacing-s);
+		max-width: var(--container-content);
+		margin-inline: auto;
 	}
 	.c-contact__title {
 		font-size: var(--text-step-4);

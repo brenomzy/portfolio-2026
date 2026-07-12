@@ -1,161 +1,125 @@
 ---
-/*
- * c-about — the homepage About section (condensed). One step deeper than the
- * hero: a short approach-led blurb + portrait + a compact tool row (colored
- * app-icon tiles, matching /about), with a "More about me" link into /about.
- *
- * Reveal language mirrors WorkSection: [data-reveal] + .js-about-reveal items
- * park hidden (CSS guard in global.css) and slide up via a ScrollTrigger.batch
- * when the section scrolls into view.
- */
 import { ABOUT } from "../lib/about";
-
-// A compact subset of the toolset for the home teaser; the full grid lives on
-// the /about page.
-const tools = ABOUT.tools.slice(0, 8);
 ---
 
 <section class="c-about" id="about" aria-label="About">
-	<div class="c-about__grid">
-		<div class="c-about__content">
-			<p class="c-about__eyebrow js-about-reveal" data-reveal>{ABOUT.home.heading}</p>
-			<h2 class="c-about__lead js-about-reveal" data-reveal>{ABOUT.home.lead}</h2>
-			<p class="c-about__body js-about-reveal" data-reveal>{ABOUT.home.body}</p>
+	<div class="c-about__inner">
+			<h2
+				class="c-about__title js-about-title"
+				data-reveal
+				aria-label={`${ABOUT.home.titleLineOne} ${ABOUT.home.titleLineTwo}`}
+			>
+				<span class="c-about__title-line js-about-title-line" aria-hidden="true">
+					{ABOUT.home.titleLineOne}
+				</span>
+				<span class="c-about__title-row" aria-hidden="true">
+					<span class="c-about__portrait">
+						<img
+							src="/about/gallery/g-3.webp"
+							alt=""
+							width="600"
+							height="800"
+							loading="lazy"
+						/>
+					</span>
+					<span class="c-about__title-line js-about-title-line">
+						{ABOUT.home.titleLineTwo}
+					</span>
+				</span>
+			</h2>
 
-			<ul class="c-about__tools js-about-reveal" data-reveal aria-label="Tools I use">
-				{
-					tools.map((t) => (
-						<li class="c-about__tool" title={t.name}>
-							<span class="c-about__tool-tile" style={`--tile: ${t.color}`}>
-								<span
-									class="c-about__tool-glyph"
-									style={`--icon: url(/tools/${t.icon}); --glyph: ${t.darkGlyph ? "#10151c" : "#fff"}`}
-									aria-hidden="true"
-								/>
-							</span>
-							<span class="c-about__sr">{t.name}</span>
-						</li>
-					))
-				}
-			</ul>
+			<div class="c-about__details js-about-details" data-reveal>
+				<p class="c-about__lead">{ABOUT.home.lead}</p>
+				<p class="c-about__body">{ABOUT.home.body}</p>
 
-			<a class="c-about__more js-about-reveal" data-reveal href="/about">
-				More about me
-				<svg
-					class="c-about__arrow"
-					viewBox="0 0 256 256"
-					fill="currentColor"
-					aria-hidden="true"
-				>
-					<path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" />
-				</svg>
-			</a>
-		</div>
-
-		<div class="c-about__portrait js-about-reveal" data-reveal>
-			<img
-				src={ABOUT.portrait.src}
-				alt={ABOUT.portrait.alt}
-				width="600"
-				height="800"
-				loading="lazy"
-			/>
-		</div>
+				<a class="c-about__more" href="/about">
+					More about me
+					<svg class="c-about__arrow" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+						<path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z" />
+					</svg>
+				</a>
+			</div>
 	</div>
 </section>
 
 <style>
 	.c-about {
+		width: 100%;
+		padding-block: var(--spacing-3xl);
+		background: transparent;
+		color: var(--text);
+		border-top: 1px solid var(--grid-line);
+	}
+	.c-about__inner {
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding: var(--spacing-2xl) var(--spacing-m);
+		padding-inline: var(--spacing-m);
+		min-width: 0;
 	}
-	.c-about__grid {
+	.c-about__title {
 		display: grid;
-		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-		gap: var(--spacing-2xl);
-		align-items: center;
+		font-size: clamp(3.25rem, 7.6vw, 7.5rem);
+		font-weight: 600;
+		line-height: 0.84;
+		letter-spacing: -0.065em;
 	}
-	.c-about__content {
+	.c-about__title-line {
+		display: block;
+		padding-block: 0.04em 0.08em;
+		will-change: transform, opacity, filter;
+	}
+	.c-about__title-row {
+		display: flex;
+		align-items: flex-end;
+		gap: var(--portrait-gap, 0.16em);
+		min-width: 0;
+	}
+	.c-about__portrait {
+		flex: 0 0 var(--portrait-width, 1.25em);
+		width: var(--portrait-width, 1.25em);
+		height: 0.72em;
+		margin-bottom: 0.08em;
+		overflow: hidden;
+		border-radius: 0.25rem;
+		background: var(--thumb-bg);
+		box-shadow: var(--shadow-1);
+		will-change: clip-path, opacity;
+	}
+	.c-about__portrait img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: 50% 8%;
+		outline: 1px solid rgb(0 0 0 / 0.1);
+		outline-offset: -1px;
+	}
+	[data-theme="dark"] .c-about__portrait img {
+		outline-color: rgb(255 255 255 / 0.1);
+	}
+	.c-about__details {
 		display: grid;
 		gap: var(--spacing-s);
-		/* Comfortable reading measure inside the wide container. */
-		max-width: 46ch;
-	}
-	.c-about__eyebrow {
-		font-size: 0.625rem;
-		text-transform: uppercase;
-		letter-spacing: 0.18em;
-		color: var(--accent-ink);
-		font-weight: 600;
+		max-width: 48rem;
+		margin-top: var(--spacing-xl);
 	}
 	.c-about__lead {
-		font-size: var(--text-step-3);
-		text-wrap: pretty;
+		max-width: 58ch;
+		font-weight: 600;
+		line-height: 1.45;
 	}
 	.c-about__body {
+		max-width: 62ch;
 		color: var(--text-muted);
 	}
-
-	/* Tool row — colored app-icon tiles (matches the /about Tool stack). */
-	.c-about__tools {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--spacing-2xs);
-		list-style: none;
-		padding: 0;
-		margin-top: var(--spacing-2xs);
-	}
-	.c-about__tool {
-		display: inline-flex;
-	}
-	/* App-icon tile: brand-colour square, white (or dark) brand glyph masked on. */
-	.c-about__tool-tile {
-		display: grid;
-		place-items: center;
-		width: 2.75rem;
-		height: 2.75rem;
-		border-radius: var(--radius-md);
-		background: var(--tile);
-		box-shadow: var(--shadow-1);
-		transition: transform 0.25s var(--ease-out-expo);
-	}
-	.c-about__tool-glyph {
-		width: 56%;
-		height: 56%;
-		background-color: var(--glyph);
-		-webkit-mask: var(--icon) center / contain no-repeat;
-		mask: var(--icon) center / contain no-repeat;
-	}
-	@media (hover: hover) {
-		.c-about__tool:hover .c-about__tool-tile {
-			transform: translateY(-3px);
-		}
-	}
-	/* Visually-hidden tool name (the tile is title-tooltipped). */
-	.c-about__sr {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0 0 0 0);
-		white-space: nowrap;
-		border: 0;
-	}
-
 	.c-about__more {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.4em;
-		margin-top: var(--spacing-2xs);
 		width: fit-content;
 		font-size: var(--text-step--1);
 		font-weight: 560;
 		text-decoration: none;
-		color: var(--text);
+		color: inherit;
 	}
 	.c-about__arrow {
 		width: 1.05em;
@@ -170,29 +134,21 @@ const tools = ABOUT.tools.slice(0, 8);
 			transform: translateX(0.2em);
 		}
 	}
-
-	.c-about__portrait {
-		overflow: hidden;
-		border-radius: var(--radius-md);
-		background: var(--thumb-bg);
-		box-shadow: var(--shadow-2);
-	}
-	.c-about__portrait img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		aspect-ratio: 3 / 4;
-	}
-
 	@media (max-width: 52rem) {
-		.c-about__grid {
-			grid-template-columns: 1fr;
-			gap: var(--spacing-xl);
+		.c-about__title {
+			font-size: clamp(3rem, 12.5vw, 6rem);
 		}
-		/* Portrait first, then text, on narrow screens. */
-		.c-about__portrait {
-			order: -1;
-			max-width: 22rem;
+		.c-about__details {
+			margin-top: var(--spacing-l);
+		}
+	}
+	@media (max-width: 30rem) {
+		.c-about__title {
+			font-size: clamp(2.65rem, 12vw, 4rem);
+		}
+		.c-about__title-row {
+			--portrait-width: 1.05em;
+			--portrait-gap: 0.12em;
 		}
 	}
 </style>
@@ -200,71 +156,125 @@ const tools = ABOUT.tools.slice(0, 8);
 <script>
 	import { gsap } from "gsap";
 	import { ScrollTrigger } from "gsap/ScrollTrigger";
+	import { SplitText } from "gsap/SplitText";
 	import { CustomEase } from "gsap/CustomEase";
 	import { whenRevealable } from "../lib/page-reveal";
 
-	gsap.registerPlugin(ScrollTrigger, CustomEase);
-
-	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-	// Reuse the shared premium ease-out (same registry as Work/modal).
+	gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
 	const EASE_OUT =
 		CustomEase.get("brand-out") ?? CustomEase.create("brand-out", "0.16,1,0.3,1");
 
-	let triggers: ScrollTrigger[] = [];
+	let context: gsap.Context | null = null;
+	let generation = 0;
+	let titleSplits: SplitText[] = [];
 
-	function killTriggers() {
-		triggers.forEach((t) => t.kill());
-		triggers = [];
+	function cleanup() {
+		generation += 1;
+		context?.revert();
+		context = null;
+		titleSplits.forEach((split) => split.revert());
+		titleSplits = [];
 	}
 
-	const reveal = (els: HTMLElement | HTMLElement[]) =>
-		gsap.to(els, {
-			autoAlpha: 1,
-			y: 0,
-			duration: 0.8,
-			ease: EASE_OUT,
-			stagger: 0.08,
-			overwrite: true,
-		});
+	async function setup() {
+		cleanup();
+		const currentGeneration = generation;
+		const section = document.querySelector<HTMLElement>(".c-about");
+		if (!section) return;
 
-	function setup() {
-		const items = gsap.utils.toArray<HTMLElement>(".js-about-reveal");
-		if (!items.length) return;
-		killTriggers();
+		await whenRevealable();
+		if (currentGeneration !== generation || !document.contains(section)) return;
+		await Promise.race([
+			document.fonts.ready,
+			new Promise((resolve) => window.setTimeout(resolve, 1200)),
+		]);
+		if (currentGeneration !== generation || !document.contains(section)) return;
 
-		if (reduced.matches) {
-			gsap.set(items, { autoAlpha: 1, y: 0 });
-			return;
-		}
+		context = gsap.context(() => {
+			const titleLines = gsap.utils.toArray<HTMLElement>(".js-about-title-line");
+			const portrait = section.querySelector<HTMLElement>(".c-about__portrait");
+			const titleRow = section.querySelector<HTMLElement>(".c-about__title-row");
+			const details = section.querySelector<HTMLElement>(".c-about__details");
+			const revealItems = [details].filter(Boolean) as HTMLElement[];
+			const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+			titleSplits = titleLines.map((line) =>
+				SplitText.create(line, { type: "words" }),
+			);
+			const words = titleSplits.flatMap((split) => split.words);
 
-		// Park hidden + down (the data-reveal CSS guard prevents a pre-JS flash).
-		gsap.set(items, { autoAlpha: 0, y: 40 });
+			gsap.set([section.querySelector(".c-about__title"), ...revealItems], {
+				visibility: "visible",
+			});
 
-		// Reveal anything already on-screen at load; scroll-reveal the rest per
-		// item (ScrollTrigger.batch skips items already past the start line).
-		const threshold = window.innerHeight * 0.9;
-		const onLoad: HTMLElement[] = [];
-		items.forEach((el) => {
-			if (el.getBoundingClientRect().top < threshold) onLoad.push(el);
-			else
-				triggers.push(
-					ScrollTrigger.create({
-						trigger: el,
-						start: "top 85%",
-						once: true,
-						onEnter: () => reveal(el),
-					}),
+			if (reduced) {
+				gsap.set([...words, portrait, ...revealItems].filter(Boolean), {
+					autoAlpha: 1,
+					y: 0,
+					clipPath: "inset(0% 0% 0% 0%)",
+				});
+				return;
+			}
+
+			gsap.set(words, { autoAlpha: 0, y: 20, filter: "blur(10px)" });
+			gsap.set(titleRow, { "--portrait-width": "0em", "--portrait-gap": "0em" });
+			gsap.set(portrait, { autoAlpha: 0, clipPath: "inset(0% 100% 0% 0%)" });
+			gsap.set(revealItems, { autoAlpha: 0, y: 24, filter: "blur(8px)" });
+
+			const timeline = gsap.timeline({ paused: true });
+			timeline
+				.to(words, {
+					autoAlpha: 1,
+					y: 0,
+					filter: "blur(0px)",
+					duration: 0.9,
+					ease: "power2.out",
+					stagger: { amount: 0.42 },
+				})
+				.to(
+					titleRow,
+					{
+						"--portrait-width": () =>
+							matchMedia("(max-width: 30rem)").matches ? "1.05em" : "1.25em",
+						"--portrait-gap": () =>
+							matchMedia("(max-width: 30rem)").matches ? "0.12em" : "0.16em",
+						duration: 0.72,
+						ease: "power3.inOut",
+					},
+					0.9,
+				)
+				.to(
+					portrait,
+					{
+						autoAlpha: 1,
+						clipPath: "inset(0% 0% 0% 0%)",
+						duration: 0.72,
+						ease: EASE_OUT,
+					},
+					0.94,
+				)
+				.to(
+					revealItems,
+					{
+						autoAlpha: 1,
+						y: 0,
+						filter: "blur(0px)",
+						duration: 0.7,
+						ease: "power2.out",
+						stagger: 0.12,
+					},
+					1.12,
 				);
-		});
-		// Defer the in-view reveals + the layout-heavy ScrollTrigger.refresh until
-		// the cross-fade settles, so neither competes with the page transition.
-		// Resolves immediately on a fresh load, so that path is unchanged.
-		whenRevealable().then(() => {
-			if (onLoad.length) reveal(onLoad);
-			ScrollTrigger.refresh();
-		});
+
+			ScrollTrigger.create({
+				trigger: section,
+				start: "top 78%",
+				once: true,
+				onEnter: () => timeline.play(),
+			});
+		}, section);
+		ScrollTrigger.refresh();
 	}
 
 	document.addEventListener("astro:page-load", setup);
-	document.addEventListener("astro:before-swap", killTriggers);
+	document.addEventListener("astro:before-swap", cleanup);
 </script>

@@ -32,11 +32,12 @@
 
 	/* Faint hairline shown by a Work card's 1px gradient border when the cursor
 	 * isn't lighting it up (the brand-gradient blob is layered over this). */
-	--card-border-base: hsl(30 30% 82%);
+	--card-border-base: var(--bg);
 	/* Cursor-glow ramp: a bright near-white core → vivid saturated mid → (then the
 	 * --logo-grad brand tones). Two light stops give it the luminous Stripe pop. */
-	--card-glow-core: hsl(44 100% 90%);
-	--card-glow-hot: hsl(36 100% 62%);
+	--card-glow-core: hsl(42 100% 94%);
+	--card-glow-hot: hsl(18 100% 58%);
+	--card-glow-edge: hsl(10 94% 43%);
 
 	/* Text */
 	--text: hsl(24 16% 12%);
@@ -44,6 +45,7 @@
 
 	/* Lines */
 	--border: hsl(34 24% 85%);
+	--grid-line: hsl(24 16% 12% / 0.075);
 
 	/* Accent — #FF4E2A brand, used for a few accent spots (not body text).
 	 * `accent-ink` mirrors `accent` here; it only diverges in dark mode. */
@@ -86,15 +88,17 @@
 	/* Resting card border on dark — a neutral warm-grey a touch LIGHTER than the
 	 * bg (hsl 30 5% 9%) so the hairline reads as a subtle edge rather than near
 	 * invisible. Sits in the surface/thumb-bg tone family. */
-	--card-border-base: hsl(30 6% 16%);
+	--card-border-base: var(--bg);
 	/* Cursor-glow ramp on dark — cool near-white core → vivid sky-blue mid. */
 	--card-glow-core: hsl(205 100% 90%);
 	--card-glow-hot: hsl(204 100% 70%);
+	--card-glow-edge: hsl(218 72% 42%);
 
 	--text: hsl(30 8% 94%);
 	--text-muted: hsl(30 4% 62%);
 
 	--border: hsl(30 4% 22%);
+	--grid-line: hsl(30 8% 94% / 0.06);
 
 	/* Dark mode flips the accent orange → a vivid blue (the logo/footer/glow
 	 * family), so every accent surface — primary CTA, focus rings, links, toast —

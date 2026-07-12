@@ -4,7 +4,8 @@
  * index.astro so the /work/[slug] deep-link page can render the same home shell
  * behind its pre-opened modal (closing the modal reveals this, no page load).
  *
- * Words split + reveal on load (SplitText), then it dispatches `hero:revealed`
+ * Words split + reveal on load (SplitText), then it hands off to Work while the
+ * hero's closing beat is still playing via `hero:work-ready`.
  * so WorkSection can sequence its own reveal after this one.
  */
 import Button from "./Button.astro";
@@ -58,13 +59,26 @@ import { CONTACT_EMAIL } from "../lib/site";
 	}
 	.hero__title-secondary {
 		display: block;
-		color: var(--text);
-		opacity: 0.52;
 	}
 	.hero__title-rotator {
 		display: inline-block;
 		min-width: 17ch;
 		will-change: transform, opacity, filter;
+	}
+	/* Limited to the static homepage title in dark mode. The rotating line keeps
+	 * a solid foreground color so GSAP can swap it without a background-clip
+	 * paint layer. */
+	:global([data-theme="dark"]) .hero__title {
+		color: transparent;
+		background-image: linear-gradient(180deg, #fafafa 0%, #b6b6b6 100%);
+		background-clip: text;
+		-webkit-background-clip: text;
+	}
+	:global([data-theme="dark"]) .hero__title-secondary {
+		color: var(--text);
+		background: none;
+		background-clip: border-box;
+		-webkit-background-clip: border-box;
 	}
 	.hero__lead {
 		font-size: 1.125rem; /* 18px — trialing a smaller lead per request */
@@ -89,11 +103,10 @@ import { CONTACT_EMAIL } from "../lib/site";
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 	const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-	// Tell the Work section the hero is done so it can sequence its reveal after
-	// us (see WorkSection.astro). Fired on every entry path (animated, reduced,
-	// error) so the section never waits on its fallback timeout unnecessarily.
+	// Hand the choreography to Work once the headline is readable and the lead is
+	// underway. Reduced/error paths signal immediately so Work never waits.
 	const signalWorkReady = () =>
-		document.dispatchEvent(new CustomEvent("hero:revealed"));
+		document.dispatchEvent(new CustomEvent("hero:work-ready"));
 
 	let active: SplitText[] = [];
 	let titleRotation: gsap.core.Tween | null = null;
@@ -190,11 +203,9 @@ import { CONTACT_EMAIL } from "../lib/site";
 			const tl = gsap.timeline({
 				// Gentler, slower ease than expo.out (which snaps then crawls).
 				defaults: { ease: "power2.out" },
-				// Restore normal, reflowable text once the reveal has played, then
-				// release the Work section to animate in after us.
+				// Restore normal, reflowable text once the complete hero reveal has played.
 				onComplete: () => {
 					cleanup();
-					signalWorkReady();
 					startTitleRotation();
 				},
 			});
@@ -242,6 +253,8 @@ import { CONTACT_EMAIL } from "../lib/site";
 					"-=0.35",
 				);
 			}
+			// Overlap Work with the lead/buttons instead of serializing both sections.
+			tl.call(signalWorkReady, [], 1.3);
 		} catch {
 			// Never leave the hero hidden if anything goes wrong.
 			cleanup();

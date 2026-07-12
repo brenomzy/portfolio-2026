@@ -98,7 +98,6 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 						<Button label="Live preview" href={p?.liveUrl ?? "#"} variant="link" icon data-pmodal-link target="_blank" rel="noopener" />
 					</div>
 					<div data-pmodal-info>
-						<p class="c-pmodal__label">Info</p>
 						<p class="c-pmodal__desc" data-pmodal-desc>{p?.description}</p>
 					</div>
 					<dl class="c-pmodal__rows" data-pmodal-info>
@@ -292,11 +291,6 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 
 	.c-pmodal__title {
 		font-size: var(--text-step-3);
-	}
-	.c-pmodal__label {
-		font-size: var(--text-step--1);
-		color: var(--text-muted);
-		margin-bottom: var(--spacing-2xs);
 	}
 	.c-pmodal__desc {
 		max-width: 52ch;

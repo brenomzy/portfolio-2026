@@ -66,7 +66,9 @@ export interface Photo {
 export const ABOUT = {
 	/* ---- Homepage section (condensed) ------------------------------------ */
 	home: {
-		heading: "About",
+		heading: "Who's behind the work?",
+		titleLineOne: "Design meets",
+		titleLineTwo: "front-end.",
 		/* One step deeper than the hero: approach, not the same intro line. */
 		lead: "I work where design meets front-end. I like owning a site end to end, from the first layout idea to the last line of CSS.",
 		body: "Mostly self-taught, a little obsessed with detail, and happiest when the motion feels right and the page still loads fast. Right now I'm building at BX Studio.",

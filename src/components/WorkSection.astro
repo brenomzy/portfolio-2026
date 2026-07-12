@@ -33,13 +33,13 @@ const { projects } = Astro.props;
 					<span class="c-work__frame">
 						<span class="c-work__media">
 							<img src={p.cover} alt={p.title} loading="lazy" />
+							<span class="c-work__scrim" aria-hidden="true"></span>
+							<span class="c-work__description">{p.summary}</span>
 						</span>
 					</span>
 					<span class="c-work__meta">
 						<span class="c-work__title">{p.title}</span>
-						<span class="c-work__tag">
-							{p.category} · {p.year}
-						</span>
+						<span class="c-work__tag">{p.category}</span>
 					</span>
 				</a>
 			))
@@ -64,12 +64,7 @@ const { projects } = Astro.props;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		/* Row gap trimmed (was 2xl) so the second row peeks into view on load —
 		 * the big 16:9 thumbnails are tall, so the 2xl rhythm only fit one row. */
-		gap: var(--spacing-l) var(--spacing-m);
-	}
-	/* Asymmetric rhythm: the right column rides lower than the left — softened
-	 * from 2xl so the right column doesn't push card 2 far down the fold. */
-	.c-work__card:nth-child(even) {
-		margin-top: var(--spacing-l);
+		gap: var(--spacing-xl) var(--spacing-m);
 	}
 
 	.c-work__card {
@@ -80,9 +75,8 @@ const { projects } = Astro.props;
 	 * overflow clip here so the border can sit just outside the tile. */
 	.c-work__frame {
 		position: relative;
-		--preview-padding: clamp(1.25rem, 2vw, 2rem);
 		--preview-shell-radius: var(--radius-lg);
-		--preview-radius: var(--radius-md);
+		display: block;
 	}
 	/* 1px border ring, behind the opaque tile (square — no radius). TWO layers on
 	 * it: ::before is the faint hairline that's always on; ::after is the brand
@@ -104,12 +98,12 @@ const { projects } = Astro.props;
 	 * (logo/footer palette: orange in light, blue in dark) → transparent. */
 	.c-work__frame::after {
 		background: radial-gradient(
-			240px circle at var(--card-mouse-x, -300px) var(--card-mouse-y, -300px),
+			340px circle at var(--card-mouse-x, -400px) var(--card-mouse-y, -400px),
 			var(--card-glow-core) 0%,
-			var(--card-glow-hot) 16%,
-			var(--logo-grad-1) 36%,
-			var(--logo-grad-2) 60%,
-			transparent 80%
+			var(--card-glow-hot) 18%,
+			var(--logo-grad-1) 34%,
+			var(--card-glow-edge) 58%,
+			transparent 82%
 		);
 		opacity: 0;
 		transition: opacity 0.4s var(--ease-out-expo);
@@ -120,14 +114,13 @@ const { projects } = Astro.props;
 		display: block;
 		overflow: hidden;
 		border-radius: var(--preview-shell-radius);
-		padding: var(--preview-padding);
 		/* Theme-aware fallback behind the real first-frame poster. Opaque, so it
 		 * masks all but the 1px gradient-border ring behind it. */
 		background: var(--thumb-bg);
 	}
 	.c-work__media img {
 		display: block;
-		position: static;
+		position: relative;
 		width: 100%;
 		height: auto;
 		min-width: 0;
@@ -136,7 +129,7 @@ const { projects } = Astro.props;
 		/* will-change below promotes this img to its own GPU layer, which Chromium
 		 * then won't clip to .c-work__media's rounded corners — so round the layer
 		 * itself (inherits the media's --radius-md) to keep the corners crisp. */
-		border-radius: var(--preview-radius);
+		border-radius: inherit;
 		outline: 1px solid rgb(0 0 0 / 0.1);
 		outline-offset: -1px;
 		box-shadow: var(--shadow-3);
@@ -144,6 +137,29 @@ const { projects } = Astro.props;
 		 * only the image scales, never the card. */
 		transition: transform 0.45s var(--ease-out-expo);
 		will-change: transform;
+	}
+	.c-work__scrim {
+		position: absolute;
+		z-index: 2;
+		inset: 35% 0 0;
+		background: linear-gradient(to bottom, transparent, rgb(8 7 6 / 0.88));
+		opacity: 0;
+		transition: opacity 0.45s var(--ease-out-expo);
+	}
+	.c-work__description {
+		position: absolute;
+		z-index: 3;
+		left: clamp(1rem, 2vw, 1.5rem);
+		right: clamp(1rem, 2vw, 1.5rem);
+		bottom: clamp(1rem, 2vw, 1.5rem);
+		max-width: 32rem;
+		color: #fff;
+		font-size: var(--text-step-0);
+		font-weight: 500;
+		line-height: 1.35;
+		text-wrap: pretty;
+		opacity: 0;
+		transition: opacity 0.2s ease-out;
 	}
 	[data-theme="dark"] .c-work__media img {
 		outline-color: rgb(255 255 255 / 0.1);
@@ -159,6 +175,10 @@ const { projects } = Astro.props;
 		.c-work__frame:hover .c-work__media img {
 			transform: scale(1.025);
 		}
+		.c-work__frame:hover .c-work__scrim,
+		.c-work__frame:hover .c-work__description {
+			opacity: 1;
+		}
 	}
 	/* Keyboard parity — same zoom + glow on focus (works on touch/no-hover too). */
 	.c-work__card:focus-visible .c-work__frame::after {
@@ -167,13 +187,16 @@ const { projects } = Astro.props;
 	.c-work__card:focus-visible .c-work__media img {
 		transform: scale(1.025);
 	}
+	.c-work__card:focus-visible .c-work__scrim,
+	.c-work__card:focus-visible .c-work__description {
+		opacity: 1;
+	}
 	.c-work__meta {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--spacing-m);
+		display: grid;
+		gap: 0.05rem;
 		padding-top: var(--spacing-xs);
 		font-size: var(--text-step--1);
+		line-height: 1.3;
 	}
 	.c-work__title {
 		font-weight: 560;
@@ -182,9 +205,7 @@ const { projects } = Astro.props;
 		color: var(--text-muted);
 		/* Small editorial caps. font-size in rem (0.625rem = 10px); letter-spacing
 		 * stays in em so the tracking scales with the type. */
-		font-size: 0.625rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
+		font-size: 0.75rem;
 	}
 
 	@media (max-width: 40rem) {
@@ -192,8 +213,21 @@ const { projects } = Astro.props;
 			grid-template-columns: 1fr;
 			gap: var(--spacing-l);
 		}
-		.c-work__card:nth-child(even) {
-			margin-top: 0;
+		.c-work__scrim,
+		.c-work__description {
+			opacity: 1;
+		}
+		.c-work__description {
+			font-size: var(--text-step--1);
+		}
+	}
+	@media (hover: none) {
+		.c-work__scrim,
+		.c-work__description {
+			opacity: 1;
+		}
+		.c-work__description {
+			transition: none;
 		}
 	}
 </style>
@@ -202,9 +236,10 @@ const { projects } = Astro.props;
 	import { gsap } from "gsap";
 	import { ScrollTrigger } from "gsap/ScrollTrigger";
 	import { CustomEase } from "gsap/CustomEase";
+	import { SplitText } from "gsap/SplitText";
 	import { whenRevealable } from "../lib/page-reveal";
 
-	gsap.registerPlugin(ScrollTrigger, CustomEase);
+	gsap.registerPlugin(ScrollTrigger, CustomEase, SplitText);
 
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 	// Same premium ease-out as the modal (shared CustomEase registry).
@@ -213,6 +248,83 @@ const { projects } = Astro.props;
 
 	let started = false;
 	let triggers: ScrollTrigger[] = [];
+	let descriptionCleanups: Array<() => void> = [];
+	let descriptionGeneration = 0;
+
+	function cleanupDescriptions() {
+		descriptionGeneration += 1;
+		descriptionCleanups.forEach((cleanup) => cleanup());
+		descriptionCleanups = [];
+	}
+
+	async function setupDescriptions() {
+		cleanupDescriptions();
+		const generation = descriptionGeneration;
+		await Promise.race([
+			document.fonts.ready,
+			new Promise((resolve) => window.setTimeout(resolve, 1200)),
+		]);
+		if (generation !== descriptionGeneration) return;
+
+		const staticDescriptions = matchMedia(
+			"(max-width: 40rem), (hover: none), (prefers-reduced-motion: reduce)",
+		).matches;
+
+		document.querySelectorAll<HTMLElement>(".c-work__frame").forEach((frame) => {
+			const description = frame.querySelector<HTMLElement>(
+				".c-work__description",
+			);
+			const card = frame.closest<HTMLElement>(".c-work__card");
+			if (!description || !card) return;
+
+			if (staticDescriptions) {
+				gsap.set(description, { autoAlpha: 1 });
+				return;
+			}
+
+			const split = SplitText.create(description, {
+				type: "lines",
+				linesClass: "c-work__description-line",
+			});
+			const lines = split.lines;
+			gsap.set(lines, { autoAlpha: 0, y: 12, filter: "blur(8px)" });
+
+			const showLines = () =>
+				gsap.to(lines, {
+					autoAlpha: 1,
+					y: 0,
+					filter: "blur(0px)",
+					duration: 0.58,
+					ease: "power3.out",
+					stagger: 0.08,
+					overwrite: true,
+				});
+			const hideLines = () =>
+				gsap.to(lines, {
+					autoAlpha: 0,
+					y: 8,
+					filter: "blur(6px)",
+					duration: 0.24,
+					ease: "power2.in",
+					stagger: 0.035,
+					overwrite: true,
+				});
+
+			frame.addEventListener("pointerenter", showLines);
+			frame.addEventListener("pointerleave", hideLines);
+			card.addEventListener("focusin", showLines);
+			card.addEventListener("focusout", hideLines);
+
+			descriptionCleanups.push(() => {
+				gsap.killTweensOf(lines);
+				frame.removeEventListener("pointerenter", showLines);
+				frame.removeEventListener("pointerleave", hideLines);
+				card.removeEventListener("focusin", showLines);
+				card.removeEventListener("focusout", hideLines);
+				split.revert();
+			});
+		});
+	}
 
 	function killTriggers() {
 		triggers.forEach((t) => t.kill());
@@ -252,6 +364,7 @@ const { projects } = Astro.props;
 		const items = gsap.utils.toArray<HTMLElement>(".js-work-reveal");
 		if (!items.length) return;
 		killTriggers();
+		void setupDescriptions();
 		started = false;
 		if (reduced.matches) {
 			gsap.set(items, { autoAlpha: 1, y: 0 });
@@ -266,13 +379,16 @@ const { projects } = Astro.props;
 		whenRevealable().then(() => {
 			// Sequence the reveal AFTER the hero intro; a timeout backstops the case
 			// where the hero signal never arrives (e.g. reduced motion / other entry).
-			document.addEventListener("hero:revealed", reveal, { once: true });
-			window.setTimeout(reveal, 2400);
+			document.addEventListener("hero:work-ready", reveal, { once: true });
+			window.setTimeout(reveal, 2200);
 		});
 	}
 
 	document.addEventListener("astro:page-load", setup);
-	document.addEventListener("astro:before-swap", killTriggers);
+	document.addEventListener("astro:before-swap", () => {
+		killTriggers();
+		cleanupDescriptions();
+	});
 </script>
 
 <script>

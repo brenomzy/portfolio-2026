@@ -65,9 +65,8 @@
 		grid-template-columns: 1fr 1fr;
 		padding: var(--pad);
 		border-radius: 999px;
-		/* Track blends into the page (var(--bg), like the consulting language
-		 * toggle), with a subtle theme-aware hairline border. */
-		background: var(--bg);
+		/* A crisp neutral track: paper in light mode, true black in dark mode. */
+		background: #fff;
 		border: 1px solid var(--border);
 		font-size: 0.8rem;
 		/* Deliberately NO view-transition-name. A theme-AWARE edge (this border)
@@ -77,6 +76,9 @@
 		 * the page — the border just changes with the wipe, no flash. (The old solid
 		 * #857e74 border dodged the flash by being theme-INDEPENDENT; we keep the
 		 * subtle per-theme look instead by not cross-fading the toggle on its own.) */
+	}
+	:global([data-theme="dark"]) .c-theme-toggle {
+		background: #000;
 	}
 
 	.c-theme-toggle__thumb {

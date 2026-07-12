@@ -15,18 +15,39 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../lib/site";
 <Base title={SITE_TITLE} description={SITE_DESCRIPTION}>
 	<SiteHeader slot="header" />
 
-	<Hero />
+	<div class="c-home-upper">
+		<Hero />
 
-	<WorkSection projects={WORK_PROJECTS} />
+		<WorkSection projects={WORK_PROJECTS} />
 
-	<MoreWork />
+		<MoreWork />
+	</div>
 
-	<AboutSection />
+	<div class="c-home-tail">
+		<AboutSection />
 
-	<ContactSection />
+		<ContactSection />
+	</div>
 
 	<SiteFooter slot="footer" />
 	<!-- Outside #main (slot=footer) so the modal isn't trapped in #main's
 	     stacking context — and so scaling #main on open doesn't scale it. -->
 	<ProjectModal slot="footer" projects={WORK_PROJECTS} />
 </Base>
+
+<style is:global>
+	:root {
+		--home-upper-bg: var(--bg);
+		--home-tail-bg: #fff;
+	}
+	[data-theme="dark"] {
+		--home-tail-bg: var(--surface);
+	}
+	.c-home-upper {
+		padding-bottom: var(--spacing-2xl);
+		background: var(--home-upper-bg);
+	}
+	.c-home-tail {
+		background: var(--home-tail-bg);
+	}
+</style>

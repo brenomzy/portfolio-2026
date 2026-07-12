@@ -44,6 +44,21 @@
 		text-rendering: optimizeLegibility;
 	}
 
+	/* Two quiet layout guides follow the shared content container rather than
+	 * filling the page with a decorative grid. */
+	#main::before {
+		content: "";
+		position: absolute;
+		z-index: 2;
+		inset-block: 0;
+		left: 50%;
+		width: calc(100% - (2 * var(--spacing-m)));
+		max-width: var(--container-content);
+		transform: translateX(-50%);
+		border-inline: 1px solid var(--grid-line);
+		pointer-events: none;
+	}
+
 	h1,
 	h2,
 	h3,
@@ -222,12 +237,5 @@ html.js [data-reveal] {
  * on both the cream and the dark theme without a blend mode. Repeat at natural
  * size (no background-size scaling) keeps the grain dots ~1px and sharp. */
 body::before {
-	content: "";
-	position: fixed;
-	inset: 0;
-	z-index: 1000;
-	pointer-events: none;
-	opacity: 0.055;
-	background-image: url("/grain.png");
-	background-repeat: repeat;
+	content: none;
 }

@@ -13,14 +13,29 @@ import { ABOUT } from "../lib/about";
 					{ABOUT.home.titleLineOne}
 				</span>
 				<span class="c-about__title-row" aria-hidden="true">
-					<span class="c-about__portrait">
-						<img
-							src="/about/gallery/g-3.webp"
-							alt=""
-							width="600"
-							height="800"
-							loading="lazy"
-						/>
+					<span class="c-about__portrait" aria-hidden="true">
+						{
+							[1, 2, 3, 4].map((option) => (
+								<span class="c-about__portrait-frame">
+									<img
+										class="c-about__portrait-image c-about__portrait-image--light"
+										src={`/pixel-images/pixel-sunset-option-${option}-150x86.png`}
+										alt=""
+										width="150"
+										height="86"
+										loading="lazy"
+									/>
+									<img
+										class="c-about__portrait-image c-about__portrait-image--dark"
+										src={`/pixel-images/night-moon-option-${option}-150x86.png`}
+										alt=""
+										width="150"
+										height="86"
+										loading="lazy"
+									/>
+								</span>
+							))
+						}
 					</span>
 					<span class="c-about__title-line js-about-title-line">
 						{ABOUT.home.titleLineTwo}
@@ -75,6 +90,7 @@ import { ABOUT } from "../lib/about";
 		min-width: 0;
 	}
 	.c-about__portrait {
+		position: relative;
 		flex: 0 0 var(--portrait-width, 1.25em);
 		width: var(--portrait-width, 1.25em);
 		height: 0.72em;
@@ -85,16 +101,68 @@ import { ABOUT } from "../lib/about";
 		box-shadow: var(--shadow-1);
 		will-change: clip-path, opacity;
 	}
-	.c-about__portrait img {
+	.c-about__portrait-frame {
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		overflow: hidden;
+		opacity: 0;
+		animation: portrait-crossfade 16s linear infinite;
+	}
+	.c-about__portrait-image {
 		width: 100%;
 		height: 100%;
+		border-radius: inherit;
 		object-fit: cover;
-		object-position: 50% 8%;
+		image-rendering: pixelated;
 		outline: 1px solid rgb(0 0 0 / 0.1);
 		outline-offset: -1px;
 	}
-	[data-theme="dark"] .c-about__portrait img {
+	.c-about__portrait-frame:nth-child(1) {
+		opacity: 1;
+	}
+	.c-about__portrait-frame:nth-child(2) {
+		animation-delay: -12s;
+	}
+	.c-about__portrait-frame:nth-child(3) {
+		animation-delay: -8s;
+	}
+	.c-about__portrait-frame:nth-child(4) {
+		animation-delay: -4s;
+	}
+	.c-about__portrait-image--dark {
+		display: none;
+	}
+	@keyframes portrait-crossfade {
+		0%,
+		21.25% {
+			opacity: 1;
+		}
+		25%,
+		96.25% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+	:global([data-theme="dark"]) .c-about__portrait-image--light {
+		display: none;
+	}
+	:global([data-theme="dark"]) .c-about__portrait-image--dark {
+		display: block;
+	}
+	:global([data-theme="dark"]) .c-about__portrait-image {
 		outline-color: rgb(255 255 255 / 0.1);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.c-about__portrait-frame {
+			animation: none;
+			opacity: 0;
+		}
+		.c-about__portrait-frame:first-child {
+			opacity: 1;
+		}
 	}
 	.c-about__details {
 		display: grid;

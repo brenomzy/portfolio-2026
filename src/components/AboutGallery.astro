@@ -58,10 +58,10 @@ const PHOTOS = ABOUT.photos;
 		align-items: center;
 	}
 	.about__gallery .flick-group {
-		/* Sized to the column via container queries: the 47em slider stays ~87%
-		 * of the column width at every size, so even the off-stage cards (which
-		 * fan widest) never push past the column and cause page overflow. */
-		font-size: clamp(6px, 1.85cqi, 12px);
+		/* Scale with the wider desktop gallery column. The cap keeps the cards from
+		 * becoming oversized on very wide screens, while the container-query value
+		 * preserves the same proportions as the viewport narrows. */
+		font-size: clamp(6px, 1.85cqi, 14px);
 	}
 
 	.flick-group {

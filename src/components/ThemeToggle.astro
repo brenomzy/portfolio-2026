@@ -1,8 +1,8 @@
 ---
 /*
  * c-theme-toggle — a segmented light/dark switch. Two cells (☀ sun / 🌙 moon-star,
- * Lucide icons) on a subtle surface track, with a pill thumb that takes the brand
- * accent (orange in light, blue in dark) and slides under the active mode.
+ * Lucide icons) on a light-grey track, with a theme-aware circular thumb that
+ * slides under the active mode. The active icon uses the orange/blue gradient.
  *
  * Flips [data-theme] on <html> and persists to a `theme` cookie (the no-flash init
  * in Base.astro reads it back). On change it runs the diagonal theme-wipe via the
@@ -27,6 +27,12 @@
 		aria-pressed="true"
 	>
 		<svg class="c-theme-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<defs>
+				<linearGradient id="theme-light-gradient" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+					<stop stop-color="var(--logo-grad-1)"></stop>
+					<stop offset="1" stop-color="var(--logo-grad-2)"></stop>
+				</linearGradient>
+			</defs>
 			<circle cx="12" cy="12" r="4"></circle>
 			<path d="M12 2v2"></path>
 			<path d="M12 20v2"></path>
@@ -47,6 +53,12 @@
 		aria-pressed="false"
 	>
 		<svg class="c-theme-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<defs>
+				<linearGradient id="theme-dark-gradient" x1="5" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+					<stop stop-color="#82adff"></stop>
+					<stop offset="1" stop-color="#4779e8"></stop>
+				</linearGradient>
+			</defs>
 			<path d="M18 5h4"></path>
 			<path d="M20 3v4"></path>
 			<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path>
@@ -56,41 +68,33 @@
 
 <style>
 	.c-theme-toggle {
-		/* Wider than tall → the thumb reads as a horizontal pill, control sits low. */
-		--cell-w: 3.1em;
-		--cell-h: 1.9em;
-		--pad: 0.3em;
+		--cell-size: 2.25rem;
+		--pad: 0.125rem;
 		position: relative;
 		display: inline-grid;
 		grid-template-columns: 1fr 1fr;
 		padding: var(--pad);
 		border-radius: 999px;
-		/* A crisp neutral track: paper in light mode, true black in dark mode. */
-		background: #fff;
-		border: 1px solid var(--border);
+		background: hsl(30 4% 93%);
 		font-size: 0.8rem;
-		/* Deliberately NO view-transition-name. A theme-AWARE edge (this border)
-		 * flashes if the toggle gets its own VT snapshot: its old (light-border) and
-		 * new (dark-border) snapshots cross-fade, shimmering the 1px edge. Left
-		 * un-named, the toggle is revealed by the page's theme-wipe like the rest of
-		 * the page — the border just changes with the wipe, no flash. (The old solid
-		 * #857e74 border dodged the flash by being theme-INDEPENDENT; we keep the
-		 * subtle per-theme look instead by not cross-fading the toggle on its own.) */
+		/* Deliberately no view-transition-name: the track should change with the
+		 * page wipe while the named thumb and buttons animate above it. */
 	}
 	:global([data-theme="dark"]) .c-theme-toggle {
-		background: #000;
+		background: hsl(30 3% 18%);
 	}
 
 	.c-theme-toggle__thumb {
 		position: absolute;
 		top: var(--pad);
-		bottom: var(--pad);
 		left: var(--pad);
-		width: calc(50% - var(--pad));
-		border-radius: 999px;
-		/* Brand accent — orange in light, blue in dark (theme token). */
-		background: var(--accent);
-		box-shadow: var(--shadow-1);
+		width: var(--cell-size);
+		height: var(--cell-size);
+		border-radius: 50%;
+		background: #fff;
+		box-shadow:
+			0 1px 2px hsl(0 0% 0% / 0.08),
+			0 2px 6px hsl(0 0% 0% / 0.06);
 		/* Spring slide between modes (same micro-interaction as the consulting
 		 * language toggle). Plays directly on the instant / reduced-motion path. */
 		transition: transform 0.45s var(--ease-spring);
@@ -103,6 +107,11 @@
 		view-transition-name: theme-thumb;
 	}
 	:global([data-theme="dark"]) .c-theme-toggle__thumb {
+		background: #000;
+		box-shadow:
+			0 0 0 1px hsl(0 0% 100% / 0.04),
+			0 1px 2px hsl(0 0% 0% / 0.18),
+			0 2px 6px hsl(0 0% 0% / 0.14);
 		transform: translateX(100%);
 	}
 
@@ -111,12 +120,12 @@
 		z-index: 1;
 		display: inline-grid;
 		place-items: center;
-		width: var(--cell-w);
-		height: var(--cell-h);
+		width: var(--cell-size);
+		height: var(--cell-size);
 		padding: 0;
 		background: transparent;
 		border: none;
-		border-radius: 999px;
+		border-radius: 50%;
 		cursor: pointer;
 		/* Inactive icon — muted ink on the surface track. */
 		color: var(--text-muted);
@@ -124,8 +133,8 @@
 		transition: color 0.25s var(--ease-out-expo);
 	}
 	.c-theme-toggle__icon {
-		width: 1.2em;
-		height: 1.2em;
+		width: 1.125rem;
+		height: 1.125rem;
 	}
 
 	/* Each button gets its OWN view-transition snapshot too. Without this, the
@@ -140,15 +149,16 @@
 		view-transition-name: theme-btn-dark;
 	}
 
-	/* Active icon — the cell the thumb is under (its data-theme-set matches the
-	 * live theme) → warm white, which reads on both the orange and blue accent. */
-	:global([data-theme="light"]) .c-theme-toggle__btn[data-theme-set="light"],
-	:global([data-theme="dark"]) .c-theme-toggle__btn[data-theme-set="dark"] {
-		color: hsl(38 44% 97%);
+	/* The active icon picks up the theme's orange or blue brand gradient. */
+	:global([data-theme="light"]) .c-theme-toggle__btn[data-theme-set="light"] .c-theme-toggle__icon {
+		stroke: url(#theme-light-gradient);
+	}
+	:global([data-theme="dark"]) .c-theme-toggle__btn[data-theme-set="dark"] .c-theme-toggle__icon {
+		stroke: url(#theme-dark-gradient);
 	}
 
 	.c-theme-toggle__btn:active {
-		scale: 0.9;
+		scale: 0.96;
 	}
 	.c-theme-toggle__btn:focus-visible {
 		outline: 2px solid var(--accent);

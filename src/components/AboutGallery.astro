@@ -264,7 +264,10 @@ const PHOTOS = ABOUT.photos;
 			// animates this [data-reveal] wrapper); a beat later the stacked cards fan
 			// out. Init itself is already deferred past the cross-fade (see the
 			// astro:page-load handler), so the fan-out just trails it by a beat.
-			gsap.delayedCall(0.45, () => renderCards(activeIndex));
+			// Keep the fan-out aligned with the gallery wrapper's delayed hero reveal
+			// (about.astro). The previous 0.45s start made the cards move while the
+			// intro and gallery were still arriving together, which felt rushed.
+			gsap.delayedCall(0.95, () => renderCards(activeIndex));
 
 			if (total < 7) {
 				console.log("Not minimum of 7 cards");

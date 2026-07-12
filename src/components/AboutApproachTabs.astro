@@ -128,7 +128,9 @@ const visuals = [
 
 	.c-approach-tabs__heading {
 		grid-column: 1 / -1;
-		max-width: none;
+		/* Keep the statement from spanning the full container. The shorter measure
+		 * gives the paragraph on the right a clearer counterweight below it. */
+		max-width: 30ch;
 		font-size: var(--text-step-4);
 		line-height: 1.06;
 		text-wrap: balance;

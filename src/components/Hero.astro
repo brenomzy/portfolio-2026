@@ -74,6 +74,16 @@ import { CONTACT_EMAIL } from "../lib/site";
 		background-clip: text;
 		-webkit-background-clip: text;
 	}
+	/* SplitText temporarily moves the first line into direct child divs. A
+	 * background clipped on the parent does not paint through those wrappers,
+	 * leaving their inherited transparent text invisible during the reveal.
+	 * Paint the same vertical gradient on those temporary words; the selector
+	 * stops at direct children so the rotating second line keeps its solid color. */
+	:global([data-theme="dark"]) .hero__title > :global(div) {
+		background-image: linear-gradient(180deg, #fafafa 0%, #b6b6b6 100%);
+		background-clip: text;
+		-webkit-background-clip: text;
+	}
 	:global([data-theme="dark"]) .hero__title-secondary {
 		color: var(--text);
 		background: none;

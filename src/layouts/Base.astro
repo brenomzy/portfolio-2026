@@ -83,11 +83,14 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 
 	<body>
 		<a class="c-skip-link" href="#main">Skip to content</a>
-		<slot name="header" />
-		<main id="main">
-			<slot />
-		</main>
-		<slot name="footer" />
+		<div class="c-page-shell" data-page-shell>
+			<slot name="header" />
+			<main id="main">
+				<slot />
+			</main>
+			<slot name="footer" />
+		</div>
+		<slot name="modal" />
 		<ProgressiveBlur />
 		<PageTransition />
 
@@ -99,6 +102,54 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 		</div>
 
 		<style>
+			/* Dayy/Vaul-style page wrapper: current scrollY is the transform origin,
+			 * so the visible content holds its place at any scroll position. */
+			.c-page-shell {
+				position: relative;
+				background-color: var(--bg);
+				transform-origin: 50% var(--pmodal-scroll-y, 0px);
+				clip-path: inset(0 0 0 0 round 0);
+				transition:
+					transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+					border-radius 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+					clip-path 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+			}
+			:global(.c-header) {
+				transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+			}
+			:global(body) {
+				transition: background-color 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+			}
+			:global(body.is-project-open) {
+				background-color: var(--pmodal-stage-bg);
+			}
+			.c-page-shell::after {
+				content: "";
+				position: absolute;
+				inset: 0;
+				z-index: 90;
+				background-color: rgb(14 10 7 / 0.5);
+				backdrop-filter: blur(0.5em);
+				-webkit-backdrop-filter: blur(0.5em);
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+			}
+			body.is-project-open .c-page-shell {
+				transform: scale(var(--pmodal-page-scale, 0.98)) translate3d(0, 14px, 0);
+				border-radius: 1rem 1rem 0 0;
+				clip-path: inset(
+					var(--pmodal-scroll-y, 0px) 0 0 0 round 1rem 1rem 0 0
+				);
+				overflow: clip;
+			}
+			body.is-project-open .c-page-shell::after {
+				opacity: 1;
+			}
+			body.is-project-open :global(.c-header) {
+				transform: translateY(-100%);
+			}
+
 			/* Footer reveal: #main sits above the footer (which is sticky to the
 			 * viewport bottom — see SiteFooter.astro) and must be opaque so it hides
 			 * the footer until the page scrolls past it.
@@ -142,6 +193,23 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 
 			.c-skip-link:focus-visible {
 				transform: translateY(0);
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.c-page-shell,
+				:global(.c-header),
+				:global(body) {
+					transition: none;
+				}
+				body.is-project-open .c-page-shell {
+					transform: none;
+				}
+				body.is-project-open :global(.c-header) {
+					transform: none;
+				}
+				.c-page-shell::after {
+					transition: none;
+				}
 			}
 
 			/* Copy feedback — a pill that emerges from behind the clicked CTA.

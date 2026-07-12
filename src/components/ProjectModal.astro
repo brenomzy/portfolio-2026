@@ -28,7 +28,6 @@
  * aspect distortion. Reduced motion: instant states.
  */
 import type { WorkProject } from "../lib/work-projects";
-import Button from "./Button.astro";
 
 interface Props {
 	projects: WorkProject[];
@@ -94,30 +93,29 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 
 				<aside class="c-pmodal__info">
 					<h2 class="c-pmodal__title" data-pmodal-info data-pmodal-title>{p?.title}</h2>
-					<div class="c-pmodal__cta" data-pmodal-info>
-						<Button label="Live preview" href={p?.liveUrl ?? "#"} variant="link" icon data-pmodal-link target="_blank" rel="noopener" />
-					</div>
-					<div data-pmodal-info>
-						<p class="c-pmodal__desc" data-pmodal-desc>{p?.description}</p>
-					</div>
-					<dl class="c-pmodal__rows" data-pmodal-info>
-						<div class="c-pmodal__row">
+					<p class="c-pmodal__summary" data-pmodal-info data-pmodal-summary>{p?.summary}</p>
+					<dl class="c-pmodal__meta" data-pmodal-info>
+						<div class="c-pmodal__meta-item">
 							<dt>Client</dt>
 							<dd data-pmodal-client>{p?.client}</dd>
 						</div>
-						<div class="c-pmodal__row">
-							<dt>Category</dt>
+						<div class="c-pmodal__meta-item">
+							<dt>Industry</dt>
 							<dd data-pmodal-category>{p?.category}</dd>
 						</div>
-						<div class="c-pmodal__row">
-							<dt>Role</dt>
-							<dd data-pmodal-role>{p?.role}</dd>
-						</div>
-						<div class="c-pmodal__row">
+						<div class="c-pmodal__meta-item">
 							<dt>Year</dt>
 							<dd data-pmodal-year>{p?.year}</dd>
 						</div>
 					</dl>
+					<div class="c-pmodal__about" data-pmodal-info>
+						<p class="c-pmodal__label">About</p>
+						<p class="c-pmodal__desc" data-pmodal-desc>{p?.description}</p>
+					</div>
+					<div class="c-pmodal__about" data-pmodal-info>
+						<p class="c-pmodal__label">Role</p>
+						<p data-pmodal-role>{p?.role}</p>
+					</div>
 				</aside>
 			</div>
 		</div>
@@ -157,17 +155,17 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	.c-pmodal.is-open {
 		display: block;
 	}
-
 	.c-pmodal__overlay {
 		position: absolute;
 		inset: 0;
+		z-index: 1;
 		/* Warm near-black scrim — matches the shadow hue family. Paired with a
 		 * backdrop blur so the page softens as it dims (most visible in the gap
 		 * above the panel). em-based blur to match the header / progressive-blur
 		 * language. Fades in with the overlay's opacity. */
-		background-color: rgb(14 10 7 / 0.5);
-		backdrop-filter: blur(0.5em);
-		-webkit-backdrop-filter: blur(0.5em);
+		/* Visual dimming lives on #main so this transparent click target doesn't
+		 * tint the contrasting stage revealed outside the shrunken page. */
+		background-color: transparent;
 		opacity: 0;
 		cursor: pointer;
 	}
@@ -180,8 +178,9 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 
 	.c-pmodal__panel {
 		position: absolute;
+		z-index: 2;
 		/* Top gap shows the dimmed page behind — the "card on top" read. */
-		inset: 4.5svh 0 0;
+		inset: 1.5rem 0 0;
 		background-color: var(--bg);
 		border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 		box-shadow: var(--shadow-5);
@@ -284,38 +283,55 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		align-self: start;
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-m);
+		gap: 0;
 		padding-block: var(--spacing-s) var(--spacing-m);
 		padding-right: var(--spacing-2xl); /* clearance from the close button */
 	}
 
 	.c-pmodal__title {
-		font-size: var(--text-step-3);
+		max-width: 12ch;
+		font-size: clamp(2rem, 3vw, 3.5rem);
+		line-height: 0.95;
+		letter-spacing: -0.055em;
+	}
+	.c-pmodal__summary {
+		max-width: 27ch;
+		margin-top: var(--spacing-s);
+		font-size: clamp(1.25rem, 1.7vw, 1.75rem);
+		font-weight: 400;
+		line-height: 1.2;
+		letter-spacing: -0.035em;
+		text-wrap: balance;
+	}
+	.c-pmodal__meta {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--spacing-s);
+		margin: clamp(3rem, 7vh, 6rem) 0 0;
+	}
+	.c-pmodal__meta-item dt,
+	.c-pmodal__label {
+		margin-bottom: var(--spacing-3xs);
+		color: var(--text);
+		font-size: var(--text-step--1);
+		font-weight: 600;
+		line-height: 1.35;
+	}
+	.c-pmodal__meta-item dd {
+		margin: 0;
+		color: var(--text-muted);
+		font-size: var(--text-step--1);
+		line-height: 1.45;
+	}
+	.c-pmodal__about {
+		max-width: 52ch;
+		margin-top: var(--spacing-l);
 	}
 	.c-pmodal__desc {
-		max-width: 52ch;
-	}
-	.c-pmodal__rows {
-		margin: 0;
-	}
-	.c-pmodal__row {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--spacing-m);
-		padding-block: var(--spacing-xs);
-		border-top: 1px solid var(--border);
-		font-size: var(--text-step--1);
-	}
-	.c-pmodal__row:last-child {
-		border-bottom: 1px solid var(--border);
-	}
-	.c-pmodal__row dt {
 		color: var(--text-muted);
-	}
-	.c-pmodal__row dd {
-		margin: 0;
-		text-align: right;
+		font-size: var(--text-step--1);
+		line-height: 1.55;
+		text-wrap: pretty;
 	}
 
 	/* Plain icon — no circle/border/background. The 3rem box is just the tap
@@ -324,7 +340,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	 * Fades + slides in with the info column (see the open timeline). */
 	.c-pmodal__close {
 		position: absolute;
-		top: calc(4.5svh + var(--spacing-s));
+		top: calc(1.5rem + var(--spacing-s));
 		right: var(--spacing-m);
 		z-index: 5;
 		display: grid;
@@ -371,12 +387,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	/* ≤80rem / 1280px: stack the layout, with the project DETAILS (info) on top and
 	 * the screenshots below. Pull the panel down below the sticky header so the nav
 	 * shows (dimmed) in the strip above it; the close X moves to that strip's top-left. */
-	@media (max-width: 80rem) {
-		.c-pmodal__panel {
-			/* Below the 3.5rem header + a little gap, so the navigation is visible
-			 * behind the scrim above the panel. */
-			inset: 4.75rem 0 0;
-		}
+	@media (max-width: 64rem) {
 		.c-pmodal__layout,
 		.c-pmodal__layout[data-media-side="right"] {
 			grid-template-columns: 1fr;
@@ -386,10 +397,33 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 			position: static;
 			padding-right: 0;
 		}
+		.c-pmodal__title {
+			max-width: none;
+		}
+		.c-pmodal__summary {
+			max-width: 34ch;
+		}
+	}
+	@media (min-width: 40rem) {
+		.c-pmodal__panel {
+			inset: 2rem 0 0;
+		}
 		.c-pmodal__close {
-			top: var(--spacing-2xs);
-			left: var(--spacing-2xs);
-			right: auto;
+			top: calc(2rem + var(--spacing-s));
+		}
+	}
+	@media (min-width: 64rem) {
+		.c-pmodal__panel {
+			inset: 2.5rem 0 0;
+		}
+		.c-pmodal__close {
+			top: calc(2.5rem + var(--spacing-s));
+		}
+	}
+	@media (max-width: 40rem) {
+		.c-pmodal__meta {
+			grid-template-columns: 1fr 1fr;
+			margin-top: var(--spacing-xl);
 		}
 	}
 </style>
@@ -401,16 +435,15 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 
 	gsap.registerPlugin(Flip, CustomEase);
 
-	// Strong ease-OUT (matches the --ease-out-expo token) — the modal is an
-	// element entering the viewport, so it decelerates into place. Used for the
-	// whole open/close choreography so panel + flight + info read as one unit.
+	// Dayy's Vaul drawer curve. Page shell, panel, and image flight use the same
+	// 500ms transition, making close a true reversal instead of a separate beat.
 	const EASE_OUT =
-		CustomEase.get("brand-out") ?? CustomEase.create("brand-out", "0.16,1,0.3,1");
+		CustomEase.get("project-drawer") ??
+		CustomEase.create("project-drawer", "0.32,0.72,0,1");
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 
-	// Durations — open ~0.55s, exit ~20% faster (per the animation-design skill).
-	const D_OPEN = 0.55;
-	const D_CLOSE = 0.44;
+	const D_OPEN = 0.5;
+	const D_CLOSE = 0.5;
 
 	let isOpen = false;
 	let isBusy = false; // ignore input mid-choreography
@@ -448,6 +481,18 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 
 	function lockModalScroll(scroll: HTMLElement, on: boolean) {
 		scroll.style.overflowY = on ? "hidden" : "";
+	}
+
+	function setPageDepth(open: boolean) {
+		const shell = q("[data-page-shell]");
+		if (open && shell) {
+			shell.style.setProperty("--pmodal-scroll-y", `${window.scrollY}px`);
+			shell.style.setProperty(
+				"--pmodal-page-scale",
+				String((window.innerWidth - 26) / window.innerWidth),
+			);
+		}
+		document.body.classList.toggle("is-project-open", open);
 	}
 
 	function setText(sel: string, value: string) {
@@ -537,14 +582,12 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 
 		// Populate.
 		setText("[data-pmodal-title]", project.title);
+		setText("[data-pmodal-summary]", project.summary);
 		setText("[data-pmodal-desc]", project.description);
 		setText("[data-pmodal-client]", project.client);
 		setText("[data-pmodal-category]", project.category);
 		setText("[data-pmodal-role]", project.role);
 		setText("[data-pmodal-year]", String(project.year));
-		const link = q<HTMLAnchorElement>("[data-pmodal-link]");
-		if (link) link.href = project.liveUrl;
-
 		const heroMedia = renderHero(project);
 
 		const shots = q("[data-pmodal-shots]")!;
@@ -570,6 +613,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		isBusy = true;
 		modal.classList.add("is-open");
 		modal.setAttribute("aria-hidden", "false");
+		setPageDepth(true);
 		lockScroll(true);
 		scroll.scrollTop = 0;
 		lockModalScroll(scroll, true);
@@ -674,6 +718,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		if (!modal || !isOpen || isBusy) return;
 		isBusy = true;
 		document.removeEventListener("keydown", onKeydown);
+		setPageDepth(false);
 
 		const panel = q("[data-pmodal-panel]")!;
 		const scroll = q("[data-pmodal-scroll]")!;
@@ -797,6 +842,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		isOpen = true;
 		cardImg = null;
 		lastFocus = null;
+		setPageDepth(true);
 		lockScroll(true);
 		document.addEventListener("keydown", onKeydown);
 		q<HTMLAnchorElement>(".c-pmodal__close")?.focus();
@@ -807,6 +853,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	function onBeforeSwap() {
 		if (!isOpen) return;
 		document.removeEventListener("keydown", onKeydown);
+		setPageDepth(false);
 		lockScroll(false);
 		isOpen = false;
 		isBusy = false;

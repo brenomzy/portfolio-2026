@@ -4,7 +4,6 @@ import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import Button from "../components/Button.astro";
 import AboutGallery from "../components/AboutGallery.astro";
-import AboutApproachTabs from "../components/AboutApproachTabs.astro";
 import SocialLinks from "../components/SocialLinks.astro";
 import { SITE_NAME } from "../lib/site";
 import { ABOUT } from "../lib/about";
@@ -161,9 +160,6 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 			</div>
 		</section>
 
-		<!-- Approach / values ----------------------------------------------- -->
-		<AboutApproachTabs values={ABOUT.values} />
-
 		<!-- A quieter personal-details epilogue ----------------------------- -->
 		<section class="about__cards" aria-label="Tools and personal details">
 			<div class="c-card about__toolstack js-about-reveal" data-reveal>
@@ -191,16 +187,18 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 				<div class="about__jams-grid">
 					{
 						ABOUT.jams.map((j) => (
-							<iframe
-								class="about__jam"
-								title={`${j.title} by ${j.artist} on Spotify`}
-								src={`https://open.spotify.com/embed/track/${j.trackId}?utm_source=generator`}
-								width="100%"
-								height="152"
-								loading="lazy"
-								frameborder="0"
-								allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-							/>
+							<div class="about__jam-frame">
+								<iframe
+									class="about__jam"
+									title={`${j.title} by ${j.artist} on Spotify`}
+									src={`https://open.spotify.com/embed/track/${j.trackId}?utm_source=generator`}
+									width="100%"
+									height="152"
+									loading="lazy"
+									frameborder="0"
+									allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+								/>
+							</div>
 						))
 					}
 				</div>
@@ -524,10 +522,29 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
 		gap: var(--spacing-2xs);
 	}
-	.about__jam {
-		border: 0;
+	.about__jam-frame {
+		position: relative;
+		height: 152px;
 		border-radius: var(--radius-md);
+		overflow: hidden;
+	}
+	/* Cover only Spotify's light perimeter in dark mode. Unlike oversizing the
+	 * iframe, this leaves the full player—including its bottom controls—intact. */
+	:global([data-theme="dark"]) .about__jam-frame::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		box-shadow: inset 0 0 0 1px var(--bg);
+		pointer-events: none;
+	}
+	.about__jam {
+		position: absolute;
+		inset: 0;
+		display: block;
 		width: 100%;
+		height: 100%;
+		border: 0;
 	}
 
 	/* ── Experience timeline ───────────────────────────────────────────── */
@@ -758,11 +775,12 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		timelineCleanup = undefined;
 	}
 
-	const reveal = (els: HTMLElement | HTMLElement[]) =>
+	const reveal = (els: HTMLElement | HTMLElement[], delay = 0) =>
 		gsap.to(els, {
 			autoAlpha: 1,
 			y: 0,
 			duration: 0.8,
+			delay,
 			ease: EASE_OUT,
 			stagger: 0.08,
 			overwrite: true,
@@ -805,7 +823,18 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		// navigation freeze). Below-fold items keep their own scroll triggers (set up
 		// above). Resolves immediately on a fresh load, so that path is unchanged.
 		whenRevealable().then(() => {
-			if (onLoad.length) reveal(onLoad);
+			if (onLoad.length) {
+				const gallery = onLoad.filter((item) =>
+					item.classList.contains("about__gallery"),
+				);
+				const introItems = onLoad.filter(
+					(item) => !item.classList.contains("about__gallery"),
+				);
+				if (introItems.length) reveal(introItems);
+				// The portrait stack is the hero's closing beat. Let the copy establish
+				// itself first, matching the calmer staging of the deployed site.
+				if (gallery.length) reveal(gallery, 1);
+			}
 			ScrollTrigger.refresh();
 		});
 	}

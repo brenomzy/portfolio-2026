@@ -32,7 +32,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../lib/site";
 	<SiteFooter slot="footer" />
 	<!-- Outside #main (slot=footer) so the modal isn't trapped in #main's
 	     stacking context — and so scaling #main on open doesn't scale it. -->
-	<ProjectModal slot="footer" projects={WORK_PROJECTS} />
+	<ProjectModal slot="modal" projects={WORK_PROJECTS} />
 </Base>
 
 <style is:global>

@@ -27,10 +27,8 @@
 	--surface: hsl(36 34% 91%);
 	--surface-raised: hsl(42 52% 97%);
 
-	/* Thumbnail backdrop — the gradient behind a Work card's floating browser
-	 * frame. Theme-aware (light here, dark below) so a future gradient-border on
-	 * the card reads against it. Light = soft warm cream wash. */
-	--thumb-bg: linear-gradient(150deg, hsl(40 36% 96%), hsl(34 26% 88%));
+	/* Thumbnail backdrop follows the page neutral in both themes. */
+	--thumb-bg: var(--bg);
 
 	/* Faint hairline shown by a Work card's 1px gradient border when the cursor
 	 * isn't lighting it up (the brand-gradient blob is layered over this). */
@@ -85,8 +83,8 @@
 	--surface: hsl(30 4% 12%);
 	--surface-raised: hsl(30 4% 16%);
 
-	/* Dark thumbnail backdrop — a faint warm-grey wash, lifted at top-left. */
-	--thumb-bg: linear-gradient(150deg, hsl(30 6% 17%), hsl(30 6% 9%));
+	/* Keep the dark thumbnail backdrop aligned with the dark page neutral. */
+	--thumb-bg: var(--bg);
 
 	/* Resting card border on dark — a neutral warm-grey a touch LIGHTER than the
 	 * bg (hsl 30 5% 9%) so the hairline reads as a subtle edge rather than near

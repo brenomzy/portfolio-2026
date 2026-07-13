@@ -281,14 +281,24 @@
 
 		// Swap palette when the theme flips; repaint at once so the theme
 		// view-transition wipe carries the new colour.
-		themeObs = new MutationObserver(() => {
-			palette = pickPalette();
-			grad?.render(performance.now() / 1000);
-		});
-		themeObs.observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ["data-theme"],
-		});
+		const themeRoot = document.documentElement;
+		if (themeRoot instanceof Node) {
+			themeObs = new MutationObserver(() => {
+				palette = pickPalette();
+				grad?.render(performance.now() / 1000);
+			});
+			try {
+				themeObs.observe(themeRoot, {
+					attributes: true,
+					attributeFilter: ["data-theme"],
+				});
+			} catch {
+				// Theme observation is an enhancement. Keep the static palette if a
+				// browser tears down the document root during startup or navigation.
+				themeObs.disconnect();
+				themeObs = null;
+			}
+		}
 
 		if (import.meta.env.DEV)
 			(window as unknown as { __footerGrad: unknown }).__footerGrad = {

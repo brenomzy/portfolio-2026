@@ -14,12 +14,8 @@ import ThemeToggle from "./ThemeToggle.astro";
 		</div>
 	</div>
 </header>
-<div class="c-header-spacer" aria-hidden="true"></div>
 
 <style>
-	.c-header-spacer {
-		display: none;
-	}
 	.c-header {
 		position: sticky;
 		top: 0;
@@ -60,21 +56,6 @@ import ThemeToggle from "./ThemeToggle.astro";
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-xs);
-	}
-
-	@media (max-width: 40rem) {
-		.c-header {
-			position: fixed;
-			inset: 0 0 auto;
-			width: 100%;
-		}
-		.c-header__inner {
-			min-height: 3.625rem;
-		}
-		.c-header-spacer {
-			display: block;
-			height: 3.625rem;
-		}
 	}
 </style>
 

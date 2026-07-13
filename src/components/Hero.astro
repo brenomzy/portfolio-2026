@@ -76,6 +76,13 @@ import { CONTACT_EMAIL } from "../lib/site";
 		gap: var(--spacing-2xs);
 		margin-top: var(--spacing-2xs);
 	}
+	@media (max-width: 30rem) {
+		.hero__title-rotator {
+			/* The desktop width reservation prevents title swaps from shifting the
+			 * layout, but 17ch exceeds the phone content column. */
+			min-width: 0;
+		}
+	}
 </style>
 
 <script>

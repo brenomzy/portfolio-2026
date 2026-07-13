@@ -83,8 +83,8 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 
 	<body>
 		<a class="c-skip-link" href="#main">Skip to content</a>
-		<slot name="header" />
 		<div class="c-page-shell" data-page-shell>
+			<slot name="header" />
 			<main id="main">
 				<slot />
 			</main>
@@ -150,11 +150,17 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 				transform: translateY(-100%);
 			}
 
-			/* The header lives outside the transforming page shell, so mobile keeps
-			 * the stacked-card depth effect without pulling navigation off-screen. */
+			/* Mobile Safari treats an always-clipped ancestor as the sticky header's
+			 * containing block. Keep the shell unclipped during normal scrolling, then
+			 * apply the same stacked-card clip as desktop only while the modal is open. */
 			@media (max-width: 40rem) {
-				body.is-project-open :global(.c-header) {
-					transform: none;
+				.c-page-shell {
+					clip-path: none;
+				}
+				body.is-project-open .c-page-shell {
+					clip-path: inset(
+						var(--pmodal-scroll-y, 0px) 0 0 0 round 1rem 1rem 0 0
+					);
 				}
 			}
 

@@ -39,6 +39,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../lib/site";
 	:root {
 		--home-upper-bg: var(--bg);
 		--home-tail-bg: #fff;
+		--home-gutter: var(--spacing-m);
 	}
 	[data-theme="dark"] {
 		--home-tail-bg: var(--surface);
@@ -49,5 +50,11 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../lib/site";
 	}
 	.c-home-tail {
 		background: var(--home-tail-bg);
+	}
+	@media (max-width: 30rem) {
+		:root {
+			/* Match the extra breathing room used by the About page on phones. */
+			--home-gutter: calc(var(--spacing-m) + var(--spacing-s));
+		}
 	}
 </style>

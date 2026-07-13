@@ -20,6 +20,10 @@ import ThemeToggle from "./ThemeToggle.astro";
 		position: sticky;
 		top: 0;
 		z-index: 50;
+		/* Keep the translucent sticky bar on a stable compositor layer on mobile;
+		 * this prevents the small upward nudge during scroll/toolbar resizing. */
+		transform: translateZ(0);
+		backface-visibility: hidden;
 		background-color: color-mix(
 			in srgb,
 			var(--home-upper-bg, var(--bg)) 78%,
@@ -38,7 +42,7 @@ import ThemeToggle from "./ThemeToggle.astro";
 		gap: var(--spacing-m);
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding: var(--spacing-2xs) var(--spacing-m);
+		padding: var(--spacing-2xs) var(--home-gutter, var(--spacing-m));
 		font-size: var(--text-step--1);
 	}
 

@@ -52,7 +52,7 @@ const { projects } = Astro.props;
 		max-width: var(--container-content);
 		margin-inline: auto;
 		/* Tighter top so the section sits up under the hero; generous bottom. */
-		padding: var(--spacing-l) var(--spacing-m) var(--spacing-3xl);
+		padding: var(--spacing-l) var(--home-gutter, var(--spacing-m)) var(--spacing-3xl);
 	}
 	.c-work__heading {
 		font-size: var(--text-step-3);

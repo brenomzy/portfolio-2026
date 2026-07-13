@@ -65,30 +65,17 @@ import { CONTACT_EMAIL } from "../lib/site";
 		min-width: 17ch;
 		will-change: transform, opacity, filter;
 	}
-	/* Limited to the static homepage title in dark mode. The rotating line keeps
-	 * a solid foreground color so GSAP can swap it without a background-clip
-	 * paint layer. */
-	:global([data-theme="dark"]) .hero__title {
-		color: transparent;
-		background-image: linear-gradient(180deg, #fafafa 0%, #b6b6b6 100%);
-		background-clip: text;
-		-webkit-background-clip: text;
-	}
-	/* SplitText temporarily moves the first line into direct child divs. A
-	 * background clipped on the parent does not paint through those wrappers,
-	 * leaving their inherited transparent text invisible during the reveal.
-	 * Paint the same vertical gradient on those temporary words; the selector
-	 * stops at direct children so the rotating second line keeps its solid color. */
-	:global([data-theme="dark"]) .hero__title > :global(div) {
-		background-image: linear-gradient(180deg, #fafafa 0%, #b6b6b6 100%);
-		background-clip: text;
-		-webkit-background-clip: text;
-	}
-	:global([data-theme="dark"]) .hero__title-secondary {
-		color: var(--text);
-		background: none;
-		background-clip: border-box;
-		-webkit-background-clip: border-box;
+	@media (max-width: 48rem) {
+		.hero {
+			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
+		}
+		.hero__title {
+			min-width: 0;
+			font-size: clamp(1.65rem, 0.9rem + 3.8vw, var(--text-step-6));
+		}
+		.hero__title-rotator {
+			min-width: 0;
+		}
 	}
 	.hero__lead {
 		font-size: 1.125rem; /* 18px — trialing a smaller lead per request */

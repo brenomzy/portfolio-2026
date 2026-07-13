@@ -211,12 +211,20 @@ import { ABOUT } from "../lib/about";
 		}
 	}
 	@media (max-width: 30rem) {
+		.c-about__inner {
+			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
+		}
 		.c-about__title {
 			font-size: clamp(2.65rem, 12vw, 4rem);
 		}
 		.c-about__title-row {
-			--portrait-width: 1.05em;
+			--portrait-width: 1.3em;
 			--portrait-gap: 0.12em;
+		}
+	}
+	@media (min-width: 30.001rem) and (max-width: 48rem) {
+		.c-about__inner {
+			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
 		}
 	}
 </style>
@@ -302,7 +310,7 @@ import { ABOUT } from "../lib/about";
 					titleRow,
 					{
 						"--portrait-width": () =>
-							matchMedia("(max-width: 30rem)").matches ? "1.05em" : "1.25em",
+							matchMedia("(max-width: 30rem)").matches ? "1.3em" : "1.25em",
 						"--portrait-gap": () =>
 							matchMedia("(max-width: 30rem)").matches ? "0.12em" : "0.16em",
 						duration: 0.72,

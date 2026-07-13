@@ -68,6 +68,11 @@ import { CONTACT_EMAIL } from "../lib/site";
 		max-width: 42ch;
 		text-wrap: pretty;
 	}
+	@media (max-width: 48rem) {
+		.c-contact {
+			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
+		}
+	}
 	.c-contact__cta {
 		margin-top: var(--spacing-2xs);
 	}

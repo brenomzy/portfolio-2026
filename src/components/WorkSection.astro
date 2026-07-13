@@ -66,6 +66,11 @@ const { projects } = Astro.props;
 		 * the big 16:9 thumbnails are tall, so the 2xl rhythm only fit one row. */
 		gap: var(--spacing-xl) var(--spacing-m);
 	}
+	@media (max-width: 48rem) {
+		.c-work {
+			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
+		}
+	}
 
 	.c-work__card {
 		text-decoration: none;

@@ -91,6 +91,11 @@ const trackB = Array.from({ length: REPS }, () => rowB).flat();
 		--dur-a: 48s;
 		--dur-b: 62s;
 	}
+	@media (max-width: 48rem) {
+		.c-marquee {
+			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
+		}
+	}
 
 	/* The inverted band fills the content column (the frame above insets it). */
 	.c-marquee__band {

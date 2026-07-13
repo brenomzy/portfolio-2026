@@ -83,8 +83,8 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 
 	<body>
 		<a class="c-skip-link" href="#main">Skip to content</a>
+		<slot name="header" />
 		<div class="c-page-shell" data-page-shell>
-			<slot name="header" />
 			<main id="main">
 				<slot />
 			</main>
@@ -148,6 +148,14 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 			}
 			body.is-project-open :global(.c-header) {
 				transform: translateY(-100%);
+			}
+
+			/* The header lives outside the transforming page shell, so mobile keeps
+			 * the stacked-card depth effect without pulling navigation off-screen. */
+			@media (max-width: 40rem) {
+				body.is-project-open :global(.c-header) {
+					transform: none;
+				}
 			}
 
 			/* Footer reveal: #main sits above the footer (which is sticky to the

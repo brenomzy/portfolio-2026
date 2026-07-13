@@ -1411,6 +1411,11 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		});
 	}
 
+	// Direct dev-server loads can evaluate this page module after
+	// `astro:page-load` has already fired. Run once immediately so reveal items
+	// never remain parked at visibility:hidden; retain the listener for later
+	// ClientRouter navigations.
+	setup();
 	document.addEventListener("astro:page-load", setup);
 	document.addEventListener("astro:before-swap", () => {
 		killTriggers();

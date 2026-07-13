@@ -56,6 +56,9 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		aria-modal="true"
 		aria-label="Project details"
 	>
+		<div class="c-pmodal__grabber" data-pmodal-grabber aria-hidden="true">
+			<span></span>
+		</div>
 		<!-- Inner scroller: the panel itself is overflow:hidden so its rounded top
 		     corners clip cleanly (a scrollbar on the panel would square the
 		     top-right). This element does the scrolling instead. -->
@@ -194,6 +197,9 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		 * panel lands a full panel-height too low.) Hidden state is the root's
 		 * display:none, so no transform is needed at rest. */
 	}
+	.c-pmodal__grabber {
+		display: none;
+	}
 	.c-pmodal__scroll {
 		height: 100%;
 		overflow-y: auto;
@@ -241,14 +247,10 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		position: relative;
 		display: block;
 		overflow: hidden;
-		--preview-padding: clamp(1.5rem, 2vw, 2rem);
-		--preview-shell-radius: var(--radius-lg);
 		--preview-radius: var(--radius-md);
-		border-radius: var(--preview-shell-radius);
-		padding: var(--preview-padding);
-		/* Same theme-aware backdrop as the grid cards so the flown card lands on
-		 * a matching gradient (the cover/shot SVGs are transparent around them). */
-		background: var(--thumb-bg);
+		border-radius: var(--preview-radius);
+		padding: 0;
+		background: transparent;
 		margin: 0;
 	}
 	.c-pmodal__media :global(img),
@@ -420,6 +422,32 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 			top: calc(2.5rem + var(--spacing-s));
 		}
 	}
+	@media (max-width: 48rem) {
+		.c-pmodal__grabber {
+			position: absolute;
+			top: 0;
+			left: 50%;
+			z-index: 6;
+			display: grid;
+			place-items: start center;
+			width: 5rem;
+			height: 2.75rem;
+			padding-top: 0.5rem;
+			translate: -50% 0;
+			touch-action: none;
+			cursor: grab;
+		}
+		.c-pmodal__grabber:active {
+			cursor: grabbing;
+		}
+		.c-pmodal__grabber span {
+			display: block;
+			width: 2.25rem;
+			height: 0.25rem;
+			border-radius: 999px;
+			background: color-mix(in srgb, var(--text-muted) 48%, transparent);
+		}
+	}
 	@media (max-width: 40rem) {
 		.c-pmodal__meta {
 			grid-template-columns: 1fr 1fr;
@@ -441,6 +469,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		CustomEase.get("project-drawer") ??
 		CustomEase.create("project-drawer", "0.32,0.72,0,1");
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+	const desktopFlip = matchMedia("(min-width: 48.001rem)");
 
 	const D_OPEN = 0.5;
 	const D_CLOSE = 0.5;
@@ -450,6 +479,11 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	let cardImg: HTMLImageElement | null = null;
 	let lastFocus: HTMLElement | null = null;
 	let currentCover = "";
+	let dragPointerId: number | null = null;
+	let dragStartY = 0;
+	let dragLastY = 0;
+	let dragLastTime = 0;
+	let dragVelocity = 0;
 	// True while the address bar shows /work/<slug> because the modal is open (set
 	// in openModal / initFromDeepLink). Close restores "/" via replaceState.
 	let urlChanged = false;
@@ -574,6 +608,96 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		});
 	}
 
+	function setDragDim(y: number, panelHeight: number) {
+		const shell = q("[data-page-shell]");
+		if (!shell) return;
+		const progress = Math.min(1, Math.max(0, y / (panelHeight * 0.72)));
+		shell.style.setProperty("--pmodal-dim-progress", String(1 - progress));
+	}
+
+	function resetDragStyles(panel?: HTMLElement | null) {
+		if (panel) gsap.set(panel, { clearProps: "y" });
+		q("[data-page-shell]")?.style.removeProperty("--pmodal-dim-progress");
+	}
+
+	function onSheetPointerDown(e: PointerEvent) {
+		if (
+			e.pointerType === "mouse" ||
+			!isOpen ||
+			isBusy ||
+			desktopFlip.matches ||
+			reduced.matches
+		)
+			return;
+
+		const panel = q("[data-pmodal-panel]");
+		const scroll = q("[data-pmodal-scroll]");
+		const grabber = q("[data-pmodal-grabber]");
+		if (!panel || !scroll || !grabber || scroll.scrollTop > 1) return;
+
+		e.preventDefault();
+		dragPointerId = e.pointerId;
+		dragStartY = dragLastY = e.clientY;
+		dragLastTime = e.timeStamp;
+		dragVelocity = 0;
+		gsap.killTweensOf(panel, "y");
+		grabber.setPointerCapture(e.pointerId);
+	}
+
+	function onSheetPointerMove(e: PointerEvent) {
+		if (dragPointerId !== e.pointerId) return;
+		const panel = q("[data-pmodal-panel]");
+		if (!panel) return;
+
+		e.preventDefault();
+		const rawY = e.clientY - dragStartY;
+		const y = rawY >= 0 ? rawY : Math.max(-12, rawY * 0.16);
+		const dt = Math.max(8, e.timeStamp - dragLastTime);
+		const instantVelocity = ((e.clientY - dragLastY) / dt) * 1000;
+		dragVelocity = dragVelocity * 0.65 + instantVelocity * 0.35;
+		dragLastY = e.clientY;
+		dragLastTime = e.timeStamp;
+		gsap.set(panel, { y });
+		setDragDim(Math.max(0, y), panel.offsetHeight);
+	}
+
+	function onSheetPointerEnd(e: PointerEvent) {
+		if (dragPointerId !== e.pointerId) return;
+		dragPointerId = null;
+
+		const panel = q("[data-pmodal-panel]");
+		const grabber = q("[data-pmodal-grabber]");
+		if (!panel) return;
+		if (grabber?.hasPointerCapture(e.pointerId)) {
+			grabber.releasePointerCapture(e.pointerId);
+		}
+
+		const y = Number(gsap.getProperty(panel, "y")) || 0;
+		const projectedY = y + Math.max(0, dragVelocity) * 0.18;
+		const distanceThreshold = Math.min(180, panel.offsetHeight * 0.22);
+		const shouldDismiss =
+			y > distanceThreshold ||
+			projectedY > Math.min(240, panel.offsetHeight * 0.3) ||
+			(dragVelocity > 900 && y > 24);
+
+		if (shouldDismiss) {
+			requestClose();
+			return;
+		}
+
+		gsap.to(panel, {
+			y: 0,
+			duration: 0.38,
+			ease: EASE_OUT,
+			overwrite: true,
+			onUpdate: () => {
+				const currentY = Number(gsap.getProperty(panel, "y")) || 0;
+				setDragDim(Math.max(0, currentY), panel.offsetHeight);
+			},
+			onComplete: () => resetDragStyles(panel),
+		});
+	}
+
 	function openModal(trigger: HTMLElement) {
 		const modal = q("[data-pmodal]");
 		if (!modal || isOpen || isBusy) return;
@@ -606,6 +730,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		const scroll = q("[data-pmodal-scroll]")!;
 		const overlay = q("[data-pmodal-overlay]")!;
 		const hero = q("[data-pmodal-hero]")!;
+		resetDragStyles(panel);
 
 		cardImg = trigger.querySelector("img");
 		lastFocus = document.activeElement as HTMLElement;
@@ -635,6 +760,50 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 			playHeroVideo();
 			lockModalScroll(scroll, false);
 			isBusy = false;
+			q<HTMLButtonElement>(".c-pmodal__close")?.focus();
+			return;
+		}
+
+		// On mobile, the card thumbnail and modal video stay separate. The drawer
+		// still enters normally, but no flight clone is created and the source
+		// thumbnail is never hidden.
+		if (!desktopFlip.matches) {
+			gsap.set(panel, { yPercent: 103 });
+			const tl = gsap.timeline({
+				defaults: { ease: EASE_OUT },
+				onComplete: () => {
+					playHeroVideo();
+					lockModalScroll(scroll, false);
+					isBusy = false;
+				},
+			});
+
+			tl.to(overlay, { autoAlpha: 1, duration: D_OPEN }, 0)
+				.to(panel, { yPercent: 0, duration: D_OPEN }, 0)
+				.fromTo(
+					"[data-pmodal-info]",
+					{ autoAlpha: 0, y: 24 },
+					{
+						autoAlpha: 1,
+						y: 0,
+						duration: D_OPEN,
+						stagger: 0.05,
+						clearProps: "all",
+					},
+					0.18,
+				)
+				.fromTo(
+					"[data-pmodal-close].c-pmodal__close",
+					{ autoAlpha: 0, y: 12 },
+					{
+						autoAlpha: 1,
+						y: 0,
+						duration: D_OPEN,
+						clearProps: "all",
+					},
+					0.18,
+				);
+
 			q<HTMLButtonElement>(".c-pmodal__close")?.focus();
 			return;
 		}
@@ -728,6 +897,7 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		pauseHeroVideo();
 
 		const finalize = () => {
+			resetDragStyles(panel);
 			if (cardImg) gsap.set(cardImg, { visibility: "visible" });
 			if (heroMedia) gsap.set(heroMedia, { visibility: "visible" });
 			modal.classList.remove("is-open");
@@ -745,7 +915,10 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		// a scrolled-away position reads as teleporting. Otherwise the panel
 		// simply dismisses and the thumbnail is restored under the fade.
 		const heroVisible =
-			!reduced.matches && cardImg && scroll.scrollTop < hero.offsetHeight * 0.6;
+			!reduced.matches &&
+			desktopFlip.matches &&
+			cardImg &&
+			scroll.scrollTop < hero.offsetHeight * 0.6;
 
 		if (reduced.matches) {
 			lockModalScroll(scroll, false);
@@ -819,6 +992,12 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		}
 	});
 
+	const grabber = q("[data-pmodal-grabber]");
+	grabber?.addEventListener("pointerdown", onSheetPointerDown);
+	grabber?.addEventListener("pointermove", onSheetPointerMove);
+	grabber?.addEventListener("pointerup", onSheetPointerEnd);
+	grabber?.addEventListener("pointercancel", onSheetPointerEnd);
+
 	// Deep link (/work/<slug>): the modal is server-rendered open + filled. Adopt
 	// that state without animating — the content is already painted, so a from()
 	// tween would flash. Instant open is also what you'd expect having navigated
@@ -853,6 +1032,8 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 	function onBeforeSwap() {
 		if (!isOpen) return;
 		document.removeEventListener("keydown", onKeydown);
+		dragPointerId = null;
+		resetDragStyles(q("[data-pmodal-panel]"));
 		setPageDepth(false);
 		lockScroll(false);
 		isOpen = false;

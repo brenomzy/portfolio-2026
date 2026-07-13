@@ -79,7 +79,7 @@
 	/* Dark grey surfaces — a faint warmth (low saturation) to sit with the
 	 * orange without reading blue or brown. */
 	--bg: hsl(30 5% 9%);
-	--pmodal-stage-bg: hsl(30 8% 94%);
+	--pmodal-stage-bg: #000;
 	--surface: hsl(30 4% 12%);
 	--surface-raised: hsl(30 4% 16%);
 

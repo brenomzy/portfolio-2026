@@ -144,7 +144,7 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 				overflow: clip;
 			}
 			body.is-project-open .c-page-shell::after {
-				opacity: 1;
+				opacity: var(--pmodal-dim-progress, 1);
 			}
 			body.is-project-open :global(.c-header) {
 				transform: translateY(-100%);

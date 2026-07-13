@@ -174,8 +174,13 @@ const PHOTOS = ABOUT.photos;
 	// Track what we create so client-side navigations can tear it down before
 	// re-initialising (otherwise draggers + Draggables would stack up).
 	let draggables: Draggable[] = [];
+	let fanOutCalls: gsap.core.Tween[] = [];
+	let initGeneration = 0;
 
 	function cleanupFlickCards() {
+		initGeneration += 1;
+		fanOutCalls.forEach((call) => call.kill());
+		fanOutCalls = [];
 		draggables.forEach((d) => d.kill());
 		draggables = [];
 		document
@@ -267,7 +272,12 @@ const PHOTOS = ABOUT.photos;
 			// Keep the fan-out aligned with the gallery wrapper's delayed hero reveal
 			// (about.astro). The previous 0.45s start made the cards move while the
 			// intro and gallery were still arriving together, which felt rushed.
-			gsap.delayedCall(0.95, () => renderCards(activeIndex));
+			fanOutCalls.push(
+				gsap.delayedCall(0.95, () => {
+					if (!slider.isConnected) return;
+					renderCards(activeIndex);
+				}),
+			);
 
 			if (total < 7) {
 				console.log("Not minimum of 7 cards");
@@ -359,13 +369,24 @@ const PHOTOS = ABOUT.photos;
 		});
 	}
 
-	document.addEventListener("astro:page-load", () => {
+	function setupFlickCards() {
 		cleanupFlickCards();
+		const generation = initGeneration;
 		// Defer the heavy setup — offsetWidth read, dragger DOM, Draggable.create —
 		// until the cross-fade has settled, so it never competes for the main thread
 		// with the page transition (the source of the navigation freeze). Resolves
 		// immediately on a fresh load, so the refresh/load path is unchanged.
-		whenRevealable().then(initFlickCards);
-	});
+		whenRevealable().then(() => {
+			if (generation !== initGeneration) return;
+			initFlickCards();
+		});
+	}
+
+	// Run immediately for direct dev-server loads, where `astro:page-load` may
+	// fire before this component module has finished evaluating. Keep the event
+	// listener for later ClientRouter navigations; the generation guard makes
+	// overlapping setup attempts safe.
+	setupFlickCards();
+	document.addEventListener("astro:page-load", setupFlickCards);
 	document.addEventListener("astro:before-swap", cleanupFlickCards);
 </script>

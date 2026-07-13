@@ -68,7 +68,7 @@ import { ABOUT } from "../lib/about";
 	.c-about__inner {
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding-inline: var(--home-gutter, var(--spacing-m));
+		padding-inline: var(--spacing-m);
 		min-width: 0;
 	}
 	.c-about__title {
@@ -215,8 +215,8 @@ import { ABOUT } from "../lib/about";
 			font-size: clamp(2.65rem, 12vw, 4rem);
 		}
 		.c-about__title-row {
-			--portrait-width: 1.18em;
-			--portrait-gap: 0.14em;
+			--portrait-width: 1.05em;
+			--portrait-gap: 0.12em;
 		}
 	}
 </style>
@@ -302,9 +302,9 @@ import { ABOUT } from "../lib/about";
 					titleRow,
 					{
 						"--portrait-width": () =>
-							matchMedia("(max-width: 30rem)").matches ? "1.18em" : "1.25em",
+							matchMedia("(max-width: 30rem)").matches ? "1.05em" : "1.25em",
 						"--portrait-gap": () =>
-							matchMedia("(max-width: 30rem)").matches ? "0.14em" : "0.16em",
+							matchMedia("(max-width: 30rem)").matches ? "0.12em" : "0.16em",
 						duration: 0.72,
 						ease: "power3.inOut",
 					},

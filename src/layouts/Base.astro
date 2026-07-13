@@ -150,20 +150,6 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 				transform: translateY(-100%);
 			}
 
-			/* Mobile Safari treats an always-clipped ancestor as the sticky header's
-			 * containing block. Keep the shell unclipped during normal scrolling, then
-			 * apply the same stacked-card clip as desktop only while the modal is open. */
-			@media (max-width: 40rem) {
-				.c-page-shell {
-					clip-path: none;
-				}
-				body.is-project-open .c-page-shell {
-					clip-path: inset(
-						var(--pmodal-scroll-y, 0px) 0 0 0 round 1rem 1rem 0 0
-					);
-				}
-			}
-
 			/* Footer reveal: #main sits above the footer (which is sticky to the
 			 * viewport bottom — see SiteFooter.astro) and must be opaque so it hides
 			 * the footer until the page scrolls past it.

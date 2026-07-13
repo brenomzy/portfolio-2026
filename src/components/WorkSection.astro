@@ -52,7 +52,7 @@ const { projects } = Astro.props;
 		max-width: var(--container-content);
 		margin-inline: auto;
 		/* Tighter top so the section sits up under the hero; generous bottom. */
-		padding: var(--spacing-l) var(--home-gutter, var(--spacing-m)) var(--spacing-3xl);
+		padding: var(--spacing-l) var(--spacing-m) var(--spacing-3xl);
 	}
 	.c-work__heading {
 		font-size: var(--text-step-3);
@@ -215,13 +215,19 @@ const { projects } = Astro.props;
 		}
 		.c-work__scrim,
 		.c-work__description {
-			display: none;
+			opacity: 1;
+		}
+		.c-work__description {
+			font-size: var(--text-step--1);
 		}
 	}
 	@media (hover: none) {
 		.c-work__scrim,
 		.c-work__description {
-			display: none;
+			opacity: 1;
+		}
+		.c-work__description {
+			transition: none;
 		}
 	}
 </style>
@@ -260,10 +266,9 @@ const { projects } = Astro.props;
 		]);
 		if (generation !== descriptionGeneration) return;
 
-		const descriptionsEnabled = matchMedia(
-			"(min-width: 40.001rem) and (hover: hover)",
+		const staticDescriptions = matchMedia(
+			"(max-width: 40rem), (hover: none), (prefers-reduced-motion: reduce)",
 		).matches;
-		if (!descriptionsEnabled) return;
 
 		document.querySelectorAll<HTMLElement>(".c-work__frame").forEach((frame) => {
 			const description = frame.querySelector<HTMLElement>(
@@ -272,7 +277,8 @@ const { projects } = Astro.props;
 			const card = frame.closest<HTMLElement>(".c-work__card");
 			if (!description || !card) return;
 
-			if (reduced.matches) {
+			if (staticDescriptions) {
+				gsap.set(description, { autoAlpha: 1 });
 				return;
 			}
 

@@ -17,7 +17,8 @@
  * Buttons are theme-independent objects (constant paper/ink), each self-defined
  * by a faint border so it stays legible on any background in either theme.
  */
-import { Download } from "@lucide/astro";
+import { Download02Icon } from "@hugeicons/core-free-icons";
+import HugeIcon from "./HugeIcon.astro";
 
 interface Props {
 	label: string;
@@ -58,7 +59,13 @@ const Tag = href ? "a" : "button";
 	<span class="c-button__label">
 		{label}
 		{icon === "download" ? (
-			<Download class="c-button__icon" size={16} strokeWidth={2} aria-hidden="true" />
+			<HugeIcon
+				icon={Download02Icon}
+				class="c-button__icon"
+				size={16}
+				strokeWidth={2}
+				aria-hidden="true"
+			/>
 		) : (
 			icon && (
 				<svg

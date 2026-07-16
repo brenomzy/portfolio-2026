@@ -1,7 +1,7 @@
 ---
 /*
  * c-theme-toggle — a segmented light/dark switch. Two cells (☀ sun / 🌙 moon-star,
- * Lucide icons) on a light-grey track, with a theme-aware circular thumb that
+ * Hugeicons) on a light-grey track, with a theme-aware circular thumb that
  * slides under the active mode. The active icon uses the orange/blue gradient.
  *
  * Flips [data-theme] on <html> and persists to a `theme` cookie (the no-flash init
@@ -14,6 +14,25 @@
  * snapshot during the wipe (global.css relies on this name + the class). The track
  * border is a SOLID, theme-INDEPENDENT colour so it never flashes mid-wipe.
  */
+import { Moon02Icon, Sun02Icon } from "@hugeicons/core-free-icons";
+import HugeIcon from "./HugeIcon.astro";
+
+/*
+ * Hugeicons' Moon Star uses the Moon 02 crescent with a four-point sparkle.
+ * The free core package does not expose MoonStarIcon yet, so compose that
+ * pairing locally until the named export lands.
+ */
+const MoonStarIcon = [
+	...Moon02Icon,
+	[
+		"path",
+		{
+			d: "M17.5 2.75C17.79 4.63 18.87 5.71 20.75 6C18.87 6.29 17.79 7.37 17.5 9.25C17.21 7.37 16.13 6.29 14.25 6C16.13 5.71 17.21 4.63 17.5 2.75Z",
+			strokeLinecap: "round",
+			strokeLinejoin: "round",
+		},
+	],
+] as const;
 ---
 
 <div class="c-theme-toggle" role="group" aria-label="Colour theme">
@@ -26,23 +45,19 @@
 		aria-label="Light mode"
 		aria-pressed="true"
 	>
-		<svg class="c-theme-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+		<HugeIcon
+			icon={Sun02Icon}
+			class="c-theme-toggle__icon"
+			strokeWidth={1.75}
+			aria-hidden="true"
+		>
 			<defs>
 				<linearGradient id="theme-light-gradient" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse">
 					<stop stop-color="var(--logo-grad-1)"></stop>
 					<stop offset="1" stop-color="var(--logo-grad-2)"></stop>
 				</linearGradient>
 			</defs>
-			<circle cx="12" cy="12" r="4"></circle>
-			<path d="M12 2v2"></path>
-			<path d="M12 20v2"></path>
-			<path d="m4.93 4.93 1.41 1.41"></path>
-			<path d="m17.66 17.66 1.41 1.41"></path>
-			<path d="M2 12h2"></path>
-			<path d="M20 12h2"></path>
-			<path d="m6.34 17.66-1.41 1.41"></path>
-			<path d="m19.07 4.93-1.41 1.41"></path>
-		</svg>
+		</HugeIcon>
 	</button>
 
 	<button
@@ -52,17 +67,19 @@
 		aria-label="Dark mode"
 		aria-pressed="false"
 	>
-		<svg class="c-theme-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+		<HugeIcon
+			icon={MoonStarIcon}
+			class="c-theme-toggle__icon"
+			strokeWidth={1.75}
+			aria-hidden="true"
+		>
 			<defs>
 				<linearGradient id="theme-dark-gradient" x1="5" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
 					<stop stop-color="#82adff"></stop>
 					<stop offset="1" stop-color="#4779e8"></stop>
 				</linearGradient>
 			</defs>
-			<path d="M18 5h4"></path>
-			<path d="M20 3v4"></path>
-			<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path>
-		</svg>
+		</HugeIcon>
 	</button>
 </div>
 

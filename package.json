@@ -16,7 +16,7 @@
     "@fontsource-variable/geist-mono": "^5.2.8",
     "@fontsource-variable/manrope": "^5.2.8",
     "@fontsource/archivo-black": "^5.2.8",
-    "@lucide/astro": "^1.24.0",
+    "@hugeicons/core-free-icons": "^4.2.2",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.4.4",
     "geist": "^1.7.2",

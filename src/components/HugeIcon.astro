@@ -1,0 +1,48 @@
+---
+type IconAttributes = Record<string, string | number>;
+type IconData = readonly (readonly [string, IconAttributes])[];
+
+interface Props {
+	icon: IconData;
+	size?: string | number;
+	strokeWidth?: string | number;
+	class?: string;
+	[key: string]: unknown;
+}
+
+const {
+	icon,
+	size = 24,
+	strokeWidth = 1.5,
+	class: className,
+	...rest
+} = Astro.props;
+
+const attributeName = (name: string) =>
+	name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+
+const svgElements = icon.map(([tag, sourceAttributes]) => {
+	const attributes = Object.fromEntries(
+		Object.entries(sourceAttributes)
+			.filter(([name]) => !["key", "stroke", "strokeWidth"].includes(name))
+			.map(([name, value]) => [attributeName(name), value]),
+	);
+
+	return { tag, attributes };
+});
+---
+
+<svg
+	class={className}
+	width={size}
+	height={size}
+	viewBox="0 0 24 24"
+	fill="none"
+	stroke="currentColor"
+	stroke-width={strokeWidth}
+	xmlns="http://www.w3.org/2000/svg"
+	{...rest}
+>
+	<slot />
+	{svgElements.map(({ tag: Tag, attributes }) => <Tag {...attributes} />)}
+</svg>

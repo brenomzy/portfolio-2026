@@ -18,8 +18,8 @@ import { CONTACT_EMAIL } from "../lib/site";
 		<span class="hero__title-secondary">
 			<span
 				class="hero__title-rotator js-title-rotator"
-				data-titles="Design Engineer.|Product Designer.|UI Designer."
-				>Design Engineer.</span
+				data-titles="Product Designer|UI Designer|Designer"
+				><span class="hero__title-modifier">Product</span> Designer</span
 			>
 		</span>
 	</h1>
@@ -64,6 +64,9 @@ import { CONTACT_EMAIL } from "../lib/site";
 		display: inline-block;
 		min-width: 17ch;
 		will-change: transform, opacity, filter;
+	}
+	.hero__title-rotator :global(.hero__title-modifier) {
+		opacity: 0.45;
 	}
 	@media (max-width: 48rem) {
 		.hero {
@@ -134,6 +137,20 @@ import { CONTACT_EMAIL } from "../lib/site";
 
 		let index = Math.max(0, titles.indexOf(rotator.textContent?.trim() ?? ""));
 
+		const renderTitle = (title: string) => {
+			const modifier = title.endsWith(" Designer")
+				? title.slice(0, -" Designer".length)
+				: "";
+			rotator.replaceChildren();
+			if (modifier) {
+				const span = document.createElement("span");
+				span.className = "hero__title-modifier";
+				span.textContent = modifier;
+				rotator.append(span, " ");
+			}
+			rotator.append("Designer");
+		};
+
 		const rotate = () => {
 			titleRotation = gsap.to(rotator, {
 				autoAlpha: 0,
@@ -143,7 +160,7 @@ import { CONTACT_EMAIL } from "../lib/site";
 				ease: "power2.in",
 				onComplete: () => {
 					index = (index + 1) % titles.length;
-					rotator.textContent = titles[index];
+					renderTitle(titles[index]);
 					titleRotation = gsap.fromTo(
 						rotator,
 						{ autoAlpha: 0, y: -8, filter: "blur(6px)" },

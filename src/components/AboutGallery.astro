@@ -176,6 +176,7 @@ const PHOTOS = ABOUT.photos;
 	let draggables: Draggable[] = [];
 	let fanOutCalls: gsap.core.Tween[] = [];
 	let initGeneration = 0;
+	let setupRoot: HTMLElement | null = null;
 
 	function cleanupFlickCards() {
 		initGeneration += 1;
@@ -370,6 +371,10 @@ const PHOTOS = ABOUT.photos;
 	}
 
 	function setupFlickCards() {
+		const root = document.querySelector<HTMLElement>("[data-flick-cards-init]");
+		if (!root || root === setupRoot) return;
+		setupRoot = root;
+
 		cleanupFlickCards();
 		const generation = initGeneration;
 		// Defer the heavy setup — offsetWidth read, dragger DOM, Draggable.create —
@@ -388,5 +393,8 @@ const PHOTOS = ABOUT.photos;
 	// overlapping setup attempts safe.
 	setupFlickCards();
 	document.addEventListener("astro:page-load", setupFlickCards);
-	document.addEventListener("astro:before-swap", cleanupFlickCards);
+	document.addEventListener("astro:before-swap", () => {
+		setupRoot = null;
+		cleanupFlickCards();
+	});
 </script>

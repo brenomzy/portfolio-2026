@@ -5,7 +5,7 @@
 export const SITE_NAME = "Breno";
 
 // Home <title> and meta description.
-export const SITE_TITLE = "Breno Daroz — Design Engineer & Webflow Developer";
+export const SITE_TITLE = "Breno Daroz — Webflow Developer & Designer";
 export const SITE_DESCRIPTION =
 	"Design engineer and Webflow developer from Brazil, building fast, accessible, component-first websites for companies like Verifone, BuildOps and Gainbridge.";
 

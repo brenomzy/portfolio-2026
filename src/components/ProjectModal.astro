@@ -887,7 +887,6 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 		if (!modal || !isOpen || isBusy) return;
 		isBusy = true;
 		document.removeEventListener("keydown", onKeydown);
-		setPageDepth(false);
 
 		const panel = q("[data-pmodal-panel]")!;
 		const scroll = q("[data-pmodal-scroll]")!;
@@ -900,6 +899,11 @@ const byId = Object.fromEntries(projects.map((proj) => [proj.id, proj]));
 			resetDragStyles(panel);
 			if (cardImg) gsap.set(cardImg, { visibility: "visible" });
 			if (heroMedia) gsap.set(heroMedia, { visibility: "visible" });
+			// Keep the page geometry fixed until the flight clone has handed off
+			// to the thumbnail, then let the real card ride the page-depth restore.
+			// Restoring depth earlier moves the hidden target during the Flip and
+			// creates a visible snap when the clone is replaced by the card.
+			setPageDepth(false);
 			modal.classList.remove("is-open");
 			modal.setAttribute("aria-hidden", "true");
 			gsap.set("[data-pmodal-info], .c-pmodal__close", { clearProps: "all" });

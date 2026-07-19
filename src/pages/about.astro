@@ -1038,6 +1038,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	let triggers: ScrollTrigger[] = [];
 	let previewCleanups: (() => void)[] = [];
 	let timelineCleanup: (() => void) | undefined;
+	let setupRoot: HTMLElement | null = null;
 
 	function killTriggers() {
 		triggers.forEach((t) => t.kill());
@@ -1065,8 +1066,13 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		});
 
 	function setup() {
-		const items = gsap.utils.toArray<HTMLElement>(".js-about-reveal");
-		if (!items.length) return;
+		const root = document.querySelector<HTMLElement>(".about");
+		if (!root || root === setupRoot) return;
+		setupRoot = root;
+
+		const items = gsap.utils.toArray<HTMLElement>(
+			root.querySelectorAll(".js-about-reveal"),
+		);
 		killTriggers();
 		setupForumPreviews();
 		setupStepTimeline();
@@ -1418,6 +1424,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	setup();
 	document.addEventListener("astro:page-load", setup);
 	document.addEventListener("astro:before-swap", () => {
+		setupRoot = null;
 		killTriggers();
 		killForumPreviews();
 		killTimeline();

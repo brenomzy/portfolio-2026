@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
+/* When the viewport is narrower than the capped content rail, add one small
+ * inset inside the decorative guide lines instead of landing content on them. */
+@media (max-width: 94rem) {
+	:root {
+		--content-gutter: calc(var(--spacing-m) + var(--spacing-s));
+	}
+}
+
 @font-face {
 	font-family: "Geist Pixel Square";
 	src: url("/fonts/GeistPixel-Square.woff2") format("woff2");

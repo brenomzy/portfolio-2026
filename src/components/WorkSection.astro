@@ -52,7 +52,7 @@ const { projects } = Astro.props;
 		max-width: var(--container-content);
 		margin-inline: auto;
 		/* Tighter top so the section sits up under the hero; generous bottom. */
-		padding: var(--spacing-l) var(--spacing-m) var(--spacing-3xl);
+		padding: var(--spacing-l) var(--content-gutter) var(--spacing-3xl);
 	}
 	.c-work__heading {
 		font-size: var(--text-step-3);
@@ -66,12 +66,6 @@ const { projects } = Astro.props;
 		 * the big 16:9 thumbnails are tall, so the 2xl rhythm only fit one row. */
 		gap: var(--spacing-xl) var(--spacing-m);
 	}
-	@media (max-width: 48rem) {
-		.c-work {
-			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
-		}
-	}
-
 	.c-work__card {
 		text-decoration: none;
 		color: var(--text);
@@ -245,6 +239,7 @@ const { projects } = Astro.props;
 	let triggers: ScrollTrigger[] = [];
 	let descriptionCleanups: Array<() => void> = [];
 	let descriptionGeneration = 0;
+	let setupRoot: HTMLElement | null = null;
 
 	function cleanupDescriptions() {
 		descriptionGeneration += 1;
@@ -356,6 +351,9 @@ const { projects } = Astro.props;
 	}
 
 	function setup() {
+		const root = document.querySelector<HTMLElement>(".c-work");
+		if (!root || root === setupRoot) return;
+		setupRoot = root;
 		const items = gsap.utils.toArray<HTMLElement>(".js-work-reveal");
 		if (!items.length) return;
 		killTriggers();
@@ -379,8 +377,10 @@ const { projects } = Astro.props;
 		});
 	}
 
+	setup();
 	document.addEventListener("astro:page-load", setup);
 	document.addEventListener("astro:before-swap", () => {
+		setupRoot = null;
 		killTriggers();
 		cleanupDescriptions();
 	});
@@ -392,10 +392,13 @@ const { projects } = Astro.props;
 	// frame's ::before centres a brand-gradient blob there, so the 1px border
 	// glows under the cursor. Off-pointer the vars are cleared and the CSS
 	// default parks the blob far off-card, leaving just the hairline base.
+	let glowRoot: HTMLElement | null = null;
+
 	function bindCardGlow() {
 		if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 		const grid = document.querySelector<HTMLElement>(".c-work__grid");
-		if (!grid) return;
+		if (!grid || grid === glowRoot) return;
+		glowRoot = grid;
 
 		// Set the vars directly in the handler — pointermove is already paced by
 		// the browser, and writing two custom props is cheap (no layout). (rAF
@@ -412,5 +415,9 @@ const { projects } = Astro.props;
 		// than jumping the blob off-card mid-fade.
 	}
 
+	bindCardGlow();
 	document.addEventListener("astro:page-load", bindCardGlow);
+	document.addEventListener("astro:before-swap", () => {
+		glowRoot = null;
+	});
 </script>

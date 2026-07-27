@@ -242,7 +242,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		--about-section-width: var(--container-content);
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding-inline: var(--spacing-m);
+		padding-inline: var(--content-gutter);
 		display: grid;
 		/* Cap the single column at the container width (min 0). Without this the
 		 * implicit column is max-content-sized by the horizontally-scrolling photo
@@ -257,7 +257,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		max-width: var(--about-section-width);
 		margin-inline: auto;
 		display: grid;
-		grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
 		gap: clamp(2.5rem, 1.7rem + 3vw, 4.5rem);
 		align-items: center;
 		padding-top: var(--spacing-2xl);
@@ -763,130 +763,6 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		max-width: 40ch;
 	}
 
-	/* Alternate direction: a more personal, image-led opening. The content
-	 * chapters retain the same measure so the page still settles into one rhythm. */
-	:global(html[data-about-layout="portrait"]) .about__hero {
-		grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-		align-items: end;
-		padding-top: clamp(5rem, 3.5rem + 5vw, 8rem);
-	}
-	:global(html[data-about-layout="portrait"]) .about__intro {
-		padding-bottom: var(--spacing-m);
-	}
-	:global(html[data-about-layout="portrait"]) .about__title {
-		font-size: clamp(2.5rem, 1.9rem + 2.1vw, 3.65rem);
-		max-width: 13ch;
-	}
-
-	/* Profile split — image first, then biography. Inspired by profile and
-	 * leadership pages where the portrait establishes the subject immediately. */
-	:global(html[data-about-layout="profile"]) .about__hero {
-		grid-template-columns: minmax(0, 7fr) minmax(18rem, 5fr);
-		gap: clamp(2.5rem, 1.5rem + 4vw, 5.5rem);
-		align-items: center;
-		padding-top: clamp(4rem, 3rem + 3vw, 6.5rem);
-	}
-	:global(html[data-about-layout="profile"]) :global(.about__gallery) {
-		grid-column: 1;
-		grid-row: 1;
-	}
-	:global(html[data-about-layout="profile"]) .about__intro {
-		grid-column: 2;
-		grid-row: 1;
-		max-width: 29rem;
-	}
-	:global(html[data-about-layout="profile"]) .about__title {
-		font-size: clamp(2.35rem, 1.9rem + 1.65vw, 3.25rem);
-		max-width: 14ch;
-	}
-	:global(html[data-about-layout="profile"]) .about__background {
-		grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-	}
-
-	/* Monograph — a large opening statement followed by an offset image chapter.
-	 * The negative space is intentional and makes the page read like a profile. */
-	:global(html[data-about-layout="monograph"]) .about__hero {
-		grid-template-columns: repeat(12, minmax(0, 1fr));
-		column-gap: var(--spacing-s);
-		row-gap: var(--spacing-xl);
-		align-items: start;
-		padding-top: clamp(5rem, 3.4rem + 5vw, 8.5rem);
-	}
-	:global(html[data-about-layout="monograph"]) .about__intro {
-		grid-column: 1 / span 9;
-		max-width: 50rem;
-	}
-	:global(html[data-about-layout="monograph"]) .about__title {
-		font-size: clamp(3.5rem, 2.3rem + 4.1vw, 5.75rem);
-		line-height: 1.02;
-		letter-spacing: -0.045em;
-		max-width: 15ch;
-	}
-	:global(html[data-about-layout="monograph"]) .about__intro-body {
-		max-width: 38ch;
-	}
-	:global(html[data-about-layout="monograph"]) :global(.about__gallery) {
-		grid-column: 5 / -1;
-		width: 100%;
-		justify-self: end;
-	}
-	:global(html[data-about-layout="monograph"]) .about__background {
-		grid-template-columns: minmax(12rem, 3fr) minmax(0, 6fr) minmax(0, 1fr);
-	}
-	:global(html[data-about-layout="monograph"]) .about__background-lead {
-		grid-column: 1;
-	}
-	:global(html[data-about-layout="monograph"]) .about__background-chapters {
-		grid-column: 2;
-	}
-
-	/* Story index — bold opening, then a career chapter with a stable left rail
-	 * and a compact chronological index on the right. */
-	:global(html[data-about-layout="index"]) .about__hero {
-		grid-template-columns: 1fr;
-		gap: var(--spacing-xl);
-		align-items: start;
-		padding-top: clamp(5rem, 3.2rem + 5vw, 8rem);
-	}
-	:global(html[data-about-layout="index"]) .about__intro {
-		max-width: 58rem;
-	}
-	:global(html[data-about-layout="index"]) .about__title {
-		font-size: clamp(3.2rem, 2.15rem + 3.7vw, 5.25rem);
-		max-width: 16ch;
-	}
-	:global(html[data-about-layout="index"]) .about__intro-body {
-		max-width: 48ch;
-	}
-	:global(html[data-about-layout="index"]) :global(.about__gallery) {
-		width: min(72%, 48rem);
-		justify-self: end;
-	}
-	:global(html[data-about-layout="index"]) .about__experience {
-		display: grid;
-		grid-template-columns: minmax(15rem, 4fr) minmax(0, 8fr);
-		column-gap: var(--spacing-xl);
-		align-items: start;
-	}
-	:global(html[data-about-layout="index"]) .about__experience-header {
-		position: sticky;
-		top: 7rem;
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: var(--spacing-s);
-		margin-bottom: 0;
-	}
-	:global(html[data-about-layout="index"]) .about__experience-title {
-		font-size: clamp(2.5rem, 2rem + 1.8vw, 3.5rem);
-	}
-	:global(html[data-about-layout="index"]) .about__timeline-wrap,
-	:global(html[data-about-layout="index"]) .about__experience-cta {
-		grid-column: 2;
-	}
-	:global(html[data-about-layout="index"]) .about__experience-cta {
-		padding-inline-start: calc(3rem + var(--spacing-l));
-	}
-
 	/* ── Responsive ────────────────────────────────────────────────────── */
 	/* Stack the hero (gallery drops below the intro) before the columns cramp. */
 	@media (max-width: 60rem) {
@@ -938,54 +814,9 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		.about__experience-title {
 			white-space: normal;
 		}
-		:global(html[data-about-layout="portrait"]) .about__hero {
-			grid-template-columns: 1fr;
-			align-items: start;
-			padding-top: var(--spacing-2xl);
-		}
-		:global(html[data-about-layout="portrait"]) .about__intro {
-			padding-bottom: 0;
-		}
-		:global(html[data-about-layout="profile"]) .about__hero,
-		:global(html[data-about-layout="monograph"]) .about__hero,
-		:global(html[data-about-layout="index"]) .about__hero {
-			grid-template-columns: 1fr;
-		}
-		:global(html[data-about-layout="profile"]) :global(.about__gallery),
-		:global(html[data-about-layout="profile"]) .about__intro,
-		:global(html[data-about-layout="monograph"]) :global(.about__gallery),
-		:global(html[data-about-layout="monograph"]) .about__intro {
-			grid-column: 1;
-			grid-row: auto;
-		}
-		:global(html[data-about-layout="profile"]) :global(.about__gallery) {
-			grid-row: 2;
-		}
-		:global(html[data-about-layout="monograph"]) .about__background {
-			grid-template-columns: minmax(0, 1fr);
-		}
-		:global(html[data-about-layout="monograph"]) .about__background-lead,
-		:global(html[data-about-layout="monograph"]) .about__background-chapters {
-			grid-column: 1;
-		}
-		:global(html[data-about-layout="index"]) :global(.about__gallery) {
-			width: 100%;
-		}
-		:global(html[data-about-layout="index"]) .about__experience {
-			display: block;
-		}
-		:global(html[data-about-layout="index"]) .about__experience-header {
-			position: static;
-			margin-bottom: var(--spacing-xl);
-		}
-		:global(html[data-about-layout="index"]) .about__experience-cta {
-			padding-inline-start: calc(3rem + var(--spacing-m));
-		}
 	}
 	@media (max-width: 48rem) {
 		.about {
-			/* Sit content inside the shared guide rails instead of directly on them. */
-			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
 			gap: var(--spacing-2xl);
 		}
 		.about__title {
@@ -994,12 +825,6 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		}
 		.about__background-lead {
 			font-size: clamp(1.85rem, 1.7rem + 0.8vw, 2.05rem);
-		}
-		:global(html[data-about-layout="monograph"]) .about__title,
-		:global(html[data-about-layout="index"]) .about__title {
-			font-size: clamp(2.35rem, 1.9rem + 2.2vw, 2.8rem);
-			line-height: 1.06;
-			max-width: 17ch;
 		}
 		.about__exp {
 			gap: var(--spacing-m);

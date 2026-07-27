@@ -38,7 +38,7 @@ import ThemeToggle from "./ThemeToggle.astro";
 		gap: var(--spacing-m);
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding: var(--spacing-2xs) var(--spacing-m);
+		padding: var(--spacing-2xs) var(--content-gutter);
 		font-size: var(--text-step--1);
 	}
 
@@ -64,11 +64,13 @@ import ThemeToggle from "./ThemeToggle.astro";
 	import { whenRevealable } from "../lib/page-reveal";
 
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+	let revealRoot: HTMLElement | null = null;
 
 	async function revealHeader() {
 		const brand = document.querySelector<HTMLElement>(".c-header__brand");
 		const actions = document.querySelector<HTMLElement>(".c-header__actions");
-		if (!brand || !actions) return;
+		if (!brand || !actions || brand === revealRoot) return;
+		revealRoot = brand;
 
 		// Brand, then each action (Contact, toggle) — staggered.
 		const items = [brand, ...actions.children] as HTMLElement[];
@@ -101,5 +103,9 @@ import ThemeToggle from "./ThemeToggle.astro";
 		});
 	}
 
+	void revealHeader();
 	document.addEventListener("astro:page-load", revealHeader);
+	document.addEventListener("astro:before-swap", () => {
+		revealRoot = null;
+	});
 </script>

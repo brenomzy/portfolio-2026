@@ -269,12 +269,19 @@ const MoonStarIcon = [
 		transition.finished.finally(() => root.classList.remove("is-theme-vt"));
 	}
 
-	document.addEventListener("astro:page-load", () => {
+	const boundButtons = new WeakSet<HTMLButtonElement>();
+
+	function bindThemeToggles() {
 		syncAria(readTheme());
 		document.querySelectorAll<HTMLButtonElement>(".c-theme-toggle__btn").forEach((b) => {
+			if (boundButtons.has(b)) return;
+			boundButtons.add(b);
 			b.addEventListener("click", () => applyTheme(b.dataset.themeSet as "light" | "dark"));
 		});
-	});
+	}
+
+	bindThemeToggles();
+	document.addEventListener("astro:page-load", bindThemeToggles);
 
 	// A view-transition swap brings in the new page's static <html> (no data-theme),
 	// so re-apply theme + favicon + aria from the cookie before paint.

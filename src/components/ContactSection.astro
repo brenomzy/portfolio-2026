@@ -45,7 +45,7 @@ import { CONTACT_EMAIL } from "../lib/site";
 <style>
 	.c-contact {
 		width: 100%;
-		padding: var(--spacing-3xl) var(--spacing-m)
+		padding: var(--spacing-3xl) var(--content-gutter)
 			calc(var(--spacing-3xl) + var(--spacing-2xl));
 		border-top: 1px solid var(--grid-line);
 	}
@@ -68,11 +68,6 @@ import { CONTACT_EMAIL } from "../lib/site";
 		max-width: 42ch;
 		text-wrap: pretty;
 	}
-	@media (max-width: 48rem) {
-		.c-contact {
-			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
-		}
-	}
 	.c-contact__cta {
 		margin-top: var(--spacing-2xs);
 	}
@@ -91,6 +86,7 @@ import { CONTACT_EMAIL } from "../lib/site";
 		CustomEase.get("brand-out") ?? CustomEase.create("brand-out", "0.16,1,0.3,1");
 
 	let triggers: ScrollTrigger[] = [];
+	let setupRoot: HTMLElement | null = null;
 
 	function killTriggers() {
 		triggers.forEach((t) => t.kill());
@@ -98,6 +94,9 @@ import { CONTACT_EMAIL } from "../lib/site";
 	}
 
 	function setup() {
+		const root = document.querySelector<HTMLElement>(".c-contact");
+		if (!root || root === setupRoot) return;
+		setupRoot = root;
 		const items = gsap.utils.toArray<HTMLElement>(".js-contact-reveal");
 		if (!items.length) return;
 		killTriggers();
@@ -127,6 +126,10 @@ import { CONTACT_EMAIL } from "../lib/site";
 		ScrollTrigger.refresh();
 	}
 
+	setup();
 	document.addEventListener("astro:page-load", setup);
-	document.addEventListener("astro:before-swap", killTriggers);
+	document.addEventListener("astro:before-swap", () => {
+		setupRoot = null;
+		killTriggers();
+	});
 </script>

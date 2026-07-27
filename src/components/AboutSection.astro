@@ -68,7 +68,7 @@ import { ABOUT } from "../lib/about";
 	.c-about__inner {
 		max-width: var(--container-content);
 		margin-inline: auto;
-		padding-inline: var(--spacing-m);
+		padding-inline: var(--content-gutter);
 		min-width: 0;
 	}
 	.c-about__title {
@@ -211,20 +211,12 @@ import { ABOUT } from "../lib/about";
 		}
 	}
 	@media (max-width: 30rem) {
-		.c-about__inner {
-			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
-		}
 		.c-about__title {
 			font-size: clamp(2.65rem, 12vw, 4rem);
 		}
 		.c-about__title-row {
 			--portrait-width: 1.3em;
 			--portrait-gap: 0.12em;
-		}
-	}
-	@media (min-width: 30.001rem) and (max-width: 48rem) {
-		.c-about__inner {
-			padding-inline: calc(var(--spacing-m) + var(--spacing-s));
 		}
 	}
 </style>
@@ -243,6 +235,7 @@ import { ABOUT } from "../lib/about";
 	let context: gsap.Context | null = null;
 	let generation = 0;
 	let titleSplits: SplitText[] = [];
+	let setupRoot: HTMLElement | null = null;
 
 	function cleanup() {
 		generation += 1;
@@ -253,10 +246,11 @@ import { ABOUT } from "../lib/about";
 	}
 
 	async function setup() {
+		const section = document.querySelector<HTMLElement>(".c-about");
+		if (!section || section === setupRoot) return;
+		setupRoot = section;
 		cleanup();
 		const currentGeneration = generation;
-		const section = document.querySelector<HTMLElement>(".c-about");
-		if (!section) return;
 
 		await whenRevealable();
 		if (currentGeneration !== generation || !document.contains(section)) return;
@@ -351,6 +345,10 @@ import { ABOUT } from "../lib/about";
 		ScrollTrigger.refresh();
 	}
 
+	void setup();
 	document.addEventListener("astro:page-load", setup);
-	document.addEventListener("astro:before-swap", cleanup);
+	document.addEventListener("astro:before-swap", () => {
+		setupRoot = null;
+		cleanup();
+	});
 </script>

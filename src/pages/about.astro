@@ -239,8 +239,10 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 
 <style>
 	.about {
-		--about-section-width: var(--container-content);
-		max-width: var(--container-content);
+		--about-section-width: 52rem;
+		--about-copy-width: 46rem;
+		--about-timeline-width: 42rem;
+		max-width: calc(var(--about-section-width) + (2 * var(--content-gutter)));
 		margin-inline: auto;
 		padding-inline: var(--content-gutter);
 		display: grid;
@@ -257,15 +259,17 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		max-width: var(--about-section-width);
 		margin-inline: auto;
 		display: grid;
-		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-		gap: clamp(2.5rem, 1.7rem + 3vw, 4.5rem);
-		align-items: center;
+		grid-template-columns: minmax(0, 1fr);
+		justify-items: center;
+		gap: var(--spacing-xl);
 		padding-top: var(--spacing-2xl);
 	}
 	.about__intro {
 		display: grid;
+		justify-items: center;
 		gap: var(--spacing-xs);
-		max-width: 42rem;
+		max-width: var(--about-copy-width);
+		text-align: center;
 	}
 	.about__title {
 		font-size: clamp(2.4rem, 2rem + 1.35vw, 3rem);
@@ -300,17 +304,17 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		max-width: var(--about-section-width);
 		margin-inline: auto;
 		display: grid;
-		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-		column-gap: var(--spacing-2xl);
-		row-gap: var(--spacing-xl);
-		align-items: stretch;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--spacing-xl);
 	}
 	.about__background-story {
-		display: contents;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		justify-items: center;
+		gap: var(--spacing-l);
+		text-align: center;
 	}
 	.about__background-lead {
-		grid-column: 1;
-		grid-row: 1;
 		font-family: var(--font-heading);
 		font-size: clamp(2.25rem, 1.95rem + 1.1vw, 3rem);
 		font-weight: 560;
@@ -321,36 +325,27 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		text-wrap: balance;
 	}
 	.about__background-header-copy {
-		grid-column: 2;
-		grid-row: 1;
-		align-self: end;
-		max-width: 62ch;
+		max-width: 46ch;
 		font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.2rem);
 		line-height: 1.65;
 		color: var(--text-muted);
 		text-wrap: pretty;
 	}
 	.about__background-chapters {
-		grid-column: 2;
-		grid-row: 2;
 		display: grid;
-		grid-template-rows: auto 1fr auto;
+		justify-items: center;
 		gap: var(--spacing-l);
 		min-width: 0;
 	}
 	.about__background-chapter {
+		width: 100%;
+		max-width: 58ch;
 		font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.2rem);
 		line-height: 1.65;
 		color: var(--text-muted);
-		text-wrap: pretty;
-	}
-	.about__background-chapter:nth-child(2) {
-		grid-row: 3;
-		align-self: end;
+		text-align: start;
 	}
 	.about__relics {
-		grid-row: 2;
-		align-self: center;
 		margin: 0;
 		padding: var(--spacing-s);
 		background: color-mix(in srgb, var(--bg), var(--text) 5%);
@@ -375,10 +370,12 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	}
 	.about__relics figcaption {
 		margin-top: var(--spacing-xs);
+		margin-inline: auto;
 		max-width: 68ch;
 		font-size: 0.75rem;
 		line-height: 1.45;
 		color: var(--text-muted);
+		text-align: center;
 		text-wrap: pretty;
 	}
 	.about__forum {
@@ -438,8 +435,6 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 
 	/* ── The relic: an editorial artifact inside the origin story ──────── */
 	.about__relic {
-		grid-column: 1;
-		grid-row: 2;
 		margin: 0;
 		width: 100%;
 		min-width: 0;
@@ -500,7 +495,8 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	}
 	.about__relic-cap {
 		margin-top: var(--spacing-xs);
-		text-align: left;
+		margin-inline: auto;
+		text-align: center;
 		font-size: 0.72rem;
 		color: var(--text-muted);
 		max-width: none;
@@ -523,6 +519,10 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		gap: var(--spacing-xs);
 		align-content: start;
 	}
+	.about__toolstack,
+	.about__jams {
+		text-align: center;
+	}
 	/* Icon dock — tiles stretch to fill the full card width (auto-fit collapses
 	 * the empty tracks, so 11 tiles share the row edge-to-edge on desktop and
 	 * wrap into fewer, larger tiles as the card narrows). */
@@ -531,6 +531,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		padding: 0;
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		gap: var(--spacing-2xs);
 		margin-top: var(--spacing-3xs);
 	}
@@ -576,8 +577,9 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 
 	.about__jams-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+		grid-template-columns: minmax(0, 1fr);
 		gap: var(--spacing-2xs);
+		width: 100%;
 	}
 	.about__jam-frame {
 		position: relative;
@@ -610,19 +612,18 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		max-width: var(--about-section-width);
 		margin-inline: auto;
 		display: grid;
-		grid-template-columns: minmax(18rem, 4fr) minmax(0, 8fr);
-		column-gap: var(--spacing-xl);
-		align-items: start;
+		grid-template-columns: minmax(0, 1fr);
 	}
 	.about__experience-header {
-		position: sticky;
-		top: 7rem;
 		display: grid;
 		grid-template-columns: 1fr;
+		justify-items: center;
 		align-items: start;
 		gap: var(--spacing-s);
-		max-width: none;
-		margin-bottom: 0;
+		max-width: var(--about-copy-width);
+		margin-inline: auto;
+		margin-bottom: var(--spacing-xl);
+		text-align: center;
 	}
 	.about__experience-title {
 		font-size: clamp(2.25rem, 1.95rem + 1vw, 3rem);
@@ -632,7 +633,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		white-space: nowrap;
 	}
 	.about__experience-intro {
-		max-width: 40ch;
+		max-width: 44ch;
 		color: var(--text-muted);
 		font-size: clamp(1rem, 0.97rem + 0.12vw, 1.0625rem);
 		line-height: 1.6;
@@ -640,12 +641,14 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	}
 	.about__timeline-wrap {
 		position: relative;
-		grid-column: 2;
+		width: min(100%, var(--about-timeline-width));
+		margin-inline: auto;
 	}
 	.about__experience-cta {
-		grid-column: 2;
 		display: flex;
 		justify-content: flex-start;
+		width: min(100%, var(--about-timeline-width));
+		margin-inline: auto;
 		margin-top: var(--spacing-xl);
 		padding-left: calc(3rem + var(--spacing-l));
 	}
@@ -764,36 +767,10 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	}
 
 	/* ── Responsive ────────────────────────────────────────────────────── */
-	/* Stack the hero (gallery drops below the intro) before the columns cramp. */
+	/* Tighten copy widths and captions as the centered rail narrows. */
 	@media (max-width: 60rem) {
-		.about__hero {
-			grid-template-columns: 1fr;
-			gap: var(--spacing-l);
-		}
 		.about__intro {
 			max-width: 46ch;
-		}
-		.about__background {
-			grid-template-columns: 1fr;
-			gap: var(--spacing-l);
-		}
-		.about__background-lead,
-		.about__background-header-copy,
-		.about__relic,
-		.about__background-chapters {
-			grid-column: 1;
-			grid-row: auto;
-		}
-		.about__background-chapters {
-			grid-template-rows: auto;
-		}
-		.about__background-chapter:nth-child(2) {
-			grid-row: auto;
-			align-self: start;
-		}
-		.about__relics {
-			grid-row: auto;
-			align-self: auto;
 		}
 		.about__relic-cap {
 			white-space: normal;
@@ -801,15 +778,6 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		}
 		.about__background-lead {
 			max-width: 26ch;
-		}
-		.about__experience-header {
-			position: static;
-			grid-template-columns: 1fr;
-			gap: var(--spacing-s);
-			margin-bottom: var(--spacing-xl);
-		}
-		.about__experience {
-			display: block;
 		}
 		.about__experience-title {
 			white-space: normal;
@@ -861,6 +829,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		CustomEase.get("brand-out") ?? CustomEase.create("brand-out", "0.16,1,0.3,1");
 
 	let triggers: ScrollTrigger[] = [];
+	let entranceCalls: gsap.core.Tween[] = [];
 	let previewCleanups: (() => void)[] = [];
 	let timelineCleanup: (() => void) | undefined;
 	let setupRoot: HTMLElement | null = null;
@@ -868,6 +837,10 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	function killTriggers() {
 		triggers.forEach((t) => t.kill());
 		triggers = [];
+	}
+	function killEntranceCalls() {
+		entranceCalls.forEach((call) => call.kill());
+		entranceCalls = [];
 	}
 	function killForumPreviews() {
 		previewCleanups.forEach((cleanup) => cleanup());
@@ -882,7 +855,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 		gsap.to(els, {
 			autoAlpha: 1,
 			y: 0,
-			duration: 0.8,
+			duration: 0.55,
 			delay,
 			ease: EASE_OUT,
 			stagger: 0.08,
@@ -899,6 +872,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 			root.querySelectorAll(".js-about-reveal"),
 		);
 		killTriggers();
+		killEntranceCalls();
 		setupForumPreviews();
 		setupStepTimeline();
 
@@ -907,43 +881,49 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 			return;
 		}
 
-		gsap.set(items, { autoAlpha: 0, y: 40 });
+		gsap.set(items, { autoAlpha: 0, y: 24 });
 
-		// ScrollTrigger.batch won't fire onEnter for items ALREADY above the start
-		// line at load (the page's intro is in view immediately) — so split the
-		// work: reveal what's on-screen now, scroll-reveal the rest per item.
-		const threshold = window.innerHeight * 0.9;
-		const onLoad: HTMLElement[] = [];
-		items.forEach((el) => {
-			if (el.getBoundingClientRect().top < threshold) onLoad.push(el);
-			else
-				triggers.push(
-					ScrollTrigger.create({
-						trigger: el,
-						start: "top 88%",
-						once: true,
-						onEnter: () => reveal(el),
-					}),
-				);
-		});
-		// Hold the in-view reveals AND the layout-heavy ScrollTrigger.refresh until
-		// the cross-fade has settled, so neither competes with the transition (the
-		// navigation freeze). Below-fold items keep their own scroll triggers (set up
-		// above). Resolves immediately on a fresh load, so that path is unchanged.
+		const hero = root.querySelector<HTMLElement>(".about__hero");
+		const heroItems = items.filter((item) => hero?.contains(item));
+		const gallery = heroItems.filter((item) =>
+			item.classList.contains("about__gallery"),
+		);
+		const heroCopy = heroItems.filter(
+			(item) => !item.classList.contains("about__gallery"),
+		);
+		const belowHero = items.filter((item) => !heroItems.includes(item));
+
+		// Establish the hero copy first, bring the gallery in as its closing beat,
+		// then arm the rest of the page. This keeps a tall viewport from revealing
+		// the next section before the now-stacked gallery has arrived.
 		whenRevealable().then(() => {
-			if (onLoad.length) {
-				const gallery = onLoad.filter((item) =>
-					item.classList.contains("about__gallery"),
-				);
-				const introItems = onLoad.filter(
-					(item) => !item.classList.contains("about__gallery"),
-				);
-				if (introItems.length) reveal(introItems);
-				// The portrait stack is the hero's closing beat. Let the copy establish
-				// itself first, matching the calmer staging of the deployed site.
-				if (gallery.length) reveal(gallery, 1);
-			}
-			ScrollTrigger.refresh();
+			if (!root.isConnected || root !== setupRoot) return;
+			if (heroCopy.length) reveal(heroCopy);
+			if (gallery.length) reveal(gallery, 0.28);
+
+			entranceCalls.push(
+				gsap.delayedCall(0.62, () => {
+					if (!root.isConnected || root !== setupRoot) return;
+					const threshold = window.innerHeight * 0.88;
+
+					belowHero.forEach((item) => {
+						if (item.getBoundingClientRect().top < threshold) {
+							reveal(item);
+							return;
+						}
+
+						triggers.push(
+							ScrollTrigger.create({
+								trigger: item,
+								start: "top 88%",
+								once: true,
+								onEnter: () => reveal(item),
+							}),
+						);
+					});
+					ScrollTrigger.refresh();
+				}),
+			);
 		});
 	}
 
@@ -1251,6 +1231,7 @@ const DESIGN_FORUMS_PHRASE = "design forums";
 	document.addEventListener("astro:before-swap", () => {
 		setupRoot = null;
 		killTriggers();
+		killEntranceCalls();
 		killForumPreviews();
 		killTimeline();
 	});

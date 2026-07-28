@@ -266,15 +266,11 @@ const PHOTOS = ABOUT.photos;
 				});
 			}
 
-			// The gallery as a whole fades/slides in first (the about-page reveal
-			// animates this [data-reveal] wrapper); a beat later the stacked cards fan
-			// out. Init itself is already deferred past the cross-fade (see the
-			// astro:page-load handler), so the fan-out just trails it by a beat.
-			// Keep the fan-out aligned with the gallery wrapper's delayed hero reveal
-			// (about.astro). The previous 0.45s start made the cards move while the
-			// intro and gallery were still arriving together, which felt rushed.
+			// The wrapper follows the hero copy, then the cards fan out while it
+			// settles. Keep this short now that the gallery sits above the story
+			// instead of beside the intro.
 			fanOutCalls.push(
-				gsap.delayedCall(0.95, () => {
+				gsap.delayedCall(0.45, () => {
 					if (!slider.isConnected) return;
 					renderCards(activeIndex);
 				}),

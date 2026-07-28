@@ -1,6 +1,7 @@
 # Portfolio
 
-Astro portfolio for brenodaroz.com.
+Astro portfolio for breno.work. The legacy brenodaroz.com domains should
+permanently redirect to the matching breno.work paths.
 
 ## Commands
 

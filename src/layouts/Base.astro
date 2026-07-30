@@ -22,7 +22,12 @@ const {
 const siteName = "Breno";
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 // Absolute URL so social crawlers (LinkedIn, Slack, X) can fetch the card image.
-const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
+const ogImage = new URL(
+	"/og-design-meets-front-end.png",
+	Astro.site ?? Astro.url,
+);
+const ogImageAlt =
+	"Breno Daroz — Design meets front-end. Fast, accessible and scalable Webflow systems.";
 ---
 
 <!doctype html>
@@ -52,8 +57,10 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url);
 		<meta property="og:image" content={ogImage} />
 		<meta property="og:image:width" content="1200" />
 		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content={ogImageAlt} />
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:image" content={ogImage} />
+		<meta name="twitter:image:alt" content={ogImageAlt} />
 
 		<!-- No-flash theme init: runs before paint, before <body> renders.
 			 Preference is persisted in a `theme` cookie (see ThemeToggle.astro). -->
